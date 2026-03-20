@@ -6,482 +6,290 @@
 <title>Court Manager</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-/* ═══════════════ VARIABLES ═══════════════ */
-:root {
-  --primary:#4f46e5; --primary-h:#4338ca;
-  --bg:#f8fafc; --surface:#fff;
-  --text:#1e293b; --muted:#64748b;
-  --border:#e2e8f0;
-  --danger:#ef4444; --danger-h:#dc2626;
-  --success:#10b981; --success-h:#059669;
-  --amber:#f59e0b; --amber-h:#d97706;
-  --info:#0e7ac4;
-  --rad-lg:16px; --rad-md:12px;
-  --sh-sm:0 1px 3px rgba(0,0,0,.1);
-  --sh-md:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -1px rgba(0,0,0,.06);
-}
-/* ═══════════════ RESET ═══════════════ */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding-bottom:80px}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f8fafc;color:#1e293b;min-height:100vh;padding-bottom:80px}
 button{cursor:pointer;font-family:inherit}
-
-/* ═══════════════ APP HEADER ═══════════════ */
-#app-header{
-  background:var(--primary);color:#fff;
-  padding:14px 16px 0;
-  position:sticky;top:0;z-index:200;
-  box-shadow:var(--sh-md);
+:root{
+  --p:#4f46e5;--ph:#4338ca;--bg:#f8fafc;--sur:#fff;
+  --txt:#1e293b;--mu:#64748b;--bdr:#e2e8f0;
+  --dan:#ef4444;--danh:#dc2626;--suc:#10b981;--such:#059669;
+  --amb:#f59e0b;--ambh:#d97706;--inf:#0e7ac4;
+  --rl:16px;--rm:12px;
+  --ss:0 1px 3px rgba(0,0,0,.1);
+  --sm:0 4px 6px -1px rgba(0,0,0,.1),0 2px 4px -1px rgba(0,0,0,.06);
 }
-#app-header-title{font-size:18px;font-weight:700;text-align:center;padding-bottom:10px}
-
-/* ═══════════════ TAB BAR ═══════════════ */
+/* ── APP HEADER ── */
+#app-hdr{background:var(--p);color:#fff;padding:13px 16px 0;position:sticky;top:0;z-index:200;box-shadow:var(--sm)}
+#app-hdr-title{font-size:17px;font-weight:700;text-align:center;padding-bottom:10px}
 #tab-bar{display:flex;border-top:1px solid #ffffff30}
-.tab-btn{
-  flex:1;padding:11px 8px;background:none;border:none;color:#ffffffaa;
-  font-size:14px;font-weight:600;border-bottom:3px solid transparent;transition:all .15s;
-}
-.tab-btn.active{color:#fff;border-bottom:3px solid #fff;background:#ffffff18}
-
-/* ═══════════════ TAB CONTENT ═══════════════ */
-.tab-content{display:none}
-.tab-content.active{display:block}
-
-/* ═══════════════ CONTAINER ═══════════════ */
-.container{padding:14px;max-width:1000px;margin:0 auto}
-.section{
-  background:var(--surface);padding:18px;margin-bottom:14px;
-  border-radius:var(--rad-lg);box-shadow:var(--sh-sm);border:1px solid var(--border);
-}
-h3{margin:0 0 12px;font-size:16px;color:var(--text);display:flex;align-items:center;gap:8px}
-
-/* ═══════════════ INPUTS ═══════════════ */
+.tab-btn{flex:1;padding:11px 8px;background:none;border:none;color:#ffffffaa;font-size:14px;font-weight:600;border-bottom:3px solid transparent;transition:all .15s}
+.tab-btn.on{color:#fff;border-bottom:3px solid #fff;background:#ffffff18}
+/* ── TAB CONTENT ── */
+.tab-c{display:none}.tab-c.on{display:block}
+/* ── LAYOUT ── */
+.cnt{padding:14px;max-width:1000px;margin:0 auto}
+.sec{background:var(--sur);padding:18px;margin-bottom:14px;border-radius:var(--rl);box-shadow:var(--ss);border:1px solid var(--bdr)}
+h3{margin:0 0 12px;font-size:15px;color:var(--txt);display:flex;align-items:center;gap:8px}
+/* ── INPUTS ── */
 input[type=text],input[type=date],select{
   width:100%;padding:12px 14px;margin-top:6px;font-size:15px;
-  border-radius:var(--rad-md);border:1.5px solid var(--border);
-  background:var(--bg);color:var(--text);
+  border-radius:var(--rm);border:1.5px solid var(--bdr);
+  background:var(--bg);color:var(--txt);font-family:inherit;outline:none;
   transition:border-color .2s,box-shadow .2s;appearance:none;
-  font-family:inherit;outline:none;
 }
-input[type=text]:focus,input[type=date]:focus,select:focus{
-  border-color:var(--primary);box-shadow:0 0 0 3px rgba(79,70,229,.15);background:var(--surface);
-}
-input[type=file]{
-  width:100%;padding:10px;margin-top:6px;font-size:14px;
-  border-radius:var(--rad-md);border:1.5px solid var(--border);
-  background:var(--surface);
-}
-
-/* ═══════════════ BUTTONS ═══════════════ */
-.btn{
-  width:100%;padding:13px 16px;margin-top:10px;font-size:14px;font-weight:600;
-  border-radius:var(--rad-md);border:none;cursor:pointer;background:var(--primary);color:#fff;
-  box-shadow:var(--sh-md);transition:transform .1s,background .2s;
-  display:flex;justify-content:center;align-items:center;gap:8px;
-}
-.btn:active{transform:scale(.98)}
-.btn:hover{background:var(--primary-h)}
-.btn-danger{background:var(--danger)}.btn-danger:hover{background:var(--danger-h)}
-.btn-success{background:var(--success)}.btn-success:hover{background:var(--success-h)}
-.btn-amber{background:var(--amber)}.btn-amber:hover{background:var(--amber-h)}
-.btn-grey{background:#94a3b8}.btn-grey:hover{background:#64748b}
-.btn-purple{background:#7c3aed}.btn-purple:hover{background:#6d28d9}
-.btn-info{background:var(--info)}
-.btn-outline-purple{background:transparent;border:2px solid #7c3aed;color:#7c3aed;box-shadow:none}
-.btn-outline-purple:hover{background:#ede9fe;color:#6d28d9}
+input[type=text]:focus,input[type=date]:focus,select:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(79,70,229,.15);background:var(--sur);}
+input[type=file]{width:100%;padding:10px;margin-top:6px;font-size:14px;border-radius:var(--rm);border:1.5px solid var(--bdr);background:var(--sur)}
+/* ── BUTTONS ── */
+.btn{width:100%;padding:13px 16px;margin-top:10px;font-size:14px;font-weight:600;border-radius:var(--rm);border:none;background:var(--p);color:#fff;box-shadow:var(--sm);transition:transform .1s,background .2s;display:flex;justify-content:center;align-items:center;gap:8px}
+.btn:active{transform:scale(.98)}.btn:hover{background:var(--ph)}
+.btn-d{background:var(--dan)}.btn-d:hover{background:var(--danh)}
+.btn-s{background:var(--suc)}.btn-s:hover{background:var(--such)}
+.btn-a{background:var(--amb)}.btn-a:hover{background:var(--ambh)}
+.btn-g{background:#94a3b8}.btn-g:hover{background:#64748b}
+.btn-pu{background:#7c3aed}.btn-pu:hover{background:#6d28d9}
+.btn-opu{background:transparent;border:2px solid #7c3aed;color:#7c3aed;box-shadow:none}.btn-opu:hover{background:#ede9fe}
 .btn-sm{width:auto;padding:6px 14px;font-size:12px;margin-top:0}
-
-/* ═══════════════ DASHBOARD ═══════════════ */
-.dashboard{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
-@media(min-width:600px){.dashboard{grid-template-columns:repeat(4,1fr)}}
-.card{
-  background:var(--surface);padding:14px 10px;border-radius:var(--rad-lg);
-  text-align:center;font-weight:600;font-size:13px;color:var(--muted);
-  box-shadow:var(--sh-sm);border:1px solid var(--border);
-}
-.card span{font-size:22px;color:var(--primary);font-weight:700;display:block}
-
-/* ═══════════════ TABLE ═══════════════ */
-.table-wrap{
-  background:var(--surface);border-radius:var(--rad-lg);
-  overflow-x:auto;box-shadow:var(--sh-sm);border:1px solid var(--border);margin-bottom:14px;
-}
+/* ── DASHBOARD ── */
+.dash{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+@media(min-width:600px){.dash{grid-template-columns:repeat(4,1fr)}}
+.card{background:var(--sur);padding:14px 10px;border-radius:var(--rl);text-align:center;font-weight:600;font-size:13px;color:var(--mu);box-shadow:var(--ss);border:1px solid var(--bdr)}
+.card span{font-size:22px;color:var(--p);font-weight:700;display:block}
+/* ── TABLE ── */
+.twrap{background:var(--sur);border-radius:var(--rl);overflow-x:auto;box-shadow:var(--ss);border:1px solid var(--bdr);margin-bottom:14px}
 table{width:100%;border-collapse:collapse;min-width:900px;text-align:left}
-th,td{border-bottom:1px solid var(--border);padding:11px 14px;font-size:13px}
+th,td{border-bottom:1px solid var(--bdr);padding:11px 14px;font-size:13px}
 th{background:#f1f5f9;font-weight:600;position:sticky;top:0;z-index:10}
-td input{
-  width:100%;border:1px solid transparent;padding:7px;margin:0;
-  font-size:13px;background:transparent;border-radius:6px;
-}
-td input:focus{background:var(--surface);border:1px solid var(--primary)}
+td input{width:100%;border:1px solid transparent;padding:7px;font-size:13px;background:transparent;border-radius:6px}
+td input:focus{background:var(--sur);border:1px solid var(--p)}
 tr:last-child td{border-bottom:none}
 tr:hover{background:#f8fafc}
-
-/* ═══════════════ FILTER TABS ═══════════════ */
-.filter-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-.filter-tab{
-  flex:1;min-width:0;padding:9px 8px;border-radius:var(--rad-md);
-  border:2px solid var(--border);background:var(--bg);color:var(--muted);
-  font-size:12px;font-weight:600;cursor:pointer;text-align:center;
-  box-shadow:none;margin-top:0;display:flex;flex-direction:column;align-items:center;gap:2px;
-}
-.filter-tab .tab-count{font-size:17px;font-weight:700}
-.filter-tab.ft-all{background:#ede9fe;border-color:var(--primary);color:var(--primary)}
-.filter-tab.ft-psent{background:#fff7ed;border-color:var(--amber);color:var(--amber-h)}
-.filter-tab.ft-precvd{background:#f0fdf4;border-color:var(--success);color:var(--success-h)}
-
-/* ═══════════════ DROPDOWN ═══════════════ */
-.drop-wrap{position:relative}
-#caseDropdown{
-  position:absolute;top:calc(100% + 4px);left:0;right:0;
-  background:var(--surface);border:1.5px solid var(--primary);
-  border-radius:var(--rad-md);max-height:220px;overflow-y:auto;
-  z-index:500;box-shadow:var(--sh-md);display:none;
-}
-.drop-item{
-  padding:10px 14px;font-size:13px;cursor:pointer;
-  border-bottom:1px solid var(--border);
-}
-.drop-item:last-child{border-bottom:none}
-.drop-item:hover,.drop-item.act{background:#ede9fe}
-.drop-cn{font-weight:700;color:var(--primary);font-size:14px}
-.drop-pt{color:var(--muted);font-size:11px;margin-top:2px}
-
-/* ═══════════════ STATUS MESSAGES ═══════════════ */
-.status-msg{
-  margin-top:10px;padding:10px 14px;border-radius:var(--rad-md);
-  font-size:14px;font-weight:600;display:none;
-}
-.status-msg.s-ok{background:#dcfce7;color:#15803d;border:1px solid #86efac;display:block}
-.status-msg.s-err{background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;display:block}
-.status-msg.s-info{background:#ede9fe;color:var(--primary);border:1px solid #c4b5fd;display:block}
-
-/* ═══════════════ GRID ACTIONS ═══════════════ */
-.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
-.grid-2 .btn{margin-top:0}
-.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
-
-/* ═══════════════ SCANNER OVERLAY (shared) ═══════════════ */
-#scan-overlay{
-  display:none;position:fixed;inset:0;z-index:600;
-  background:#000000f0;flex-direction:column;align-items:center;justify-content:center;gap:14px;
-}
-#scan-overlay.open{display:flex}
-#scan-box{
-  position:relative;width:min(88vw,320px);height:min(88vw,320px);
-  border-radius:16px;overflow:hidden;box-shadow:0 8px 48px #000a;background:#111;
-}
-#scan-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
-#scan-canvas-hidden{display:none}
-.corner,.corner2{position:absolute;inset:0;pointer-events:none}
-.corner::before,.corner::after,.corner2::before,.corner2::after{
-  content:'';position:absolute;width:34px;height:34px;border-color:#f0a500;border-style:solid;
-}
-.corner::before{top:12px;left:12px;border-width:3px 0 0 3px;border-radius:5px 0 0 0}
-.corner::after{top:12px;right:12px;border-width:3px 3px 0 0;border-radius:0 5px 0 0}
-.corner2::before{bottom:12px;left:12px;border-width:0 0 3px 3px;border-radius:0 0 0 5px}
-.corner2::after{bottom:12px;right:12px;border-width:0 3px 3px 0;border-radius:0 0 5px 0}
+/* ── FILTER TABS ── */
+.ftabs{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.ftab{flex:1;min-width:0;padding:9px 8px;border-radius:var(--rm);border:2px solid var(--bdr);background:var(--bg);color:var(--mu);font-size:12px;font-weight:600;cursor:pointer;text-align:center;box-shadow:none;margin-top:0;display:flex;flex-direction:column;align-items:center;gap:2px}
+.ftab .tc{font-size:17px;font-weight:700}
+.ft-all{background:#ede9fe;border-color:var(--p);color:var(--p)}
+.ft-ps{background:#fff7ed;border-color:var(--amb);color:var(--ambh)}
+.ft-pr{background:#f0fdf4;border-color:var(--suc);color:var(--such)}
+/* ── DROPDOWN ── */
+.dwrap{position:relative}
+#caseDD{position:absolute;top:calc(100% + 4px);left:0;right:0;background:var(--sur);border:1.5px solid var(--p);border-radius:var(--rm);max-height:220px;overflow-y:auto;z-index:500;box-shadow:var(--sm);display:none}
+.di{padding:10px 14px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--bdr)}
+.di:last-child{border-bottom:none}.di:hover,.di.act{background:#ede9fe}
+.di-cn{font-weight:700;color:var(--p);font-size:14px}.di-pt{color:var(--mu);font-size:11px;margin-top:2px}
+/* ── STATUS ── */
+.smsg{margin-top:10px;padding:10px 14px;border-radius:var(--rm);font-size:14px;font-weight:600;display:none}
+.s-ok{background:#dcfce7;color:#15803d;border:1px solid #86efac;display:block}
+.s-err{background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;display:block}
+.s-info{background:#ede9fe;color:var(--p);border:1px solid #c4b5fd;display:block}
+.s-warn{background:#fff7ed;color:#92400e;border:1px solid #fcd34d;display:block}
+/* ── GRID 2 ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.g2 .btn{margin-top:0}
+/* ── FLOAT BTNS ── */
+.flt{position:fixed;bottom:16px;right:14px;display:flex;flex-direction:column;gap:8px;z-index:100}
+.flt .btn{width:145px;box-shadow:0 6px 18px rgba(0,0,0,.25);margin-top:0;font-size:13px;padding:12px 10px}
+/* ── SCANNER OVERLAY ── */
+#scan-ov{display:none;position:fixed;inset:0;z-index:600;background:#000000f0;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+#scan-ov.on{display:flex}
+#scan-box{position:relative;width:min(88vw,320px);height:min(88vw,320px);border-radius:16px;overflow:hidden;box-shadow:0 8px 48px #000a;background:#111}
+#scan-vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.cr,.cr2{position:absolute;inset:0;pointer-events:none}
+.cr::before,.cr::after,.cr2::before,.cr2::after{content:'';position:absolute;width:34px;height:34px;border-color:#f0a500;border-style:solid}
+.cr::before{top:12px;left:12px;border-width:3px 0 0 3px;border-radius:5px 0 0 0}
+.cr::after{top:12px;right:12px;border-width:3px 3px 0 0;border-radius:0 5px 0 0}
+.cr2::before{bottom:12px;left:12px;border-width:0 0 3px 3px;border-radius:0 0 0 5px}
+.cr2::after{bottom:12px;right:12px;border-width:0 3px 3px 0;border-radius:0 0 5px 0}
 @keyframes sl{0%{top:12%}100%{top:84%}}
-.sline{
-  position:absolute;left:8%;right:8%;height:2.5px;pointer-events:none;
-  background:linear-gradient(90deg,transparent,#f0a500,#fff8,#f0a500,transparent);
-  animation:sl 2s ease-in-out infinite alternate;box-shadow:0 0 8px #f0a500aa;
-}
-#qr-highlight{
-  position:absolute;border:2.5px solid #18a558;border-radius:6px;
-  box-shadow:0 0 12px #18a55888;display:none;pointer-events:none;transition:all .1s;
-}
+.sline{position:absolute;left:8%;right:8%;height:2.5px;pointer-events:none;background:linear-gradient(90deg,transparent,#f0a500,#fff8,#f0a500,transparent);animation:sl 2s ease-in-out infinite alternate;box-shadow:0 0 8px #f0a500aa}
+#qr-hl{position:absolute;border:2.5px solid #18a558;border-radius:6px;box-shadow:0 0 12px #18a55888;display:none;pointer-events:none}
 @keyframes flash{0%{opacity:.55}100%{opacity:0}}
 #scan-flash{position:absolute;inset:0;background:#fff;pointer-events:none;opacity:0}
 #scan-flash.go{animation:flash .4s ease-out forwards}
-#scan-status-bar{
-  position:absolute;bottom:0;left:0;right:0;background:#000000cc;
-  color:#fff;text-align:center;font-size:12px;padding:9px 12px;font-weight:500;
-}
-#scan-result-card{
-  display:none;width:min(88vw,320px);border-radius:12px;
-  padding:12px 18px;color:#fff;font-size:14px;font-weight:700;text-align:center;
-}
+#scan-sb{position:absolute;bottom:0;left:0;right:0;background:#000000cc;color:#fff;text-align:center;font-size:12px;padding:9px 12px;font-weight:500}
+#scan-card{display:none;width:min(88vw,320px);border-radius:12px;padding:12px 18px;color:#fff;font-size:14px;font-weight:700;text-align:center}
 #scan-ctrl{width:min(88vw,320px);display:flex;flex-direction:column;gap:9px}
-#scan-mode-lbl{color:#ffffffaa;font-size:12px;text-align:center;background:#ffffff12;border-radius:8px;padding:8px}
+#scan-ml{color:#ffffffaa;font-size:12px;text-align:center;background:#ffffff12;border-radius:8px;padding:8px}
 #cont-btn{background:#ffffff18;border:1.5px solid #ffffff44;color:#fff;border-radius:10px;padding:10px;font-size:13px;font-weight:600}
 #cont-btn.on{background:#18a55830;border-color:#18a558;color:#5effa0}
-#scan-close-btn{background:#ffffff18;border:1.5px solid #ffffff44;color:#fff;border-radius:10px;padding:12px;font-size:14px;font-weight:600}
-
-/* ═══════════════ FLOATING SCAN BUTTONS (CFM) ═══════════════ */
-.float-scan{position:fixed;bottom:16px;right:14px;display:flex;flex-direction:column;gap:8px;z-index:100}
-.float-scan .btn{width:145px;box-shadow:0 6px 18px rgba(0,0,0,.25);margin-top:0;font-size:13px;padding:12px 10px}
-
-/* ═══════════════ POPUP / MODAL ═══════════════ */
-.modal-overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);
-  display:none;z-index:700;align-items:flex-end;
-}
-.modal-overlay.open{display:flex}
-.modal-sheet{
-  background:var(--surface);border-radius:18px 18px 0 0;
-  padding:20px;width:100%;max-height:88vh;overflow-y:auto;
-  box-shadow:0 -4px 24px rgba(0,0,0,.2);
-}
-.modal-overlay.center-modal{align-items:center;justify-content:center}
-.modal-overlay.center-modal .modal-sheet{
-  border-radius:var(--rad-lg);max-width:400px;width:90%;
-  animation:slideUp .3s ease-out;
-}
-@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.modal-title{color:var(--primary);font-weight:700;font-size:16px;margin-bottom:4px}
-.modal-sub{color:var(--muted);font-size:13px;margin-bottom:16px}
-
-/* ═══════════════ HIGHLIGHT ═══════════════ */
+#scan-close{background:#ffffff18;border:1.5px solid #ffffff44;color:#fff;border-radius:10px;padding:12px;font-size:14px;font-weight:600}
+/* open-scan btn */
+.osb{display:flex;align-items:center;gap:12px;background:var(--p);color:#fff;border-radius:12px;padding:14px 18px;font-size:14px;font-weight:600;width:100%;box-shadow:0 4px 16px rgba(79,70,229,.3);margin-top:4px;border:none}
+.osb .ic{font-size:24px}
+/* ── MODAL ── */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;z-index:700;align-items:flex-end}
+.modal.on{display:flex}
+.modal.center{align-items:center;justify-content:center}
+.msh{background:var(--sur);border-radius:18px 18px 0 0;padding:20px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 -4px 24px rgba(0,0,0,.2)}
+.modal.center .msh{border-radius:var(--rl);max-width:420px;width:92%;animation:su .3s ease-out}
+@keyframes su{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.mt{color:var(--p);font-weight:700;font-size:16px;margin-bottom:4px}
+.msub{color:var(--mu);font-size:13px;margin-bottom:14px}
+/* ── HIGHLIGHT ── */
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .hl{background:#fef08a!important;animation:pulse 1s 3}
-
-/* ═══════════════ BUNDLE STYLES ═══════════════ */
-#bundle-tab .stitle{font-weight:700;font-size:15px;margin-bottom:14px}
-#bundle-tab .lbl{
-  color:var(--muted);font-size:11px;letter-spacing:.5px;font-weight:600;
-  text-transform:uppercase;margin-bottom:7px;margin-top:14px;display:block;
-}
-#bundle-tab .lbl.mt0{margin-top:0}
+/* ── BUNDLE STYLES ── */
+.blbl{color:var(--mu);font-size:11px;letter-spacing:.5px;font-weight:600;text-transform:uppercase;margin-bottom:7px;margin-top:14px;display:block}
+.blbl.mt0{margin-top:0}
 .dgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px}
-.db{
-  background:#f7f8fc;color:var(--muted);border:1px solid var(--border);
-  border-radius:6px;padding:6px 2px;font-size:12px;font-weight:500;
-  border:none;cursor:pointer;
-}
-.db.on{background:var(--primary);color:#fff;font-weight:700}
+.db{background:#f7f8fc;color:var(--mu);border:1px solid var(--bdr);border-radius:6px;padding:6px 2px;font-size:12px;font-weight:500;cursor:pointer}
+.db.on{background:var(--p);color:#fff;font-weight:700;border-color:var(--p)}
 .db:active{transform:scale(.93)}
 .crow{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:4px}
-.cb{
-  background:#f7f8fc;color:var(--muted);border:1.5px solid var(--border);
-  border-radius:8px;padding:8px 18px;font-size:16px;font-weight:700;cursor:pointer;
-}
-.cb.on{background:var(--primary);color:#fff;border-color:var(--primary)}
+.cb{background:#f7f8fc;color:var(--mu);border:1.5px solid var(--bdr);border-radius:8px;padding:8px 18px;font-size:16px;font-weight:700;cursor:pointer}
+.cb.on{background:var(--p);color:#fff;border-color:var(--p)}
 .cb:active{transform:scale(.93)}
-.slot-prev{
-  background:#e8eeff;border:1.5px solid var(--primary);border-radius:10px;
-  padding:10px 14px;margin-top:12px;font-size:13px;color:var(--muted);
-}
-.slot-prev strong{color:var(--primary);font-weight:700}
-.sd-add-btn{
-  background:#f7f8fc;border:1.5px dashed var(--border);color:var(--muted);
-  border-radius:8px;padding:9px 14px;font-size:12px;margin-top:8px;
-  display:inline-block;cursor:pointer;border:1.5px dashed var(--border);
-}
-.clr-btn{
-  background:none;border:1px solid rgba(239,68,68,.4);color:var(--danger);
-  border-radius:4px;padding:2px 8px;font-size:10px;margin-left:8px;font-weight:600;
-}
-.divider{height:1px;background:var(--border);margin:14px 0}
-
-/* Bundle grid slots */
+.sprev{background:#e8eeff;border:1.5px solid var(--p);border-radius:10px;padding:10px 14px;margin-top:12px;font-size:13px;color:var(--mu)}
+.sprev strong{color:var(--p);font-weight:700}
+.sdadd{background:#f7f8fc;border:1.5px dashed var(--bdr);color:var(--mu);border-radius:8px;padding:9px 14px;font-size:12px;margin-top:8px;cursor:pointer;display:inline-block}
+.clrbtn{background:none;border:1px solid rgba(239,68,68,.4);color:var(--dan);border-radius:4px;padding:2px 8px;font-size:10px;margin-left:8px;font-weight:600}
+.div{height:1px;background:var(--bdr);margin:14px 0}
+/* bundle grid */
 .bsec{margin-bottom:20px}
-.dbadge{background:var(--primary);color:#fff;border-radius:7px;padding:3px 13px;font-weight:700;font-size:14px;display:inline-block;margin-right:8px}
+.dbadge{background:var(--p);color:#fff;border-radius:7px;padding:3px 13px;font-weight:700;font-size:14px;display:inline-block;margin-right:8px}
 .dshdr{display:flex;align-items:center;margin-bottom:9px}
 .sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
-.sc{border-radius:11px;padding:11px 12px;text-align:left;width:100%;border:2px solid;cursor:pointer;transition:all .15s;box-shadow:var(--sh-sm)}
+.sc{border-radius:11px;padding:11px 12px;text-align:left;width:100%;border:2px solid;cursor:pointer;transition:all .15s;box-shadow:var(--ss)}
 .sc:active{transform:scale(.97)}
-.sc-e{background:#fff;border-color:var(--border)}
-.sc-h{background:#fffbf0;border-color:#d9770680}
-.sc-f{background:#fff5f5;border-color:#e0303080}
-.sc-m{background:#fff0f0;border-color:var(--danger)}
-.sc.rm{border-color:var(--amber)!important}
-.sc-e .scol{color:var(--muted)}
-.sc-h .scol{color:var(--amber-h)}
-.sc-f .scol,.sc-m .scol{color:var(--danger)}
+.sc-e{background:#fff;border-color:var(--bdr)}.sc-h{background:#fffbf0;border-color:#d9770680}.sc-f{background:#fff5f5;border-color:#e0303080}.sc-m{background:#fff0f0;border-color:var(--dan)}
+.sc.rm{border-color:var(--amb)!important}
+.sc-e .scol{color:var(--mu)}.sc-h .scol{color:var(--ambh)}.sc-f .scol,.sc-m .scol{color:var(--dan)}
 .scol{font-weight:800;font-size:22px;line-height:1}
-.ssub{color:var(--info);font-size:10px;margin-top:2px;font-weight:600}
-.scnt{font-size:11px;margin-top:4px;color:var(--muted)}
-.smiss{color:var(--danger);font-size:10px;font-weight:700;margin-top:2px}
-.rmfb{display:block;width:100%;background:#d9770614;border:1px solid #d9770640;color:var(--amber-h);border-radius:5px;padding:4px 7px;font-size:10px;margin-top:4px;text-align:left;font-weight:600;cursor:pointer}
-.bfc{background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:11px 13px;margin-bottom:9px;box-shadow:var(--sh-sm)}
-.bfc.miss{border-color:var(--danger);background:#fff5f5}
-.bfc-hdr{display:flex;justify-content:space-between;align-items:center}
-.bfid{color:var(--primary);font-weight:700;font-size:15px}
-.miss-badge{color:var(--danger);font-size:11px;background:rgba(239,68,68,.1);padding:2px 8px;border-radius:5px;font-weight:700}
-.bloc{color:var(--muted);font-size:12px;margin-top:4px}
+.ssub{color:var(--inf);font-size:10px;margin-top:2px;font-weight:600}
+.scnt{font-size:11px;margin-top:4px;color:var(--mu)}
+.smiss{color:var(--dan);font-size:10px;font-weight:700;margin-top:2px}
+.rmfb{display:block;width:100%;background:#d9770612;border:1px solid #d9770640;color:var(--ambh);border-radius:5px;padding:4px 7px;font-size:10px;margin-top:4px;text-align:left;font-weight:600;cursor:pointer}
+.bfc{background:#fff;border:1.5px solid var(--bdr);border-radius:10px;padding:11px 13px;margin-bottom:9px;box-shadow:var(--ss)}
+.bfc.miss{border-color:var(--dan);background:#fff5f5}
+.bfch{display:flex;justify-content:space-between;align-items:center}
+.bfid{color:var(--p);font-weight:700;font-size:15px}
+.mbadge{color:var(--dan);font-size:11px;background:rgba(239,68,68,.1);padding:2px 8px;border-radius:5px;font-weight:700}
+.bloc{color:var(--mu);font-size:12px;margin-top:4px}
 .bact{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}
 .smb{border-radius:6px;padding:5px 11px;font-size:11px;font-weight:600;cursor:pointer;border:none}
-.sdhdr2{color:var(--primary);font-weight:700;font-size:18px;margin-bottom:3px}
-.sdsub2{color:var(--muted);font-size:12px;margin-bottom:14px}
-.b-search-wrap{position:relative}
-.b-search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:16px;pointer-events:none}
-.b-search-wrap input{padding-left:36px}
-.nores{background:#fff;border:1.5px solid var(--danger);border-radius:10px;padding:18px;color:var(--danger);text-align:center}
-.etags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
-.etag{display:inline-block;border-radius:5px;padding:3px 9px;font-size:11px;font-weight:600;background:#f7f8fc;border:1px solid var(--border);color:var(--text);margin:1px}
-.etag.miss{background:#fff5f5;border-color:rgba(239,68,68,.4);color:var(--danger)}
-.bempty{color:var(--muted);font-size:13px;text-align:center;margin-top:40px}
-.new-loc{background:#e8eeff;border:1.5px solid var(--primary);border-radius:8px;padding:9px 13px;font-size:13px;color:var(--muted);margin:12px 0}
-.new-loc strong{color:var(--primary)}
-.legend{display:flex;gap:10px;margin-bottom:12px;font-size:11px;color:var(--muted);flex-wrap:wrap}
+.bgtbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.rtog{background:#f7f8fc;color:var(--mu);border:1.5px solid var(--bdr);border-radius:7px;padding:6px 13px;font-size:12px;font-weight:600;cursor:pointer}
+.rtog.on{background:rgba(217,119,6,.1);color:var(--ambh);border-color:var(--amb)}
+.legend{display:flex;gap:10px;margin-bottom:12px;font-size:11px;color:var(--mu);flex-wrap:wrap}
 .ld{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:3px;vertical-align:middle}
-.gtbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.rtog{background:#f7f8fc;color:var(--muted);border:1.5px solid var(--border);border-radius:7px;padding:6px 13px;font-size:12px;font-weight:600;cursor:pointer}
-.rtog.on{background:rgba(217,119,6,.1);color:var(--amber-h);border-color:var(--amber)}
-
-/* Bundle sub-views */
 .bview{display:none}.bview.on{display:block}
-.bnav{display:flex;background:var(--surface);border-bottom:1px solid var(--border);padding:0 6px;margin-bottom:0}
-.bnb{background:none;color:var(--muted);font-size:13px;padding:11px 12px;border-bottom:2px solid transparent;font-weight:500;cursor:pointer}
-.bnb.on{color:var(--primary);border-bottom:2px solid var(--primary);font-weight:700}
-
-/* Open scanner btn */
-.open-scan-btn{
-  display:flex;align-items:center;gap:12px;
-  background:var(--primary);color:#fff;
-  border-radius:12px;padding:14px 18px;font-size:14px;font-weight:600;width:100%;
-  box-shadow:0 4px 16px rgba(79,70,229,.3);margin-top:4px;cursor:pointer;border:none;
-}
-.open-scan-btn .ic{font-size:24px}
-
-/* Integration badge */
-.bundle-badge{
-  display:inline-flex;align-items:center;gap:4px;
-  background:#e8eeff;color:var(--primary);border:1px solid #c4b5fd;
-  border-radius:5px;padding:2px 8px;font-size:11px;font-weight:600;margin-left:6px;
-}
-
-/* Toast */
-#toast{
-  position:fixed;bottom:22px;left:50%;transform:translateX(-50%);
-  border-radius:10px;padding:10px 22px;font-size:13px;font-weight:700;
-  z-index:800;white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis;
-  display:none;color:#fff;box-shadow:0 4px 20px rgba(0,0,0,.3);
-}
-
-/* ═══════════════ BACKUP ═══════════════ */
-.danger-zone{border-color:var(--danger)!important;background:#fef2f2!important}
-.backup-sect{border-color:#7c3aed!important;background:#faf5ff!important}
+.bnav{display:flex;background:var(--sur);border-bottom:1px solid var(--bdr);padding:0 6px}
+.bnb{background:none;color:var(--mu);font-size:13px;padding:11px 12px;border-bottom:2px solid transparent;font-weight:500;cursor:pointer}
+.bnb.on{color:var(--p);border-bottom:2px solid var(--p);font-weight:700}
+.nloc{background:#e8eeff;border:1.5px solid var(--p);border-radius:8px;padding:9px 13px;font-size:13px;color:var(--mu);margin:12px 0}
+.nloc strong{color:var(--p)}
+.bempty{color:var(--mu);font-size:13px;text-align:center;margin-top:40px}
+.bswrap{position:relative}
+.bsico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--mu);font-size:16px;pointer-events:none}
+.bswrap input{padding-left:36px}
+.nores{background:#fff;border:1.5px solid var(--dan);border-radius:10px;padding:18px;color:var(--dan);text-align:center}
+.etags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+.etag{display:inline-block;border-radius:5px;padding:3px 9px;font-size:11px;font-weight:600;background:#f7f8fc;border:1px solid var(--bdr);color:var(--txt);margin:1px}
+.etag.miss{background:#fff5f5;border-color:rgba(239,68,68,.4);color:var(--dan)}
+/* mismatch warning box */
+.mm-warn{background:#fff7ed;border:1.5px solid #f59e0b;border-radius:10px;padding:12px 14px;font-size:13px;margin-bottom:12px}
+.mm-warn .mw-title{color:#92400e;font-weight:700;font-size:14px;margin-bottom:4px}
+.mm-warn .mw-body{color:#78350f}
+/* toast */
+#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);border-radius:10px;padding:10px 22px;font-size:13px;font-weight:700;z-index:900;white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis;display:none;color:#fff;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+/* backup sections */
+.bk-sec{border-color:#7c3aed!important;background:#faf5ff!important}
+.dz-sec{border-color:var(--dan)!important;background:#fef2f2!important}
 </style>
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════════════
-     APP HEADER + TAB BAR
-══════════════════════════════════════════════════ -->
-<div id="app-header">
-  <div id="app-header-title">⚖️ Court Manager + 📁 Bundle Tracker</div>
+<!-- ══ APP HEADER ══ -->
+<div id="app-hdr">
+  <div id="app-hdr-title">⚖️ Court Manager + 📁 Bundle Tracker</div>
   <div id="tab-bar">
-    <button class="tab-btn active" onclick="switchTab('cfm')">⚖️ Court Files</button>
-    <button class="tab-btn" onclick="switchTab('bundle')">📁 Bundle Tracker</button>
+    <button class="tab-btn on" onclick="switchTab('cfm')">⚖️ Court Files</button>
+    <button class="tab-btn"   onclick="switchTab('bundle')">📁 Bundle</button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════════════
+<!-- ══════════════════════════════════════
      TAB 1 — COURT FILE MANAGER
-══════════════════════════════════════════════════ -->
-<div class="tab-content active" id="cfm-tab">
-<div class="container">
-
-  <!-- Date & Version -->
-  <div class="section">
+══════════════════════════════════════ -->
+<div class="tab-c on" id="cfm-tab">
+<div class="cnt">
+  <div class="sec">
     <h3>📅 Working Date &amp; Version</h3>
     <input type="date" id="workDate">
     <select id="versionSelect"></select>
   </div>
-
-  <!-- Dashboard -->
-  <div class="dashboard">
+  <div class="dash">
     <div class="card">📁 Total<br><span id="totalCount">0</span></div>
     <div class="card">📤 Sent<br><span id="sentCount">0</span></div>
     <div class="card">📥 Received<br><span id="receivedCount">0</span></div>
-    <div class="card">💾 Storage<br><span id="storageUsage" style="font-size:12px;color:var(--muted)">...</span></div>
+    <div class="card">💾 Storage<br><span id="storageUsage" style="font-size:12px;color:var(--mu)">...</span></div>
   </div>
-
-  <!-- Excel Upload -->
-  <div class="section">
+  <div class="sec">
     <h3>📥 Excel Upload</h3>
     <input type="file" id="excelFile" accept=".xlsx,.xls">
     <button class="btn" onclick="uploadExcel()">📤 Upload Excel</button>
   </div>
-
-  <!-- Search & Filter -->
-  <div class="section">
+  <div class="sec">
     <h3>🔍 Search &amp; Filter</h3>
     <input type="text" id="searchBox" placeholder="Case No, Party Name...">
-    <div class="filter-tabs">
-      <button class="filter-tab ft-all" id="tab-all" onclick="setFilter('all')">
-        🗂️ All<br><span class="tab-count" id="tabAllCount">0</span>
-      </button>
-      <button class="filter-tab" id="tab-psent" onclick="setFilter('psent')">
-        ⏳ Pending Sent<br><span class="tab-count" id="tabPSentCount">0</span>
-      </button>
-      <button class="filter-tab" id="tab-precvd" onclick="setFilter('precvd')">
-        🕐 Pending Recv.<br><span class="tab-count" id="tabPRecvdCount">0</span>
-      </button>
+    <div class="ftabs">
+      <button class="ftab ft-all" id="tab-all" onclick="setFilter('all')">🗂️ All<br><span class="tc" id="tabAllCount">0</span></button>
+      <button class="ftab" id="tab-psent" onclick="setFilter('psent')">⏳ Pending Sent<br><span class="tc" id="tabPSentCount">0</span></button>
+      <button class="ftab" id="tab-precvd" onclick="setFilter('precvd')">🕐 Pending Recv.<br><span class="tc" id="tabPRecvdCount">0</span></button>
     </div>
   </div>
-
-  <!-- Manual Entry -->
-  <div class="section">
+  <div class="sec">
     <h3>✍️ Manual Entry</h3>
-    <div class="drop-wrap">
-      <input type="text" id="manualCaseInput" placeholder="Case No likhein..."
-        autocomplete="off" oninput="onManualInput()" onkeydown="onManualKeyDown(event)">
-      <div id="caseDropdown"></div>
+    <div class="dwrap">
+      <input type="text" id="manualCaseInput" placeholder="Case No likhein..." autocomplete="off"
+        oninput="onManualInput()" onkeydown="onManualKeyDown(event)">
+      <div id="caseDD"></div>
     </div>
-    <div class="grid-2">
-      <button class="btn btn-amber" onclick="manualAction('SENT')">📤 Mark SENT</button>
-      <button class="btn btn-success" onclick="manualAction('RECEIVED')">📥 Mark RECEIVED</button>
+    <div class="g2">
+      <button class="btn btn-a" onclick="manualAction('SENT')">📤 Mark SENT</button>
+      <button class="btn btn-s" onclick="manualAction('RECEIVED')">📥 Mark RECEIVED</button>
     </div>
-    <div id="manualStatus" class="status-msg"></div>
+    <div id="manualStatus" class="smsg"></div>
   </div>
-
-  <!-- Download -->
-  <div class="section" style="padding:12px">
-    <button class="btn btn-success" onclick="downloadExcel()" style="margin-top:0">📊 Download Excel Report</button>
+  <div class="sec" style="padding:12px">
+    <button class="btn btn-s" onclick="downloadExcel()" style="margin-top:0">📊 Download Excel</button>
   </div>
-
-  <!-- Table -->
-  <div class="table-wrap"><table id="cfmTable"></table></div>
-
-  <!-- Backup -->
-  <div class="section backup-sect">
+  <div class="twrap"><table id="cfmTable"></table></div>
+  <div class="sec bk-sec">
     <h3 style="color:#7c3aed">🗄️ Backup &amp; Restore</h3>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Poora data JSON mein export/restore karo.</p>
-    <div class="grid-2">
-      <button class="btn btn-purple" onclick="exportBackup()">⬇️ Export Backup</button>
-      <button class="btn btn-outline-purple" onclick="document.getElementById('restoreFile').click()">⬆️ Restore</button>
+    <div class="g2">
+      <button class="btn btn-pu" onclick="exportBackup()">⬇️ Export</button>
+      <button class="btn btn-opu" onclick="document.getElementById('restoreFile').click()">⬆️ Restore</button>
     </div>
     <input type="file" id="restoreFile" accept=".json" style="display:none" onchange="importBackup(event)">
-    <div id="backupStatus" class="status-msg"></div>
+    <div id="backupStatus" class="smsg"></div>
   </div>
-
-  <!-- Danger Zone -->
-  <div class="section danger-zone">
-    <h3 style="color:var(--danger)">⚠️ Danger Zone</h3>
-    <button class="btn btn-danger" onclick="deleteOldData()">🧹 Delete Data Older Than 60 Days</button>
+  <div class="sec dz-sec">
+    <h3 style="color:var(--dan)">⚠️ Danger Zone</h3>
+    <button class="btn btn-d" onclick="deleteOldData()">🧹 Delete Data &gt; 60 Days</button>
   </div>
-
-</div><!-- /container -->
-
-<!-- Floating Scan Buttons -->
-<div class="float-scan" id="cfmFloatBtns">
-  <button class="btn btn-amber" onclick="startCFMScan('SENT')">📤 Scan SENT</button>
-  <button class="btn btn-success" onclick="startCFMScan('RECEIVED')">📥 Scan RECEIVED</button>
+</div>
+<!-- Floating scan buttons -->
+<div class="flt" id="cfmFlt">
+  <button class="btn btn-a" onclick="startCFMScan('SENT')">📤 Scan SENT</button>
+  <button class="btn btn-s" onclick="startCFMScan('RECEIVED')">📥 Scan RECEIVED</button>
+</div>
 </div>
 
-</div><!-- /cfm-tab -->
-
-
-<!-- ══════════════════════════════════════════════════
+<!-- ══════════════════════════════════════
      TAB 2 — BUNDLE TRACKER
-══════════════════════════════════════════════════ -->
-<div class="tab-content" id="bundle-tab">
-
-<!-- Bundle Sub-Nav -->
+══════════════════════════════════════ -->
+<div class="tab-c" id="bundle-tab">
 <div class="bnav">
-  <button class="bnb on" data-bv="grid" onclick="switchBView('grid')">🗂 Grid</button>
-  <button class="bnb" data-bv="add" onclick="switchBView('add')">➕ Add</button>
-  <button class="bnb" data-bv="search" onclick="switchBView('search')">🔍 Find</button>
+  <button class="bnb on" data-bv="grid"   onclick="swBV('grid')">🗂 Grid</button>
+  <button class="bnb"    data-bv="add"    onclick="swBV('add')">➕ Add</button>
+  <button class="bnb"    data-bv="search" onclick="swBV('search')">🔍 Find</button>
 </div>
+<div class="cnt" style="padding-top:14px">
 
-<div class="container" style="padding-top:14px">
-
-  <!-- GRID VIEW -->
+  <!-- GRID -->
   <div class="bview on" id="bview-grid">
-    <div class="gtbar">
-      <div style="color:var(--muted);font-size:12px">Slot tap → detail</div>
+    <div class="bgtbar">
+      <div style="color:var(--mu);font-size:12px">Slot tap → detail</div>
       <button class="rtog" id="rbtn" onclick="toggleRM()">⇄ Rearrange</button>
     </div>
     <div class="legend">
@@ -495,268 +303,224 @@ tr:hover{background:#f8fafc}
 
   <!-- SLOT DETAIL -->
   <div class="bview" id="bview-slot">
-    <button class="btn btn-grey btn-sm" style="margin-bottom:14px" onclick="goBGrid()">← Wapas</button>
-    <div class="sdhdr2" id="bsd-title"></div>
-    <div class="sdsub2" id="bsd-sub"></div>
-    <div id="bsd-content"></div>
+    <button class="btn btn-g btn-sm" style="margin-bottom:14px" onclick="goBGrid()">← Wapas</button>
+    <div style="color:var(--p);font-weight:700;font-size:18px;margin-bottom:3px" id="bsd-t"></div>
+    <div style="color:var(--mu);font-size:12px;margin-bottom:14px" id="bsd-s"></div>
+    <div id="bsd-c"></div>
   </div>
 
-  <!-- ADD VIEW -->
+  <!-- ADD -->
   <div class="bview" id="bview-add">
-    <div class="stitle">📥 Files Add Karo</div>
-    <span class="lbl mt0">Main Date (1–31) — Rack ka date</span>
+    <div style="font-weight:700;font-size:15px;margin-bottom:14px">📥 Files Add Karo</div>
+    <span class="blbl mt0">Main Date (1–31) — Rack ka date</span>
     <div class="dgrid" id="b-mdg"></div>
-
     <div style="display:flex;align-items:center;margin-top:12px">
-      <span class="lbl" style="margin:0">Sub-Date <span style="font-weight:400;text-transform:none">(optional)</span></span>
-      <button class="clr-btn" id="b-sdc" onclick="bClearSD()" style="display:none">✕ Clear</button>
+      <span class="blbl" style="margin:0">Sub-Date <span style="font-weight:400;text-transform:none">(optional)</span></span>
+      <button class="clrbtn" id="b-sdc" onclick="bClearSD()" style="display:none">✕ Clear</button>
     </div>
-    <div id="b-sds"><button class="sd-add-btn" onclick="bEnableSD()">+ Sub-Date add karo</button></div>
-
-    <span class="lbl">Column</span>
+    <div id="b-sds"><button class="sdadd" onclick="bEnableSD()">+ Sub-Date add karo (overflow case)</button></div>
+    <span class="blbl">Column</span>
     <div class="crow" id="b-cr"></div>
-
-    <div class="slot-prev">Slot → <strong id="b-sp-txt">—</strong> <span id="b-sp-cnt" style="font-size:12px"></span></div>
-    <div class="divider"></div>
-
-    <span class="lbl mt0">QR Scanner</span>
-    <button class="open-scan-btn" onclick="startBundleScan()">
+    <div class="sprev">Slot → <strong id="b-sp-t">—</strong> <span id="b-sp-c" style="font-size:12px"></span></div>
+    <div class="div"></div>
+    <span class="blbl mt0">QR Scanner</span>
+    <button class="osb" onclick="startBundleScan()">
       <span class="ic">📷</span>
-      <div><div>QR Code Scanner</div><div style="font-size:11px;opacity:.8;font-weight:400">Camera se scan karo</div></div>
+      <div><div>QR Code Scanner</div><div style="font-size:11px;opacity:.8;font-weight:400">Camera se scan karo (validations apply)</div></div>
     </button>
-
-    <span class="lbl">Ya manually type karo</span>
+    <span class="blbl">Ya manually type karo <span style="font-weight:400;text-transform:none;font-size:11px">(no validation)</span></span>
     <input type="text" id="b-mi" placeholder="File number, Enter dabao..." onkeydown="bMKey(event)">
-    <div style="color:var(--muted);font-size:11px;margin-top:4px">↵ Enter — comma se multiple</div>
+    <div style="color:var(--mu);font-size:11px;margin-top:4px">↵ Enter — comma se multiple</div>
     <button class="btn" onclick="bMAdd()" style="margin-top:10px">✓ Add Karo</button>
-
-    <div id="b-ex-box" style="display:none;margin-top:14px">
-      <span class="lbl">Is slot mein pehle se:</span>
-      <div id="b-ex-tags" class="etags"></div>
+    <div id="b-exbox" style="display:none;margin-top:14px">
+      <span class="blbl">Is slot mein pehle se:</span>
+      <div id="b-extags" class="etags"></div>
     </div>
   </div>
 
-  <!-- SEARCH VIEW -->
+  <!-- SEARCH -->
   <div class="bview" id="bview-search">
-    <div class="stitle">🔍 File Dhundo</div>
-    <div class="b-search-wrap">
-      <span class="b-search-icon">🔎</span>
+    <div style="font-weight:700;font-size:15px;margin-bottom:14px">🔍 File Dhundo</div>
+    <div class="bswrap">
+      <span class="bsico">🔎</span>
       <input type="text" id="b-si" placeholder="File number type karo..." oninput="bRenderSearch()">
     </div>
     <div style="margin-top:14px" id="b-sr"></div>
   </div>
+</div>
+</div>
 
-</div><!-- /container -->
-</div><!-- /bundle-tab -->
-
-
-<!-- ══════════════════════════════════════════════════
-     SHARED SCANNER OVERLAY
-══════════════════════════════════════════════════ -->
-<div id="scan-overlay">
+<!-- ══ SHARED SCANNER OVERLAY ══ -->
+<div id="scan-ov">
   <div id="scan-box">
-    <video id="scan-video" playsinline muted></video>
-    <canvas id="scan-canvas-hidden"></canvas>
-    <div class="corner"><div class="corner2"></div></div>
+    <video id="scan-vid" playsinline muted></video>
+    <div class="cr"><div class="cr2"></div></div>
     <div class="sline"></div>
-    <div id="qr-highlight"></div>
+    <div id="qr-hl"></div>
     <div id="scan-flash"></div>
-    <div id="scan-status-bar">📷 Camera shuru ho rahi hai...</div>
+    <div id="scan-sb">📷 Camera shuru ho rahi hai...</div>
   </div>
-  <div id="scan-result-card"></div>
+  <div id="scan-card"></div>
   <div id="scan-ctrl">
-    <div id="scan-mode-lbl">—</div>
+    <div id="scan-ml">—</div>
     <button id="cont-btn" onclick="toggleCont()">🔁 Continuous: OFF</button>
-    <button id="scan-close-btn" onclick="closeScan()">✕ Band Karo</button>
+    <button id="scan-close" onclick="closeScan()">✕ Band Karo</button>
   </div>
 </div>
 
-
-<!-- ══════════════════════════════════════════════════
-     CFM: NEXT DATE POPUP
-══════════════════════════════════════════════════ -->
-<div class="modal-overlay center-modal" id="nextDateModal">
-  <div class="modal-sheet">
-    <div class="modal-title">📅 Next Hearing Date</div>
-    <div class="modal-sub" id="nextdate-case-lbl"></div>
-    <input type="date" id="nextDateInput">
-    <button class="btn btn-success" onclick="saveNextDate()" style="margin-top:12px">✅ Save Date</button>
-    <button class="btn btn-grey" onclick="closeNextDateModal()" style="margin-top:8px">❌ Skip</button>
+<!-- ══ CFM: NEXT DATE MODAL ══ -->
+<div class="modal center" id="ndModal">
+  <div class="msh">
+    <div class="mt">📅 Next Hearing Date</div>
+    <div class="msub" id="nd-lbl"></div>
+    <input type="date" id="ndInput">
+    <button class="btn btn-s" onclick="saveNextDate()" style="margin-top:12px">✅ Save Date</button>
+    <button class="btn btn-g" onclick="closeNDModal()" style="margin-top:8px">❌ Skip</button>
   </div>
 </div>
 
-
-<!-- ══════════════════════════════════════════════════
-     BUNDLE MOVE MODAL (also used for integration)
-══════════════════════════════════════════════════ -->
-<div class="modal-overlay" id="bMoveModal">
-  <div class="modal-sheet">
-    <div class="modal-title">⇄ Move / Rearrange</div>
-    <div class="modal-sub" id="bmove-fid"></div>
-    <span class="lbl mt0" style="display:block">Naya Main Date</span>
+<!-- ══ BUNDLE: MOVE MODAL ══ -->
+<div class="modal" id="bmModal">
+  <div class="msh">
+    <div class="mt">⇄ Move / Rearrange</div>
+    <div class="msub" id="bm-fid"></div>
+    <span class="blbl mt0" style="display:block">Naya Main Date</span>
     <div class="dgrid" id="bm-mdg"></div>
-    <div style="display:flex;align-items:center;margin-top:12px">
-      <span class="lbl" style="margin:0">Sub-Date <span style="font-weight:400">(optional)</span></span>
-      <button class="clr-btn" id="bm-sdc" onclick="bmClearSD()" style="display:none">✕ Clear</button>
+    <div style="display:flex;align-items:center;margin-top:10px">
+      <span class="blbl" style="margin:0">Sub-Date <span style="font-weight:400">(optional)</span></span>
+      <button class="clrbtn" id="bm-sdc" onclick="bmClearSD()" style="display:none">✕ Clear</button>
     </div>
-    <div id="bm-sds"><button class="sd-add-btn" onclick="bmEnableSD()">+ Sub-Date add karo</button></div>
-    <span class="lbl" style="display:block">Naya Column</span>
+    <div id="bm-sds"><button class="sdadd" onclick="bmEnableSD()">+ Sub-Date add karo</button></div>
+    <span class="blbl" style="display:block">Naya Column</span>
     <div class="crow" id="bm-cr"></div>
-    <div class="new-loc" style="margin-top:12px">New Location → <strong id="bm-prev">—</strong></div>
-    <div class="grid-2" style="margin-top:4px">
+    <div class="nloc" style="margin-top:10px">New → <strong id="bm-prev">—</strong></div>
+    <div class="g2" style="margin-top:4px">
       <button class="btn" onclick="doBundleMove()">✓ Move Karo</button>
-      <button class="btn btn-grey" onclick="closeBMoveModal()">Cancel</button>
+      <button class="btn btn-g" onclick="closeBMModal()">Cancel</button>
     </div>
   </div>
 </div>
 
-
-<!-- ══════════════════════════════════════════════════
-     INTEGRATION MODAL: Bundle location for new date
-══════════════════════════════════════════════════ -->
-<div class="modal-overlay" id="integrationModal">
-  <div class="modal-sheet">
-    <div class="modal-title">📁 Bundle Location Update</div>
-    <div class="modal-sub" id="int-sub"></div>
-    <div id="int-current-loc" style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 14px;font-size:13px;margin-bottom:12px;display:none"></div>
-    <span class="lbl mt0" style="display:block">Naya Date (auto-set from next hearing)</span>
-    <div class="dgrid" id="int-mdg"></div>
-    <div style="display:flex;align-items:center;margin-top:10px">
-      <span class="lbl" style="margin:0">Sub-Date <span style="font-weight:400">(optional)</span></span>
-      <button class="clr-btn" id="int-sdc" onclick="intClearSD()" style="display:none">✕ Clear</button>
+<!-- ══ MISMATCH MODAL (scan date ≠ CFM next date) ══ -->
+<div class="modal center" id="mmModal">
+  <div class="msh">
+    <div class="mt">⚠️ Date Mismatch!</div>
+    <div class="mm-warn">
+      <div class="mw-title" id="mm-title">—</div>
+      <div class="mw-body" id="mm-body">—</div>
     </div>
-    <div id="int-sds"><button class="sd-add-btn" onclick="intEnableSD()">+ Sub-Date add karo</button></div>
-    <span class="lbl" style="display:block">Column</span>
-    <div class="crow" id="int-cr"></div>
-    <div class="new-loc" style="margin-top:10px">Location → <strong id="int-prev">—</strong></div>
-    <div class="grid-2" style="margin-top:4px">
-      <button class="btn" onclick="doIntegrationMove()">✓ Move Bundle</button>
-      <button class="btn btn-grey" onclick="closeIntModal()">Skip</button>
+    <div style="font-size:13px;color:var(--mu);margin-bottom:10px">
+      Agar ye overflow case hai (same date pe files zyada hain), to <strong>Sub-Date fill karo:</strong>
+    </div>
+    <span class="blbl mt0" style="display:block">Sub-Date (mandatory to proceed)</span>
+    <div class="dgrid" id="mm-sdg"></div>
+    <div class="nloc">Location → <strong id="mm-prev">—</strong></div>
+    <div class="g2" style="margin-top:4px">
+      <button class="btn" id="mm-confirm-btn" onclick="confirmMismatch()">✓ Sub-Date ke saath Add Karo</button>
+      <button class="btn btn-d" onclick="cancelMismatch()">❌ Cancel</button>
     </div>
   </div>
 </div>
 
 <div id="toast"></div>
 
-<!-- ══════════════════════════════════════════════════
-     JAVASCRIPT
-══════════════════════════════════════════════════ -->
 <script>
-// ══════════════════════════════════════════════════
-// IndexedDB Setup (enhanced — adds bundle store)
-// ══════════════════════════════════════════════════
-const DB_NAME   = 'CourtFileManagerDB';
-const DB_VER    = 2; // bumped to add bundles store
-const S_VER     = 'versions';
-const S_META    = 'metadata';
-const S_BUNDLE  = 'bundles';
-
+// ════════════════════════════════════════
+// IndexedDB
+// ════════════════════════════════════════
+const DB_NAME='CourtFileManagerDB', DB_VER=2;
+const SV='versions', SM='metadata', SB='bundles';
 let db;
 function openDB(){
   return new Promise((res,rej)=>{
     if(db)return res(db);
-    const req=indexedDB.open(DB_NAME,DB_VER);
-    req.onupgradeneeded=e=>{
+    const r=indexedDB.open(DB_NAME,DB_VER);
+    r.onupgradeneeded=e=>{
       const d=e.target.result;
-      if(!d.objectStoreNames.contains(S_VER))   d.createObjectStore(S_VER,{keyPath:'workDate'});
-      if(!d.objectStoreNames.contains(S_META))  d.createObjectStore(S_META,{keyPath:'key'});
-      if(!d.objectStoreNames.contains(S_BUNDLE)) d.createObjectStore(S_BUNDLE,{keyPath:'id'});
+      if(!d.objectStoreNames.contains(SV))  d.createObjectStore(SV,{keyPath:'workDate'});
+      if(!d.objectStoreNames.contains(SM))  d.createObjectStore(SM,{keyPath:'key'});
+      if(!d.objectStoreNames.contains(SB))  d.createObjectStore(SB,{keyPath:'id'});
     };
-    req.onsuccess=e=>{db=e.target.result;res(db);};
-    req.onerror=e=>rej(e.target.errorCode);
+    r.onsuccess=e=>{db=e.target.result;res(db);};
+    r.onerror=e=>rej(e.target.errorCode);
   });
 }
 function idbTx(store,mode,fn){
   return new Promise((res,rej)=>{
-    if(!db){rej("DB not open");return;}
-    const tx=db.transaction(store,mode);
-    const s=tx.objectStore(store);
-    const r=fn(s);
-    r.onsuccess=()=>res(r.result);
-    r.onerror=e=>rej(e.target.error);
+    const tx=db.transaction(store,mode),s=tx.objectStore(store),r=fn(s);
+    r.onsuccess=()=>res(r.result);r.onerror=e=>rej(e.target.error);
   });
 }
-const idbGetVersions  =d=>idbTx(S_VER,'readonly',s=>s.get(d)).then(r=>r?r.versions:[]);
-const idbSaveVersions =(d,v)=>idbTx(S_VER,'readwrite',s=>s.put({workDate:d,versions:v}));
-const idbDelVerDate   =d=>idbTx(S_VER,'readwrite',s=>s.delete(d));
-const idbAllVerKeys   =()=>idbTx(S_VER,'readonly',s=>s.getAllKeys());
-const idbGetMeta      =k=>idbTx(S_META,'readonly',s=>s.get(k)).then(r=>r?r.value:null);
-const idbSetMeta      =(k,v)=>idbTx(S_META,'readwrite',s=>s.put({key:k,value:v}));
-const idbDelMeta      =k=>idbTx(S_META,'readwrite',s=>s.delete(k));
-const idbAllMetaKeys  =()=>idbTx(S_META,'readonly',s=>s.getAllKeys());
-// Bundle CRUD
-const idbGetBundle    =id=>idbTx(S_BUNDLE,'readonly',s=>s.get(id));
-const idbSetBundle    =obj=>idbTx(S_BUNDLE,'readwrite',s=>s.put(obj));
-const idbDelBundle    =id=>idbTx(S_BUNDLE,'readwrite',s=>s.delete(id));
-const idbAllBundles   =()=>idbTx(S_BUNDLE,'readonly',s=>s.getAll());
+const idbGV  = d=>idbTx(SV,'readonly',s=>s.get(d)).then(r=>r?r.versions:[]);
+const idbSV  = (d,v)=>idbTx(SV,'readwrite',s=>s.put({workDate:d,versions:v}));
+const idbDV  = d=>idbTx(SV,'readwrite',s=>s.delete(d));
+const idbAVK = ()=>idbTx(SV,'readonly',s=>s.getAllKeys());
+const idbGM  = k=>idbTx(SM,'readonly',s=>s.get(k)).then(r=>r?r.value:null);
+const idbSM  = (k,v)=>idbTx(SM,'readwrite',s=>s.put({key:k,value:v}));
+const idbDM  = k=>idbTx(SM,'readwrite',s=>s.delete(k));
+const idbAMK = ()=>idbTx(SM,'readonly',s=>s.getAllKeys());
+const idbGB  = id=>idbTx(SB,'readonly',s=>s.get(id));
+const idbSBn = obj=>idbTx(SB,'readwrite',s=>s.put(obj));
+const idbDB  = id=>idbTx(SB,'readwrite',s=>s.delete(id));
+const idbAB  = ()=>idbTx(SB,'readonly',s=>s.getAll());
 
-// ══════════════════════════════════════════════════
-// SHARED STATE
-// ══════════════════════════════════════════════════
+// ════════════════════════════════════════
+// SHARED HELPERS
+// ════════════════════════════════════════
 const COLS=['A','B','C','D','E','F'];
 const DATES=Array.from({length:31},(_,i)=>i+1);
-let activeTab='cfm';
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-let toastTimer;
+let toastT;
 function showToast(msg,type){
   const t=document.getElementById('toast');
-  t.textContent=msg;
-  t.style.background=type==='w'?'#d97706':type==='d'?'#e03030':'#18a558';
-  t.style.display='block';
-  clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>t.style.display='none',2600);
+  t.textContent=msg;t.style.background=type==='w'?'#d97706':type==='d'?'#e03030':'#18a558';
+  t.style.display='block';clearTimeout(toastT);toastT=setTimeout(()=>t.style.display='none',2800);
 }
 function speak(msg,lang){
-  try{
-    const u=new SpeechSynthesisUtterance(msg);
-    u.lang=lang||'en-IN';u.rate=1;
-    speechSynthesis.cancel();speechSynthesis.speak(u);
-  }catch(e){}
+  try{const u=new SpeechSynthesisUtterance(msg);u.lang=lang||'en-IN';u.rate=1;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}
+}
+let activeTab='cfm';
+function switchTab(t){
+  activeTab=t;
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('on',['cfm','bundle'][i]===t));
+  document.getElementById('cfm-tab').classList.toggle('on',t==='cfm');
+  document.getElementById('bundle-tab').classList.toggle('on',t==='bundle');
+  document.getElementById('cfmFlt').style.display=t==='cfm'?'flex':'none';
+  if(t==='bundle'){bRenderGrid();bUpdateST();}
 }
 
-// ══════════════════════════════════════════════════
-// TAB SWITCHING
-// ══════════════════════════════════════════════════
-function switchTab(tab){
-  activeTab=tab;
-  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
-    b.classList.toggle('active',['cfm','bundle'][i]===tab);
-  });
-  document.getElementById('cfm-tab').classList.toggle('active',tab==='cfm');
-  document.getElementById('bundle-tab').classList.toggle('active',tab==='bundle');
-  document.getElementById('cfmFloatBtns').style.display=tab==='cfm'?'flex':'none';
-  if(tab==='bundle'){ bRenderGrid(); bUpdateScanTarget(); }
+// ════════════════════════════════════════
+// CFM STATE
+// ════════════════════════════════════════
+const DK=["srno","caseno","partyname","section","ps","sent","received","receiveddate","nextdate","remark"];
+let cData=[], upV=1, aFilter='all', lastRcvCase=null, dropIdx=-1;
+let sDeb, rTimer;
+function sId(id){return String(id||"").replace(/[^a-zA-Z0-9-_]/g,'_');}
+function gSrch(r){return DK.map(k=>r[k]||"").join(' ').toLowerCase();}
+function dKey(){return workDate.value+"_"+upV;}
+function fmtD(iso){if(!iso)return"";const p=iso.split("-");return p.length===3?p[2]+"-"+p[1]+"-"+p[0]:iso;}
+// Get CFM next date day number for a case
+function getCFMDay(caseNo){
+  const r=cData.find(x=>x.caseno===String(caseNo).toUpperCase()||x.caseno===String(caseNo));
+  if(!r||!r.nextdate)return null;
+  return parseInt(r.nextdate.split('-')[2]);
+}
+function getCFMRecord(caseNo){
+  return cData.find(x=>x.caseno===String(caseNo));
 }
 
-// ══════════════════════════════════════════════════
-// CFM — STATE
-// ══════════════════════════════════════════════════
-const DATA_KEYS=["srno","caseno","partyname","section","ps","sent","received","receiveddate","nextdate","remark"];
-let currentData=[], uploadVersion=1, activeFilter='all';
-let lastReceivedCase=null, dropIdx=-1;
-let searchDeb, remarkTimer;
-
-function sanitizeId(id){return String(id||"").replace(/[^a-zA-Z0-9-_]/g,'_');}
-function genSearch(r){return DATA_KEYS.map(k=>r[k]||"").join(' ').toLowerCase();}
-function dataKey(){return workDate.value+"_"+uploadVersion;}
-function fmtDate(iso){if(!iso)return"";const p=iso.split("-");return p.length===3?p[2]+"-"+p[1]+"-"+p[0]:iso;}
-
-// ══════════════════════════════════════════════════
-// CFM — INIT
-// ══════════════════════════════════════════════════
+// ════════════════════════════════════════
+// CFM INIT
+// ════════════════════════════════════════
 window.onload=async()=>{
   try{
     await openDB();
     workDate.value=new Date().toISOString().split("T")[0];
-    await loadVersions();
-    await loadCurrentVersion();
-    await loadLocal();
-    updateStorageUsage();
-    bInit();
+    await loadVersions();await loadCurV();await loadLocal();
+    updateSU();bInit();
   }catch(e){console.error("Init:",e);}
 };
-
-async function updateStorageUsage(){
+async function updateSU(){
   try{
     if(navigator.storage&&navigator.storage.estimate){
       const e=await navigator.storage.estimate();
@@ -765,74 +529,59 @@ async function updateStorageUsage(){
     }else storageUsage.innerText="IndexedDB";
   }catch(e){storageUsage.innerText="IndexedDB";}
 }
-
-// ══════════════════════════════════════════════════
-// CFM — VERSIONS / LOCAL
-// ══════════════════════════════════════════════════
 async function loadVersions(){
   versionSelect.innerHTML="";
-  const vs=await idbGetVersions(workDate.value);
+  const vs=await idbGV(workDate.value);
   if(!vs||!vs.length){versionSelect.innerHTML='<option value="1">Upload 1</option>';return;}
   vs.forEach(v=>{const o=document.createElement("option");o.value=v;o.text="Upload "+v;versionSelect.appendChild(o);});
 }
-async function saveCurrentVersion(){await idbSetMeta('cv_'+workDate.value,uploadVersion);}
-async function loadCurrentVersion(){const v=await idbGetMeta('cv_'+workDate.value);uploadVersion=parseInt(v)||1;versionSelect.value=uploadVersion;}
-async function saveLocal(){try{await idbSetMeta(dataKey(),currentData);}catch(e){console.error(e);}}
+async function saveCurV(){await idbSM('cv_'+workDate.value,upV);}
+async function loadCurV(){const v=await idbGM('cv_'+workDate.value);upV=parseInt(v)||1;versionSelect.value=upV;}
+async function saveLocal(){try{await idbSM(dKey(),cData);}catch(e){console.error(e);}}
 async function loadLocal(){
-  try{const s=await idbGetMeta(dataKey());if(s&&Array.isArray(s)){currentData=s;currentData.forEach(r=>r.searchableText=genSearch(r));}else currentData=[];}
-  catch(e){currentData=[];}
-  drawTable(getFiltered()); updateDash();
+  try{const s=await idbGM(dKey());if(s&&Array.isArray(s)){cData=s;cData.forEach(r=>r.searchableText=gSrch(r));}else cData=[];}
+  catch(e){cData=[];}
+  drawTable(getFiltered());updateDash();
 }
+workDate.addEventListener("change",async()=>{await loadVersions();await loadCurV();await loadLocal();});
+versionSelect.addEventListener("change",async()=>{upV=parseInt(versionSelect.value);await saveCurV();await loadLocal();});
 
-workDate.addEventListener("change",async()=>{await loadVersions();await loadCurrentVersion();await loadLocal();});
-versionSelect.addEventListener("change",async()=>{uploadVersion=parseInt(versionSelect.value);await saveCurrentVersion();await loadLocal();});
-
-// ══════════════════════════════════════════════════
-// CFM — DASHBOARD
-// ══════════════════════════════════════════════════
+// ════════════════════════════════════════
+// CFM DASHBOARD
+// ════════════════════════════════════════
 function updateDash(){
-  const t=currentData.length;
-  const sn=currentData.filter(x=>x.sent==="Sent").length;
-  const rc=currentData.filter(x=>x.received==="Received").length;
-  const ps=currentData.filter(x=>x.sent!=="Sent").length;
-  const pr=currentData.filter(x=>x.sent==="Sent"&&x.received!=="Received").length;
+  const t=cData.length,sn=cData.filter(x=>x.sent==="Sent").length,rc=cData.filter(x=>x.received==="Received").length;
+  const ps=cData.filter(x=>x.sent!=="Sent").length,pr=cData.filter(x=>x.sent==="Sent"&&x.received!=="Received").length;
   totalCount.innerText=t;sentCount.innerText=sn;receivedCount.innerText=rc;
   document.getElementById("tabAllCount").innerText=t;
   document.getElementById("tabPSentCount").innerText=ps;
   document.getElementById("tabPRecvdCount").innerText=pr;
 }
-
-// ══════════════════════════════════════════════════
-// CFM — FILTER
-// ══════════════════════════════════════════════════
 function setFilter(f){
-  activeFilter=f;
-  const map={all:'ft-all',psent:'ft-psent',precvd:'ft-precvd'};
+  aFilter=f;
+  const m={all:'ft-all',psent:'ft-ps',precvd:'ft-pr'};
   ['all','psent','precvd'].forEach(k=>{
     const el=document.getElementById("tab-"+k);
-    el.className="filter-tab"+(k===f?" "+map[k]:"");
+    el.className="ftab"+(k===f?" "+m[k]:"");
   });
-  searchBox.value="";
-  drawTable(getFiltered());
+  searchBox.value="";drawTable(getFiltered());
 }
 function getFiltered(){
-  let d=currentData;
-  if(activeFilter==='psent') d=d.filter(r=>r.sent!=="Sent");
-  else if(activeFilter==='precvd') d=d.filter(r=>r.sent==="Sent"&&r.received!=="Received");
+  let d=cData;
+  if(aFilter==='psent') d=d.filter(r=>r.sent!=="Sent");
+  else if(aFilter==='precvd') d=d.filter(r=>r.sent==="Sent"&&r.received!=="Received");
   const q=searchBox.value.trim().toLowerCase();
   if(q) d=d.filter(r=>r.searchableText&&r.searchableText.includes(q));
   return d;
 }
 
-// ══════════════════════════════════════════════════
-// CFM — EXCEL UPLOAD
-// ══════════════════════════════════════════════════
+// ════════════════════════════════════════
+// CFM EXCEL UPLOAD
+// ════════════════════════════════════════
 async function uploadExcel(){
-  const file=excelFile.files[0];
-  if(!file){alert("Excel file select karo");return;}
+  const file=excelFile.files[0];if(!file){alert("Excel file select karo");return;}
   try{
-    const vs=await idbGetVersions(workDate.value);
-    uploadVersion=(vs&&vs.length?vs.length:0)+1;
+    const vs=await idbGV(workDate.value);upV=(vs&&vs.length?vs.length:0)+1;
     const reader=new FileReader();
     reader.onload=async e=>{
       try{
@@ -840,48 +589,38 @@ async function uploadExcel(){
         const sheet=wb.Sheets[wb.SheetNames[0]];
         let rows=XLSX.utils.sheet_to_json(sheet,{header:1,defval:""});
         if(rows.length>0)rows.shift();
-        currentData=rows.map(r=>{
+        cData=rows.map(r=>{
           const rec={srno:r[0]||"",caseno:String(r[1]||"").trim(),partyname:r[2]||"",section:r[3]||"",ps:r[4]||"",sent:"",received:"",receiveddate:"",nextdate:"",remark:""};
-          rec.searchableText=genSearch(rec);return rec;
+          rec.searchableText=gSrch(rec);return rec;
         }).filter(r=>r.caseno!=="");
-        const opt=document.createElement("option");opt.value=uploadVersion;opt.text="Upload "+uploadVersion;versionSelect.appendChild(opt);versionSelect.value=uploadVersion;
-        const newVs=vs?[...vs,uploadVersion]:[uploadVersion];
-        await idbSaveVersions(workDate.value,newVs);
-        await saveCurrentVersion();await saveLocal();
-        drawTable(getFiltered());updateDash();updateStorageUsage();
-        speak("Excel uploaded");
-        alert("Upload ho gaya! ("+currentData.length+" records)");
-        excelFile.value="";
+        const opt=document.createElement("option");opt.value=upV;opt.text="Upload "+upV;versionSelect.appendChild(opt);versionSelect.value=upV;
+        const nv=vs?[...vs,upV]:[upV];
+        await idbSV(workDate.value,nv);await saveCurV();await saveLocal();
+        drawTable(getFiltered());updateDash();updateSU();
+        speak("Excel uploaded");alert("Upload ho gaya! ("+cData.length+" records)");excelFile.value="";
       }catch(err){alert("Excel error: "+err.message);}
     };
     reader.readAsBinaryString(file);
   }catch(err){alert("Upload fail: "+err);}
 }
 
-// ══════════════════════════════════════════════════
-// CFM — TABLE
-// ══════════════════════════════════════════════════
+// ════════════════════════════════════════
+// CFM TABLE
+// ════════════════════════════════════════
 function drawTable(data){
   const tbl=document.getElementById("cfmTable");
   if(!data||!data.length){tbl.innerHTML="";return;}
-  const HDR=["srno","caseno","partyname","section","ps","sent","received","receiveddate","nextdate","remark"];
-  const LBL=["Sr.No","Case No","Party Name","Section","PS","Sent","Received","Recv.Date","Next Date","Remark"];
-  let html="<tr>"+LBL.map(x=>"<th>"+x+"</th>").join("")+"</tr>";
+  const H=["srno","caseno","partyname","section","ps","sent","received","receiveddate","nextdate","remark"];
+  const L=["Sr.No","Case No","Party Name","Section","PS","Sent","Received","Recv.Date","Next Date","Remark"];
+  let h="<tr>"+L.map(x=>"<th>"+x+"</th>").join("")+"</tr>";
   data.forEach(r=>{
-    let row='<tr id="row_'+sanitizeId(r.caseno)+'">';
-    // Bundle badge for case
-    HDR.forEach(k=>{
-      if(k==="caseno"){
-        const bkey=String(r.caseno).toUpperCase();
-        // We'll add bundle badge asynchronously — skip for now, just show caseno
-        row+='<td>'+esc(r[k]||"")+'</td>';
-      } else if(k==="remark"){
-        const ca=String(r.caseno).replace(/"/g,'&quot;');
-        const cj=String(r.caseno).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-        const va=String(r[k]||"").replace(/"/g,'&quot;');
+    let row='<tr id="row_'+sId(r.caseno)+'">';
+    H.forEach(k=>{
+      if(k==="remark"){
+        const ca=String(r.caseno).replace(/"/g,'&quot;'),cj=String(r.caseno).replace(/\\/g,'\\\\').replace(/'/g,"\\'"),va=String(r[k]||"").replace(/"/g,'&quot;');
         row+='<td><input data-caseno="'+ca+'" value="'+va+'" oninput="updateRemark(\''+cj+'\',this.value)" placeholder="Remark..."></td>';
       } else if(k==="receiveddate"||k==="nextdate"){
-        row+='<td>'+fmtDate(r[k])+'</td>';
+        row+='<td>'+fmtD(r[k])+'</td>';
       } else if(k==="sent"&&r.sent==="Sent"){
         row+='<td style="background:#fff3cd">'+esc(r[k]||"")+'</td>';
       } else if(k==="received"&&r.received==="Received"){
@@ -890,264 +629,220 @@ function drawTable(data){
         row+='<td>'+esc(r[k]||"")+'</td>';
       }
     });
-    row+="</tr>";html+=row;
+    row+="</tr>";h+=row;
   });
-  tbl.innerHTML=html;
+  tbl.innerHTML=h;
   setTimeout(()=>{
-    const active=document.activeElement;
-    const ac=active&&active.dataset&&active.dataset.caseno?active.dataset.caseno:null;
-    const cp=ac?active.selectionStart:null;
-    const rm=new Map(currentData.map(r=>[r.caseno,r.remark||""]));
+    const ac=document.activeElement,acc=ac&&ac.dataset&&ac.dataset.caseno?ac.dataset.caseno:null,cp=acc?ac.selectionStart:null;
+    const rm=new Map(cData.map(r=>[r.caseno,r.remark||""]));
     document.querySelectorAll('input[data-caseno]').forEach(inp=>{
       const val=rm.get(inp.dataset.caseno);if(val===undefined)return;
-      if(ac&&inp.dataset.caseno===ac){if(inp.value!==val)inp.value=val;if(cp!=null)try{inp.setSelectionRange(cp,cp);}catch(e){}inp.focus();}
+      if(acc&&inp.dataset.caseno===acc){if(inp.value!==val)inp.value=val;if(cp!=null)try{inp.setSelectionRange(cp,cp);}catch(e){}inp.focus();}
       else inp.value=val;
     });
   },0);
 }
-
-searchBox.addEventListener("input",()=>{clearTimeout(searchDeb);searchDeb=setTimeout(()=>drawTable(getFiltered()),150);});
-
-// ══════════════════════════════════════════════════
-// CFM — REMARK
-// ══════════════════════════════════════════════════
-async function updateRemark(caseNo,val){
-  clearTimeout(remarkTimer);
-  remarkTimer=setTimeout(async()=>{
-    const idx=currentData.findIndex(r=>r.caseno===caseNo);
-    if(idx!==-1){currentData[idx].remark=val;currentData[idx].searchableText=genSearch(currentData[idx]);await saveLocal();}
+searchBox.addEventListener("input",()=>{clearTimeout(sDeb);sDeb=setTimeout(()=>drawTable(getFiltered()),150);});
+async function updateRemark(cn,val){
+  clearTimeout(rTimer);
+  rTimer=setTimeout(async()=>{
+    const i=cData.findIndex(r=>r.caseno===cn);
+    if(i!==-1){cData[i].remark=val;cData[i].searchableText=gSrch(cData[i]);await saveLocal();}
   },400);
 }
 
-// ══════════════════════════════════════════════════
-// CFM — MANUAL ENTRY
-// ══════════════════════════════════════════════════
-function showMStatus(msg,type){
+// ════════════════════════════════════════
+// CFM MANUAL ENTRY
+// ════════════════════════════════════════
+function showMS(msg,type){
   const el=document.getElementById("manualStatus");
-  el.textContent=msg;el.className="status-msg s-"+type;
-  clearTimeout(el._t);if(type==="ok")el._t=setTimeout(()=>el.className="status-msg",3000);
+  el.textContent=msg;el.className="smsg s-"+type;
+  clearTimeout(el._t);if(type==="ok")el._t=setTimeout(()=>el.className="smsg",3000);
 }
 function onManualInput(){
-  const val=manualCaseInput.value.trim().toLowerCase();dropIdx=-1;
-  if(!val||!currentData.length){closeDrop();return;}
-  const matches=currentData.filter(r=>String(r.caseno).toLowerCase().includes(val)||String(r.partyname).toLowerCase().includes(val)).slice(0,20);
-  if(!matches.length){closeDrop();return;}
-  const dd=document.getElementById("caseDropdown");
-  dd.innerHTML=matches.map(r=>{
-    const cn=String(r.caseno).replace(/"/g,'&quot;');
-    const cj=String(r.caseno).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
-    const pt=(r.partyname||"")+(r.section?" | "+r.section:"");
-    return`<div class="drop-item" data-caseno="${cn}" onmousedown="selDrop('${cj}')"><div class="drop-cn">${esc(r.caseno)}</div><div class="drop-pt">${esc(pt)}</div></div>`;
+  const v=manualCaseInput.value.trim().toLowerCase();dropIdx=-1;
+  if(!v||!cData.length){closeDD();return;}
+  const m=cData.filter(r=>String(r.caseno).toLowerCase().includes(v)||String(r.partyname).toLowerCase().includes(v)).slice(0,20);
+  if(!m.length){closeDD();return;}
+  const dd=document.getElementById("caseDD");
+  dd.innerHTML=m.map(r=>{
+    const cn=String(r.caseno).replace(/"/g,'&quot;'),cj=String(r.caseno).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return`<div class="di" data-caseno="${cn}" onmousedown="selDD('${cj}')"><div class="di-cn">${esc(r.caseno)}</div><div class="di-pt">${esc(r.partyname||"")}${r.section?" | "+esc(r.section):""}</div></div>`;
   }).join("");
   dd.style.display="block";
 }
 function onManualKeyDown(e){
-  const dd=document.getElementById("caseDropdown");
-  const items=dd.querySelectorAll(".drop-item");if(!items.length)return;
-  if(e.key==="ArrowDown"){e.preventDefault();dropIdx=Math.min(dropIdx+1,items.length-1);updDropHL(items);}
-  else if(e.key==="ArrowUp"){e.preventDefault();dropIdx=Math.max(dropIdx-1,0);updDropHL(items);}
-  else if(e.key==="Enter"){e.preventDefault();if(dropIdx>=0&&items[dropIdx])selDrop(items[dropIdx].dataset.caseno);}
-  else if(e.key==="Escape")closeDrop();
+  const dd=document.getElementById("caseDD"),items=dd.querySelectorAll(".di");if(!items.length)return;
+  if(e.key==="ArrowDown"){e.preventDefault();dropIdx=Math.min(dropIdx+1,items.length-1);updDDHL(items);}
+  else if(e.key==="ArrowUp"){e.preventDefault();dropIdx=Math.max(dropIdx-1,0);updDDHL(items);}
+  else if(e.key==="Enter"){e.preventDefault();if(dropIdx>=0&&items[dropIdx])selDD(items[dropIdx].dataset.caseno);}
+  else if(e.key==="Escape")closeDD();
 }
-function updDropHL(items){items.forEach((el,i)=>{el.classList.toggle("act",i===dropIdx);if(i===dropIdx)el.scrollIntoView({block:"nearest"});});}
-function selDrop(cn){manualCaseInput.value=cn;closeDrop();document.getElementById("manualStatus").className="status-msg";}
-function closeDrop(){document.getElementById("caseDropdown").style.display="none";dropIdx=-1;}
-document.addEventListener("click",e=>{if(!e.target.closest(".drop-wrap"))closeDrop();});
+function updDDHL(items){items.forEach((el,i)=>{el.classList.toggle("act",i===dropIdx);if(i===dropIdx)el.scrollIntoView({block:"nearest"});});}
+function selDD(cn){manualCaseInput.value=cn;closeDD();document.getElementById("manualStatus").className="smsg";}
+function closeDD(){document.getElementById("caseDD").style.display="none";dropIdx=-1;}
+document.addEventListener("click",e=>{if(!e.target.closest(".dwrap"))closeDD();});
 
 async function manualAction(mode){
-  const caseNo=manualCaseInput.value.trim();
-  if(!caseNo){showMStatus("⚠️ Case No enter karo","err");return;}
-  if(!currentData.length){showMStatus("⚠️ Data nahi. Excel upload karo","err");return;}
-  const idx=currentData.findIndex(r=>String(r.caseno).trim()===caseNo);
-  if(idx===-1){showMStatus("❌ Not Found: "+caseNo,"err");speak("Case not found");return;}
-  const rec=currentData[idx];
+  const cn=manualCaseInput.value.trim();
+  if(!cn){showMS("⚠️ Case No enter karo","err");return;}
+  if(!cData.length){showMS("⚠️ Data nahi. Excel upload karo","err");return;}
+  const idx=cData.findIndex(r=>String(r.caseno).trim()===cn);
+  if(idx===-1){showMS("❌ Not Found: "+cn,"err");speak("Case not found");return;}
+  const rec=cData[idx];
   if(mode==="SENT"){
-    if(rec.sent==="Sent"){showMStatus("ℹ️ Already SENT: "+caseNo,"info");speak("Already sent");return;}
-    currentData[idx].sent="Sent";currentData[idx].searchableText=genSearch(currentData[idx]);
-    showMStatus("✅ SENT: "+caseNo,"ok");speak("File sent");manualCaseInput.value="";
-  } else if(mode==="RECEIVED"){
-    if(rec.sent!=="Sent"){showMStatus("❌ Pehle SENT karo","err");speak("File not sent yet");return;}
-    if(rec.received==="Received"){showMStatus("ℹ️ Already RECEIVED: "+caseNo,"info");speak("Already received");return;}
-    currentData[idx].received="Received";
-    currentData[idx].receiveddate=new Date().toISOString().split("T")[0];
-    lastReceivedCase=caseNo;
-    currentData[idx].searchableText=genSearch(currentData[idx]);
-    showMStatus("✅ RECEIVED: "+caseNo,"ok");speak("File received");manualCaseInput.value="";
-    openNextDateModal(caseNo);
+    if(rec.sent==="Sent"){showMS("ℹ️ Already SENT: "+cn,"info");speak("Already sent");return;}
+    cData[idx].sent="Sent";cData[idx].searchableText=gSrch(cData[idx]);
+    showMS("✅ SENT: "+cn,"ok");speak("File sent");manualCaseInput.value="";
+    // Hide bundle entry
+    await hideBundleEntry(cn);
+  } else {
+    if(rec.sent!=="Sent"){showMS("❌ Pehle SENT karo","err");speak("File not sent yet");return;}
+    if(rec.received==="Received"){showMS("ℹ️ Already RECEIVED: "+cn,"info");speak("Already received");return;}
+    cData[idx].received="Received";
+    cData[idx].receiveddate=new Date().toISOString().split("T")[0];
+    lastRcvCase=cn;cData[idx].searchableText=gSrch(cData[idx]);
+    showMS("✅ RECEIVED: "+cn,"ok");speak("File received");manualCaseInput.value="";
+    openNDModal(cn);
   }
-  drawTable(getFiltered());scrollToFile(caseNo);updateDash();await saveLocal();
+  drawTable(getFiltered());scrollToFile(cn);updateDash();await saveLocal();
 }
 
-// ══════════════════════════════════════════════════
-// CFM — SCROLL HIGHLIGHT
-// ══════════════════════════════════════════════════
-function scrollToFile(caseno){
-  const row=document.getElementById("row_"+sanitizeId(caseno));
+// ════════════════════════════════════════
+// CFM SCROLL HIGHLIGHT
+// ════════════════════════════════════════
+function scrollToFile(cn){
+  const row=document.getElementById("row_"+sId(cn));
   if(!row)return;
   row.scrollIntoView({behavior:"smooth",block:"center"});
   row.classList.add("hl");setTimeout(()=>row.classList.remove("hl"),4000);
 }
 
-// ══════════════════════════════════════════════════
-// CFM — NEXT DATE MODAL
-// ══════════════════════════════════════════════════
-function openNextDateModal(caseNo){
-  const rec=currentData.find(r=>r.caseno===caseNo);
-  const lbl=document.getElementById("nextdate-case-lbl");
-  lbl.textContent=(rec?rec.partyname+" — ":"")+caseNo;
-  document.getElementById("nextDateInput").value="";
-  document.getElementById("nextDateModal").classList.add("open");
+// ════════════════════════════════════════
+// CFM NEXT DATE MODAL
+// ════════════════════════════════════════
+function openNDModal(cn){
+  const rec=cData.find(r=>r.caseno===cn);
+  document.getElementById("nd-lbl").textContent=(rec?rec.partyname+" — ":"")+cn;
+  document.getElementById("ndInput").value="";
+  document.getElementById("ndModal").classList.add("on");
 }
-function closeNextDateModal(){document.getElementById("nextDateModal").classList.remove("open");lastReceivedCase=null;}
+function closeNDModal(){document.getElementById("ndModal").classList.remove("on");lastRcvCase=null;}
+document.getElementById("ndModal").addEventListener("click",function(e){if(e.target===this)closeNDModal();});
 
 async function saveNextDate(){
-  if(!lastReceivedCase)return;
-  const d=document.getElementById("nextDateInput").value;
+  if(!lastRcvCase)return;
+  const d=document.getElementById("ndInput").value;
   if(!d){alert("Date select karo");return;}
-  const idx=currentData.findIndex(r=>r.caseno===lastReceivedCase);
-  if(idx!==-1){
-    currentData[idx].nextdate=d;
-    currentData[idx].searchableText=genSearch(currentData[idx]);
-  }
-  document.getElementById("nextDateModal").classList.remove("open");
-  // Speak next date
+  const idx=cData.findIndex(r=>r.caseno===lastRcvCase);
+  if(idx!==-1){cData[idx].nextdate=d;cData[idx].searchableText=gSrch(cData[idx]);}
+  document.getElementById("ndModal").classList.remove("on");
   const dt=new Date(d);
   speak("Next date "+dt.getUTCDate()+" "+dt.toLocaleDateString("en-IN",{month:"long",timeZone:"UTC"}));
-  drawTable(getFiltered());
-  await saveLocal();
-  // ── INTEGRATION: check if this case has a bundle entry ──
-  checkBundleIntegration(lastReceivedCase, d);
-  lastReceivedCase=null;
+  drawTable(getFiltered());await saveLocal();
+  lastRcvCase=null;
 }
 
-// ══════════════════════════════════════════════════
-// CFM — DOWNLOAD EXCEL
-// ══════════════════════════════════════════════════
+// ════════════════════════════════════════
+// CFM DOWNLOAD
+// ════════════════════════════════════════
 function downloadExcel(){
-  if(!currentData.length){alert("Data nahi hai");return;}
-  const ed=currentData.map(r=>({"Sr.No":r.srno,"Case No":r.caseno,"Party Name":r.partyname,"Section":r.section,"PS":r.ps,"Sent":r.sent,"Received":r.received,"Recv.Date":r.receiveddate,"Next Date":r.nextdate,"Remark":r.remark}));
-  const ws=XLSX.utils.json_to_sheet(ed);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Court Data");
-  XLSX.writeFile(wb,"Court_"+workDate.value+"_v"+uploadVersion+".xlsx");
+  if(!cData.length){alert("Data nahi hai");return;}
+  const ed=cData.map(r=({"Sr.No":r.srno,"Case No":r.caseno,"Party Name":r.partyname,"Section":r.section,"PS":r.ps,"Sent":r.sent,"Received":r.received,"Recv.Date":r.receiveddate,"Next Date":r.nextdate,"Remark":r.remark}));
+  const ws=XLSX.utils.json_to_sheet(ed),wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Court Data");
+  XLSX.writeFile(wb,"Court_"+workDate.value+"_v"+upV+".xlsx");
 }
 
-// ══════════════════════════════════════════════════
-// CFM — DELETE OLD DATA
-// ══════════════════════════════════════════════════
+// ════════════════════════════════════════
+// CFM DELETE OLD / BACKUP
+// ════════════════════════════════════════
 async function deleteOldData(){
   if(!confirm("60 din se purana data delete karein?"))return;
   const today=new Date();let count=0;
   try{
-    const mk=await idbAllMetaKeys();
-    for(const key of mk){
-      if(key.startsWith('cv_'))continue;
-      const dp=key.substring(0,10);const fd=new Date(dp);
-      if(!isNaN(fd)&&(today-fd)/86400000>60){await idbDelMeta(key);count++;}
-    }
-    const dk=await idbAllVerKeys();
-    for(const dk2 of dk){const fd=new Date(dk2);if(!isNaN(fd)&&(today-fd)/86400000>60)await idbDelVerDate(dk2);}
-    alert(count+" records delete ho gaye.");updateStorageUsage();
+    const mk=await idbAMK();
+    for(const key of mk){if(key.startsWith('cv_'))continue;const fd=new Date(key.substring(0,10));if(!isNaN(fd)&&(today-fd)/86400000>60){await idbDM(key);count++;}}
+    const dk=await idbAVK();for(const d of dk){const fd=new Date(d);if(!isNaN(fd)&&(today-fd)/86400000>60)await idbDV(d);}
+    alert(count+" records delete ho gaye.");updateSU();
   }catch(err){alert("Delete fail: "+err);}
 }
-
-// ══════════════════════════════════════════════════
-// CFM — BACKUP / RESTORE
-// ══════════════════════════════════════════════════
 async function exportBackup(){
   const stEl=document.getElementById("backupStatus");
   try{
-    const avk=await idbAllVerKeys();const vd={};
-    for(const dk of avk){const r=await idbTx(S_VER,'readonly',s=>s.get(dk));if(r)vd[dk]=r.versions;}
-    const amk=await idbAllMetaKeys();const md={};
-    for(const k of amk){const v=await idbGetMeta(k);if(v!==null)md[k]=v;}
-    const allB=await idbAllBundles();
-    const bk={exportedAt:new Date().toISOString(),appVersion:"2.0",versionsStore:vd,metadataStore:md,bundlesStore:allB};
+    const avk=await idbAVK(),vd={};for(const d of avk){const r=await idbTx(SV,'readonly',s=>s.get(d));if(r)vd[d]=r.versions;}
+    const amk=await idbAMK(),md={};for(const k of amk){const v=await idbGM(k);if(v!==null)md[k]=v;}
+    const allB=await idbAB();
+    const bk={exportedAt:new Date().toISOString(),appVersion:"3.0",versionsStore:vd,metadataStore:md,bundlesStore:allB};
     const blob=new Blob([JSON.stringify(bk,null,2)],{type:"application/json"});
-    const url=URL.createObjectURL(blob);const a=document.createElement("a");
+    const url=URL.createObjectURL(blob),a=document.createElement("a");
     a.href=url;a.download="CourtBundleBackup_"+new Date().toISOString().split("T")[0]+".json";
     document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
-    stEl.textContent="✅ Backup export ho gaya!";stEl.className="status-msg s-ok";
-    clearTimeout(stEl._t);stEl._t=setTimeout(()=>stEl.className="status-msg",3000);
-  }catch(err){stEl.textContent="❌ Export fail: "+err;stEl.className="status-msg s-err";}
+    stEl.textContent="✅ Backup export ho gaya!";stEl.className="smsg s-ok";clearTimeout(stEl._t);stEl._t=setTimeout(()=>stEl.className="smsg",3000);
+  }catch(err){stEl.textContent="❌ Export fail: "+err;stEl.className="smsg s-err";}
 }
-
 async function importBackup(event){
-  const stEl=document.getElementById("backupStatus");
-  const file=event.target.files[0];event.target.value="";
+  const stEl=document.getElementById("backupStatus"),file=event.target.files[0];event.target.value="";
   if(!file)return;
   if(!confirm("⚠️ Restore karne se SAARA data replace hoga. Sure?"))return;
   const reader=new FileReader();
   reader.onload=async e=>{
     try{
       const bk=JSON.parse(e.target.result);
-      if(!bk.versionsStore||!bk.metadataStore){stEl.textContent="❌ Invalid backup";stEl.className="status-msg s-err";return;}
-      for(const[k,v] of Object.entries(bk.versionsStore))await idbTx(S_VER,'readwrite',s=>s.put({workDate:k,versions:v}));
-      for(const[k,v] of Object.entries(bk.metadataStore))await idbSetMeta(k,v);
-      if(bk.bundlesStore)for(const b of bk.bundlesStore)await idbSetBundle(b);
-      stEl.textContent="✅ Restore ho gaya! Reload ho rahi hai...";stEl.className="status-msg s-ok";
-      setTimeout(()=>location.reload(),1500);
-    }catch(err){stEl.textContent="❌ Restore fail: "+err.message;stEl.className="status-msg s-err";}
+      if(!bk.versionsStore||!bk.metadataStore){stEl.textContent="❌ Invalid backup";stEl.className="smsg s-err";return;}
+      for(const[k,v] of Object.entries(bk.versionsStore))await idbTx(SV,'readwrite',s=>s.put({workDate:k,versions:v}));
+      for(const[k,v] of Object.entries(bk.metadataStore))await idbSM(k,v);
+      if(bk.bundlesStore)for(const b of bk.bundlesStore)await idbSBn(b);
+      stEl.textContent="✅ Restore ho gaya!";stEl.className="smsg s-ok";setTimeout(()=>location.reload(),1500);
+    }catch(err){stEl.textContent="❌ Restore fail: "+err.message;stEl.className="smsg s-err";}
   };
   reader.readAsText(file);
 }
 
-// ══════════════════════════════════════════════════
-// SHARED SCANNER (BarcodeDetector — no external lib)
-// ══════════════════════════════════════════════════
-let scanStream=null, scanRaf=null, scanActive=false;
-let scanCtx=''; // 'cfm_sent' | 'cfm_received' | 'bundle_add'
-let scanDetector=null, scanCool=false, scanLast='', contMode=false;
-
-function initDetector(){
+// ════════════════════════════════════════
+// SHARED SCANNER (BarcodeDetector)
+// ════════════════════════════════════════
+let scanStream=null,scanActive=false,scanCtx='',scanDetector=null,scanCool=false,scanLast='',contMode=false;
+function initDet(){
   if(scanDetector)return true;
   if(!('BarcodeDetector' in window))return false;
   try{scanDetector=new BarcodeDetector({formats:['qr_code']});return true;}catch(e){return false;}
 }
-function setScanStatus(msg){document.getElementById('scan-status-bar').textContent=msg;}
-function showScanCard(msg,bg){
-  const c=document.getElementById('scan-result-card');
-  c.textContent=msg;c.style.background=bg;c.style.display='block';
-  setTimeout(()=>c.style.display='none',2000);
+function setSS(msg){document.getElementById('scan-sb').textContent=msg;}
+function showSC(msg,bg){
+  const c=document.getElementById('scan-card');c.textContent=msg;c.style.background=bg;c.style.display='block';
+  setTimeout(()=>c.style.display='none',2200);
 }
-function openScan(ctx,modeLabel,allowCont){
-  if(!initDetector()){showToast('BarcodeDetector support nahi hai. Chrome update karo','d');return;}
+function openScan(ctx,lbl,allowCont){
+  if(!initDet()){showToast('BarcodeDetector support nahi hai. Chrome update karo','d');return;}
   scanCtx=ctx;scanActive=true;scanCool=false;scanLast='';
-  if(!allowCont){
-    document.getElementById('cont-btn').style.display='none';
-  } else {
-    document.getElementById('cont-btn').style.display='block';
-    document.getElementById('cont-btn').textContent='🔁 Continuous: '+(contMode?'ON':'OFF');
-    document.getElementById('cont-btn').className=contMode?'on':'';
-  }
-  document.getElementById('scan-mode-lbl').textContent=modeLabel;
-  document.getElementById('scan-result-card').style.display='none';
-  document.getElementById('scan-overlay').classList.add('open');
-  setScanStatus('📷 Camera shuru ho rahi hai...');
+  document.getElementById('cont-btn').style.display=allowCont?'block':'none';
+  if(allowCont){document.getElementById('cont-btn').textContent='🔁 Continuous: '+(contMode?'ON':'OFF');document.getElementById('cont-btn').className=contMode?'on':'';}
+  document.getElementById('scan-ml').textContent=lbl;
+  document.getElementById('scan-card').style.display='none';
+  document.getElementById('scan-ov').classList.add('on');
+  setSS('📷 Camera shuru ho rahi hai...');
   navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}}})
   .then(stream=>{
-    scanStream=stream;
-    const vid=document.getElementById('scan-video');
-    vid.srcObject=stream;
-    vid.onloadedmetadata=()=>{vid.play();setScanStatus('📷 QR code frame ke saamne laao');schedDet();};
-    if(vid.readyState>=2){vid.play();setScanStatus('📷 QR code frame ke saamne laao');schedDet();}
-  })
-  .catch(err=>setScanStatus('❌ Camera: '+err.message));
+    scanStream=stream;const vid=document.getElementById('scan-vid');vid.srcObject=stream;
+    vid.onloadedmetadata=()=>{vid.play();setSS('📷 QR code frame ke saamne laao');schedDet();};
+    if(vid.readyState>=2){vid.play();setSS('📷 QR code frame ke saamne laao');schedDet();}
+  }).catch(err=>setSS('❌ Camera: '+err.message));
 }
 function schedDet(){if(!scanActive)return;setTimeout(doDet,80);}
 async function doDet(){
   if(!scanActive)return;
-  const vid=document.getElementById('scan-video');
+  const vid=document.getElementById('scan-vid');
   if(!vid||vid.readyState<2||vid.paused||vid.videoWidth===0){schedDet();return;}
   try{
     const bs=await scanDetector.detect(vid);
     if(bs&&bs.length&&!scanCool){
-      const decoded=bs[0].rawValue.trim();
-      if(decoded&&(!contMode||decoded!==scanLast)){
-        scanLast=decoded;scanCool=true;
+      const dec=bs[0].rawValue.trim();
+      if(dec&&(!contMode||dec!==scanLast)){
+        scanLast=dec;scanCool=true;
         showQRBox(bs[0].boundingBox,vid);
-        const fl=document.getElementById('scan-flash');
-        fl.classList.remove('go');void fl.offsetWidth;fl.classList.add('go');
-        handleScanResult(decoded);
-        if(!contMode){setTimeout(()=>{closeScan();},600);return;}
+        const fl=document.getElementById('scan-flash');fl.classList.remove('go');void fl.offsetWidth;fl.classList.add('go');
+        handleScanResult(dec);
+        if(!contMode){setTimeout(closeScan,700);return;}
         else{setTimeout(()=>{scanCool=false;hideQRBox();},2200);schedDet();return;}
       }
     }
@@ -1155,89 +850,112 @@ async function doDet(){
   schedDet();
 }
 function showQRBox(rect,vid){
-  const b=document.getElementById('qr-highlight'),w=document.getElementById('scan-box');
+  const b=document.getElementById('qr-hl'),w=document.getElementById('scan-box');
   const sx=w.offsetWidth/vid.videoWidth,sy=w.offsetHeight/vid.videoHeight;
   b.style.left=Math.round(rect.x*sx)+'px';b.style.top=Math.round(rect.y*sy)+'px';
-  b.style.width=Math.round(rect.width*sx)+'px';b.style.height=Math.round(rect.height*sy)+'px';
-  b.style.display='block';
+  b.style.width=Math.round(rect.width*sx)+'px';b.style.height=Math.round(rect.height*sy)+'px';b.style.display='block';
 }
-function hideQRBox(){document.getElementById('qr-highlight').style.display='none';}
+function hideQRBox(){document.getElementById('qr-hl').style.display='none';}
 function closeScan(){
   scanActive=false;
   if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null;}
-  document.getElementById('scan-video').srcObject=null;
-  hideQRBox();
-  document.getElementById('scan-overlay').classList.remove('open');
+  document.getElementById('scan-vid').srcObject=null;hideQRBox();
+  document.getElementById('scan-ov').classList.remove('on');
 }
 function toggleCont(){
   contMode=!contMode;scanLast='';scanCool=false;
-  const b=document.getElementById('cont-btn');
-  b.textContent='🔁 Continuous: '+(contMode?'ON':'OFF');
-  b.className=contMode?'on':'';
+  const b=document.getElementById('cont-btn');b.textContent='🔁 Continuous: '+(contMode?'ON':'OFF');b.className=contMode?'on':'';
+}
+function handleScanResult(dec){
+  if(scanCtx==='cfm_sent')      handleCFMScan(dec,'SENT');
+  else if(scanCtx==='cfm_rcv')  handleCFMScan(dec,'RECEIVED');
+  else if(scanCtx==='bundle')   handleBundleScan(dec);
 }
 
-// ── Route scan result to correct handler ──
-function handleScanResult(decoded){
-  if(scanCtx==='cfm_sent')     handleCFMScan(decoded,'SENT');
-  else if(scanCtx==='cfm_received') handleCFMScan(decoded,'RECEIVED');
-  else if(scanCtx==='bundle_add')   handleBundleScan(decoded);
-}
-
-// ══════════════════════════════════════════════════
-// CFM — SCANNER
-// ══════════════════════════════════════════════════
+// ════════════════════════════════════════
+// CFM SCANNER
+// ════════════════════════════════════════
 function startCFMScan(mode){
-  openScan(mode==='SENT'?'cfm_sent':'cfm_received',
-    mode==='SENT'?'📤 Scanning for SENT...':'📥 Scanning for RECEIVED...',
-    false);
+  openScan(mode==='SENT'?'cfm_sent':'cfm_rcv',
+    mode==='SENT'?'📤 Scanning for SENT...':'📥 Scanning for RECEIVED...',false);
 }
-
 async function handleCFMScan(code,mode){
-  const idx=currentData.findIndex(r=>r.caseno===code);
-  if(idx===-1){showScanCard('❌ Not Found: '+code,'#e03030');speak("File not found");return;}
+  const idx=cData.findIndex(r=>r.caseno===code);
+  if(idx===-1){showSC('❌ Not Found: '+code,'#e03030');speak("File not found");return;}
   if(mode==='SENT'){
-    if(currentData[idx].sent==="Sent"){showScanCard('ℹ️ Already Sent: '+code,'#d97706');speak("Already sent");return;}
-    currentData[idx].sent="Sent";currentData[idx].searchableText=genSearch(currentData[idx]);
-    showScanCard('✅ SENT: '+code,'#18a558');speak("File sent");
+    if(cData[idx].sent==="Sent"){showSC('ℹ️ Already Sent: '+code,'#d97706');speak("Already sent");return;}
+    cData[idx].sent="Sent";cData[idx].searchableText=gSrch(cData[idx]);
+    showSC('✅ SENT: '+code,'#18a558');speak("File sent");
+    await hideBundleEntry(code); // ← AUTO HIDE FROM BUNDLE
   } else {
-    if(currentData[idx].sent!=="Sent"){showScanCard('❌ Pehle SENT karo: '+code,'#e03030');speak("File not sent yet");return;}
-    if(currentData[idx].received==="Received"){showScanCard('ℹ️ Already Received: '+code,'#d97706');speak("Already received");return;}
-    currentData[idx].received="Received";
-    currentData[idx].receiveddate=new Date().toISOString().split("T")[0];
-    currentData[idx].searchableText=genSearch(currentData[idx]);
-    lastReceivedCase=code;
-    showScanCard('✅ RECEIVED: '+code,'#18a558');speak("File received");
-    setTimeout(()=>{closeScan();openNextDateModal(code);},700);
+    if(cData[idx].sent!=="Sent"){showSC('❌ Pehle SENT karo: '+code,'#e03030');speak("File not sent yet");return;}
+    if(cData[idx].received==="Received"){showSC('ℹ️ Already Received: '+code,'#d97706');speak("Already received");return;}
+    cData[idx].received="Received";cData[idx].receiveddate=new Date().toISOString().split("T")[0];
+    cData[idx].searchableText=gSrch(cData[idx]);lastRcvCase=code;
+    showSC('✅ RECEIVED: '+code,'#18a558');speak("File received");
+    setTimeout(()=>{closeScan();openNDModal(code);},800);
     drawTable(getFiltered());scrollToFile(code);updateDash();await saveLocal();
     return;
   }
   drawTable(getFiltered());scrollToFile(code);updateDash();await saveLocal();
 }
 
-// ══════════════════════════════════════════════════
-// BUNDLE TRACKER — STATE
-// ══════════════════════════════════════════════════
-let bFiles={};       // in-memory cache loaded from IndexedDB
-let bView='grid', bSlot=null, bRM=false, bMoveId=null;
+// ════════════════════════════════════════
+// BUNDLE: AUTO-HIDE when SENT
+// ════════════════════════════════════════
+async function hideBundleEntry(caseNo){
+  const id=String(caseNo).toUpperCase();
+  if(bFiles[id]){
+    bFiles[id].hidden=true;
+    await idbSBn(bFiles[id]);
+    if(activeTab==='bundle')bRenderGrid();
+    showToast('📁 '+id+' bundle se hide ho gaya (SENT)');
+  }
+}
+
+// ════════════════════════════════════════
+// BUNDLE STATE
+// ════════════════════════════════════════
+let bFiles={}, bRM=false, bMoveId=null, bSlot=null;
 let bAMD=1, bASD=null, bAC='A';
 let bMMD=1, bMSD=null, bMC='A';
-let intMD=1, intSD=null, intC='A', intCaseNo='';
+// Mismatch pending state
+let mmPending={id:'',cfmDay:0};
 
-async function bLoadAll(){
-  const all=await idbAllBundles();
-  bFiles={};
-  all.forEach(b=>bFiles[b.id]=b);
+async function bInit(){
+  const all=await idbAB();bFiles={};all.forEach(b=>bFiles[b.id]=b);
+  bBDG('b-mdg',bAMD,d=>{bAMD=d;bRenderAdd();});
+  bBCR('b-cr',bAC,c=>{bAC=c;bRenderAdd();});
+  bBDG('bm-mdg',bMMD,d=>{bMMD=d;bUpdateMP();bBDG('bm-mdg',bMMD,arguments.callee);});
+  bBCR('bm-cr',bMC,c=>{bMC=c;bUpdateMP();bBCR('bm-cr',bMC,arguments.callee);});
+  bUpdateSP();bUpdateMP();bUpdateST();
 }
-async function bSave(obj){await idbSetBundle(obj);}
-async function bDel(id){await idbDelBundle(id);}
+
+function swBV(v){
+  document.querySelectorAll('.bnb').forEach(b=>b.classList.toggle('on',b.dataset.bv===v));
+  document.querySelectorAll('.bview').forEach(el=>el.classList.remove('on'));
+  document.getElementById('bview-'+(v==='slot'?'slot':v)).classList.add('on');
+  if(v==='grid')bRenderGrid();
+  if(v==='search')setTimeout(()=>document.getElementById('b-si').focus(),80);
+}
+function goBGrid(){bSlot=null;swBV('grid');}
+
+function bBDG(id,sel,cb){
+  const el=document.getElementById(id);if(!el)return;
+  el.innerHTML=DATES.map(d=>`<button class="db${sel===d?' on':''}" onclick="(${cb})(${d})">${d}</button>`).join('');
+}
+function bBCR(id,sel,cb){
+  const el=document.getElementById(id);if(!el)return;
+  el.innerHTML=COLS.map(c=>`<button class="cb${sel===c?' on':''}" onclick="(${cb})('${c}')">${c}</button>`).join('');
+}
 
 function bSK(md,sd,c){return md+'|'+(sd==null?'-':sd)+'|'+c;}
 function bPK(k){const p=k.split('|');return{md:+p[0],sd:p[1]==='-'?null:+p[1],col:p[2]};}
 function bSM(){
   const m={};
-  Object.values(bFiles).forEach(f=>{
-    const k=bSK(f.md,f.sd,f.col);
-    if(!m[k])m[k]=[];m[k].push(f);
+  // Only show NON-hidden files
+  Object.values(bFiles).filter(f=>!f.hidden).forEach(f=>{
+    const k=bSK(f.md,f.sd,f.col);if(!m[k])m[k]=[];m[k].push(f);
   });
   return m;
 }
@@ -1247,54 +965,23 @@ function bCC(arr){
   return arr.length>=5?'sc-f':'sc-h';
 }
 
-async function bInit(){
-  await bLoadAll();
-  bBuildMDG('b-mdg',bAMD,d=>{bAMD=d;bRenderAddForm();});
-  bBuildCR('b-cr',bAC,c=>{bAC=c;bRenderAddForm();});
-  bBuildMDG('bm-mdg',bMMD,d=>{bMMD=d;bUpdateMP();bBuildMDG('bm-mdg',bMMD,arguments.callee);});
-  bBuildCR('bm-cr',bMC,c=>{bMC=c;bUpdateMP();bBuildCR('bm-cr',bMC,arguments.callee);});
-  bBuildMDG('int-mdg',intMD,d=>{intMD=d;bUpdateIntPrev();bBuildMDG('int-mdg',intMD,arguments.callee);});
-  bBuildCR('int-cr',intC,c=>{intC=c;bUpdateIntPrev();bBuildCR('int-cr',intC,arguments.callee);});
-  bUpdateSlotPrev();bUpdateMP();bUpdateIntPrev();bUpdateScanTarget();
-}
-
-// ── Sub-view switching ──
-function switchBView(v){
-  bView=v;
-  document.querySelectorAll('.bnb').forEach(b=>b.classList.toggle('on',b.dataset.bv===v));
-  document.querySelectorAll('.bview').forEach(el=>el.classList.remove('on'));
-  document.getElementById('bview-'+( v==='slot'?'slot':v)).classList.add('on');
-  if(v==='grid')bRenderGrid();
-  if(v==='search')setTimeout(()=>document.getElementById('b-si').focus(),80);
-}
-function goBGrid(){bSlot=null;switchBView('grid');}
-
-// ── Grid builders ──
-function bBuildMDG(id,sel,cb){
-  const el=document.getElementById(id);if(!el)return;
-  el.innerHTML=DATES.map(d=>`<button class="db${sel===d?' on':''}" onclick="(${cb})(${d})">${d}</button>`).join('');
-}
-function bBuildCR(id,sel,cb){
-  const el=document.getElementById(id);if(!el)return;
-  el.innerHTML=COLS.map(c=>`<button class="cb${sel===c?' on':''}" onclick="(${cb})('${c}')">${c}</button>`).join('');
-}
-
-// ── Grid render ──
+// ════════════════════════════════════════
+// BUNDLE GRID
+// ════════════════════════════════════════
 function bRenderGrid(){
   const m=bSM();
-  const dates=[...new Set(Object.values(bFiles).map(f=>f.md))].sort((a,b)=>a-b);
+  const dates=[...new Set(Object.values(bFiles).filter(f=>!f.hidden).map(f=>f.md))].sort((a,b)=>a-b);
   const gc=document.getElementById('bgc');
   if(!dates.length){gc.innerHTML='<div class="bempty">Koi file nahi. Add tab se shuru karo.</div>';return;}
   let h='';
   dates.forEach(date=>{
     const slots=Object.entries(m).filter(([k])=>+k.split('|')[0]===date).map(([k,arr])=>({...bPK(k),arr}));
     const tot=slots.reduce((s,x)=>s+x.arr.length,0);
-    h+=`<div class="bsec"><div class="dshdr"><span class="dbadge">${date}</span><span style="color:var(--muted);font-size:11px">— ${tot} files</span></div><div class="sgrid">`;
+    h+=`<div class="bsec"><div class="dshdr"><span class="dbadge">${date}</span><span style="color:var(--mu);font-size:11px">— ${tot} files</span></div><div class="sgrid">`;
     slots.forEach(({md,sd,col,arr})=>{
       const cls=bCC(arr),ic=cls==='sc-e'?'⚪':cls==='sc-h'?'🟡':'🔴';
       const ms=arr.filter(f=>f.st==='missing').length;
-      let rf='';
-      if(bRM)arr.forEach(f=>{rf+=`<button class="rmfb" onclick="bOpenMove('${esc(f.id)}')">⇄ ${esc(f.id)}</button>`;});
+      let rf='';if(bRM)arr.forEach(f=>{rf+=`<button class="rmfb" onclick="bOpenMove('${esc(f.id)}')">⇄ ${esc(f.id)}</button>`;});
       const oc=bRM?'void(0)':`bOSlot(${md},${sd==null?'null':sd},'${esc(col)}')`;
       h+=`<button class="sc ${cls}${bRM?' rm':''}" onclick="${oc}">`;
       h+=`<div style="display:flex;align-items:center;gap:4px"><div class="scol">${col}</div><span>${ic}</span></div>`;
@@ -1308,15 +995,11 @@ function bRenderGrid(){
   gc.innerHTML=h;
 }
 function toggleRM(){
-  bRM=!bRM;
-  const b=document.getElementById('rbtn');
-  b.textContent=bRM?'✓ Done':'⇄ Rearrange';
-  b.classList.toggle('on',bRM);
-  bRenderGrid();
+  bRM=!bRM;const b=document.getElementById('rbtn');
+  b.textContent=bRM?'✓ Done':'⇄ Rearrange';b.classList.toggle('on',bRM);bRenderGrid();
 }
 function bOSlot(md,sd,col){
-  bSlot={md,sd,col};
-  bRenderSlot();
+  bSlot={md,sd,col};bRenderSlot();
   document.querySelectorAll('.bview').forEach(el=>el.classList.remove('on'));
   document.getElementById('bview-slot').classList.add('on');
   document.querySelectorAll('.bnb').forEach(b=>b.classList.toggle('on',b.dataset.bv==='slot'));
@@ -1324,63 +1007,90 @@ function bOSlot(md,sd,col){
 function bRenderSlot(){
   if(!bSlot)return;
   const arr=(bSM()[bSK(bSlot.md,bSlot.sd,bSlot.col)]||[]);
-  document.getElementById('bsd-title').textContent=`Date ${bSlot.md}${bSlot.sd!=null?'/'+bSlot.sd:''} — Column ${bSlot.col}`;
-  document.getElementById('bsd-sub').textContent=arr.length+' files';
-  document.getElementById('bsd-content').innerHTML=arr.length?arr.map(f=>bFCHTML(f,false)).join(''):'<div class="bempty">Koi file nahi.</div>';
+  document.getElementById('bsd-t').textContent=`Date ${bSlot.md}${bSlot.sd!=null?'/'+bSlot.sd:''} — Column ${bSlot.col}`;
+  document.getElementById('bsd-s').textContent=arr.length+' files';
+  document.getElementById('bsd-c').innerHTML=arr.length?arr.map(f=>bFCHTML(f,false)).join(''):'<div class="bempty">Koi file nahi.</div>';
 }
 
-// ── Add form ──
-function bRenderAddForm(){
-  bBuildMDG('b-mdg',bAMD,d=>{bAMD=d;bRenderAddForm();});
-  if(bASD!==null){const el=document.getElementById('b-sdg');if(el)bBuildMDG('b-sdg',bASD,d=>{bASD=d;bRenderAddForm();});}
-  bBuildCR('b-cr',bAC,c=>{bAC=c;bRenderAddForm();});
-  bUpdateSlotPrev();bUpdateScanTarget();
+// ════════════════════════════════════════
+// BUNDLE ADD FORM
+// ════════════════════════════════════════
+function bRenderAdd(){
+  bBDG('b-mdg',bAMD,d=>{bAMD=d;bRenderAdd();});
+  if(bASD!==null){const el=document.getElementById('b-sdg');if(el)bBDG('b-sdg',bASD,d=>{bASD=d;bRenderAdd();});}
+  bBCR('b-cr',bAC,c=>{bAC=c;bRenderAdd();});
+  bUpdateSP();bUpdateST();
 }
 function bEnableSD(){
-  bASD=1;
-  document.getElementById('b-sds').innerHTML='<div class="dgrid" id="b-sdg"></div>';
+  bASD=1;document.getElementById('b-sds').innerHTML='<div class="dgrid" id="b-sdg"></div>';
   document.getElementById('b-sdc').style.display='inline-block';
-  bBuildMDG('b-sdg',bASD,d=>{bASD=d;bRenderAddForm();});
-  bUpdateSlotPrev();bUpdateScanTarget();
+  bBDG('b-sdg',bASD,d=>{bASD=d;bRenderAdd();});bUpdateSP();bUpdateST();
 }
 function bClearSD(){
-  bASD=null;
-  document.getElementById('b-sds').innerHTML='<button class="sd-add-btn" onclick="bEnableSD()">+ Sub-Date add karo</button>';
-  document.getElementById('b-sdc').style.display='none';
-  bUpdateSlotPrev();bUpdateScanTarget();
+  bASD=null;document.getElementById('b-sds').innerHTML='<button class="sdadd" onclick="bEnableSD()">+ Sub-Date add karo (overflow case)</button>';
+  document.getElementById('b-sdc').style.display='none';bUpdateSP();bUpdateST();
 }
-function bUpdateSlotPrev(){
+function bUpdateSP(){
   const ex=(bSM()[bSK(bAMD,bASD,bAC)]||[]);
-  document.getElementById('b-sp-txt').textContent=`Date ${bAMD}${bASD!=null?'/'+bASD:''} — Col ${bAC}`;
-  document.getElementById('b-sp-cnt').textContent=`(${ex.length} files)`;
-  const eb=document.getElementById('b-ex-box'),et=document.getElementById('b-ex-tags');
+  document.getElementById('b-sp-t').textContent=`Date ${bAMD}${bASD!=null?'/'+bASD:''} — Col ${bAC}`;
+  document.getElementById('b-sp-c').textContent=`(${ex.length} files)`;
+  const eb=document.getElementById('b-exbox'),et=document.getElementById('b-extags');
   if(ex.length){eb.style.display='block';et.innerHTML=ex.map(f=>`<span class="etag${f.st==='missing'?' miss':''}">${esc(f.id)}${f.st==='missing'?' ⚠':''}</span>`).join('');}
   else eb.style.display='none';
 }
-function bUpdateScanTarget(){
-  const el=document.getElementById('scan-mode-lbl');
-  if(el&&scanCtx==='bundle_add') el.textContent=`📷 Bundle Scan → Date ${bAMD}${bASD!=null?'/'+bASD:''} Col ${bAC}`;
+function bUpdateST(){
+  const el=document.getElementById('scan-ml');
+  if(el&&scanCtx==='bundle') el.textContent=`📷 Bundle → Date ${bAMD}${bASD!=null?'/'+bASD:''} Col ${bAC}`;
 }
 
-// ── Add file ──
-async function bAddFile(rawId,fromScan){
+// ════════════════════════════════════════
+// BUNDLE ADD FILE
+// Core logic with all 3 rules applied
+// ════════════════════════════════════════
+async function bAddFile(rawId, fromScan){
   const id=rawId.trim().toUpperCase();if(!id)return false;
-  if(bFiles[id]){
+
+  // ── RULE 1: Scan only — CFM must have this file ──
+  if(fromScan){
+    const rec=getCFMRecord(id);
+    if(!rec){
+      showSC('❌ CFM mein nahi hai: '+id+'\nPehle Excel upload karo','#e03030');
+      speak("File CFM mein nahi hai");
+      return false;
+    }
+  }
+
+  // ── RULE 2: Duplicate check — error for BOTH scan & manual ──
+  if(bFiles[id]&&!bFiles[id].hidden){
     const ex=bFiles[id];
-    const msg=`"${id}" pehle se: Date ${ex.md}${ex.sd!=null?'/'+ex.sd:''} Col ${ex.col}`;
-    fromScan?showScanCard(msg,'#d97706'):showToast(msg,'w');
-    if(fromScan)speak(id+' pehle se hai','hi-IN');
+    const msg=`"${id}" pehle se hai: Date ${ex.md}${ex.sd!=null?'/'+ex.sd:''} — Col ${ex.col}. Pehle manually hatao.`;
+    fromScan?showSC(msg,'#e03030'):showToast(msg,'d');
+    speak("File pehle se hai");
     return false;
   }
-  const obj={id,md:bAMD,sd:bASD,col:bAC,at:Date.now(),st:'placed'};
-  bFiles[id]=obj;
-  await bSave(obj);
+
+  // ── RULE 3: Scan only — Date mismatch check ──
+  if(fromScan){
+    const cfmDay=getCFMDay(id);
+    // If CFM has a next date and it doesn't match selected main date
+    // AND no sub-date is selected → block and show mismatch modal
+    if(cfmDay!==null && cfmDay!==bAMD && bASD===null){
+      // Show mismatch modal
+      openMismatchModal(id, cfmDay);
+      return false;
+    }
+  }
+
+  // ── ALL CHECKS PASSED: Add file ──
+  const obj={id,md:bAMD,sd:bASD,col:bAC,at:Date.now(),st:'placed',hidden:false};
+  bFiles[id]=obj;await idbSBn(obj);
   const sl=`${bAMD}${bASD!=null?'/'+bASD:''}-${bAC}`;
-  if(fromScan){showScanCard('✅ '+id+' → Date '+sl,'#18a558');speak(bAMD+' '+bAC,'hi-IN');}
+  if(fromScan){showSC('✅ '+id+' → Date '+sl,'#18a558');speak(bAMD+' '+bAC,'hi-IN');}
   else showToast('✅ '+id+' → '+sl);
-  bUpdateSlotPrev();bRenderGrid();
+  bUpdateSP();bRenderGrid();
   return true;
 }
+
 function bMKey(e){
   if(e.key==='Enter'){
     e.preventDefault();
@@ -1393,163 +1103,158 @@ function bMAdd(){
   document.getElementById('b-mi').value='';
 }
 
-// ── Bundle scanner ──
+// ════════════════════════════════════════
+// BUNDLE SCANNER
+// ════════════════════════════════════════
 function startBundleScan(){
-  bUpdateScanTarget();
-  openScan('bundle_add',`📷 Bundle → Date ${bAMD}${bASD!=null?'/'+bASD:''} Col ${bAC}`,true);
+  bUpdateST();
+  openScan('bundle',`📷 Bundle → Date ${bAMD}${bASD!=null?'/'+bASD:''} Col ${bAC}`,true);
 }
-function handleBundleScan(decoded){bAddFile(decoded,true);}
+function handleBundleScan(dec){
+  bAddFile(dec,true);
+  // If file was added successfully and continuous mode, update target label
+  if(scanActive)bUpdateST();
+}
 
-// ── File actions ──
+// ════════════════════════════════════════
+// MISMATCH MODAL
+// ════════════════════════════════════════
+let mmSD=1; // sub-date selected in mismatch modal
+
+function openMismatchModal(id, cfmDay){
+  mmPending={id, cfmDay};
+  mmSD=1;
+  document.getElementById('mm-title').textContent=`⚠ Case: ${id}`;
+  document.getElementById('mm-body').textContent=
+    `CFM mein next date ki day = ${cfmDay}, lekin aap Date ${bAMD} mein rakh rahe ho. Mismatch!`;
+  bBDG('mm-sdg', mmSD, d=>{mmSD=d; document.getElementById('mm-prev').textContent=`Date ${bAMD} / Sub-Date ${d} — Col ${bAC}`;
+    bBDG('mm-sdg',mmSD,arguments.callee);});
+  document.getElementById('mm-prev').textContent=`Date ${bAMD} / Sub-Date ${mmSD} — Col ${bAC}`;
+  document.getElementById('mmModal').classList.add('on');
+}
+
+async function confirmMismatch(){
+  // Add file with the sub-date from mismatch modal
+  const id=mmPending.id;
+  // Temporarily set sub-date to mmSD
+  const prevSD=bASD;
+  bASD=mmSD;
+  // Now add (fromScan=false to skip scan checks since we already validated)
+  const obj={id,md:bAMD,sd:bASD,col:bAC,at:Date.now(),st:'placed',hidden:false};
+  bFiles[id]=obj;await idbSBn(obj);
+  const sl=`${bAMD}/${bASD}-${bAC}`;
+  showSC('✅ '+id+' → Date '+sl+' (sub-date override)','#18a558');
+  speak(bAMD+' '+bAC,'hi-IN');
+  bUpdateSP();bRenderGrid();
+  bASD=prevSD; // restore
+  document.getElementById('mmModal').classList.remove('on');
+  mmPending={id:'',cfmDay:0};
+}
+
+function cancelMismatch(){
+  document.getElementById('mmModal').classList.remove('on');
+  mmPending={id:'',cfmDay:0};
+  showSC('❌ Scan reject: date mismatch tha','#e03030');
+}
+
+// ════════════════════════════════════════
+// BUNDLE FILE ACTIONS
+// ════════════════════════════════════════
 async function bSetStatus(id,st){
-  if(!bFiles[id])return;
-  bFiles[id].st=st;
-  await bSave(bFiles[id]);
+  if(!bFiles[id])return;bFiles[id].st=st;await idbSBn(bFiles[id]);
   showToast(st==='missing'?'⚠ Missing: '+id:'✅ Restored: '+id,st==='missing'?'w':'');
   bRenderGrid();if(bSlot)bRenderSlot();bRenderSearch();
 }
+async function bUnhide(id){
+  if(!bFiles[id])return;bFiles[id].hidden=false;await idbSBn(bFiles[id]);
+  showToast('✅ '+id+' wapas dikhaya','');bRenderGrid();bRenderSearch();
+}
 async function bDelFile(id){
-  delete bFiles[id];await bDel(id);
-  showToast('Hata diya: '+id,'d');
-  bRenderGrid();if(bSlot)bRenderSlot();bRenderSearch();
+  delete bFiles[id];await idbDB(id);
+  showToast('Hata diya: '+id,'d');bRenderGrid();if(bSlot)bRenderSlot();bRenderSearch();
 }
 
-// ── Move modal ──
+// ════════════════════════════════════════
+// BUNDLE MOVE MODAL
+// ════════════════════════════════════════
 function bOpenMove(id){
   bMoveId=id;const f=bFiles[id];
   bMMD=f.md;bMSD=f.sd!=null?f.sd:null;bMC=f.col;
-  document.getElementById('bmove-fid').textContent=id;
-  bRenderMoveForm();
-  document.getElementById('bMoveModal').classList.add('open');
+  document.getElementById('bm-fid').textContent=id;
+  bRenderMoveForm();document.getElementById('bmModal').classList.add('on');
 }
-function closeBMoveModal(){document.getElementById('bMoveModal').classList.remove('open');bMoveId=null;}
-document.getElementById('bMoveModal').addEventListener('click',function(e){if(e.target===this)closeBMoveModal();});
-
+function closeBMModal(){document.getElementById('bmModal').classList.remove('on');bMoveId=null;}
+document.getElementById('bmModal').addEventListener('click',function(e){if(e.target===this)closeBMModal();});
 function bRenderMoveForm(){
-  bBuildMDG('bm-mdg',bMMD,d=>{bMMD=d;bRenderMoveForm();});
-  bBuildCR('bm-cr',bMC,c=>{bMC=c;bRenderMoveForm();});
+  bBDG('bm-mdg',bMMD,d=>{bMMD=d;bRenderMoveForm();});
+  bBCR('bm-cr',bMC,c=>{bMC=c;bRenderMoveForm();});
   const sec=document.getElementById('bm-sds');
   if(bMSD!==null){
     if(!document.getElementById('bm-sdg')){sec.innerHTML='<div class="dgrid" id="bm-sdg"></div>';document.getElementById('bm-sdc').style.display='inline-block';}
-    bBuildMDG('bm-sdg',bMSD,d=>{bMSD=d;bRenderMoveForm();});
+    bBDG('bm-sdg',bMSD,d=>{bMSD=d;bRenderMoveForm();});
   } else {
-    sec.innerHTML='<button class="sd-add-btn" onclick="bmEnableSD()">+ Sub-Date add karo</button>';
+    sec.innerHTML='<button class="sdadd" onclick="bmEnableSD()">+ Sub-Date add karo</button>';
     document.getElementById('bm-sdc').style.display='none';
   }
   bUpdateMP();
 }
-function bmEnableSD(){bMSD=1;document.getElementById('bm-sds').innerHTML='<div class="dgrid" id="bm-sdg"></div>';document.getElementById('bm-sdc').style.display='inline-block';bBuildMDG('bm-sdg',bMSD,d=>{bMSD=d;bRenderMoveForm();});bUpdateMP();}
-function bmClearSD(){bMSD=null;document.getElementById('bm-sds').innerHTML='<button class="sd-add-btn" onclick="bmEnableSD()">+ Sub-Date add karo</button>';document.getElementById('bm-sdc').style.display='none';bUpdateMP();}
+function bmEnableSD(){bMSD=1;document.getElementById('bm-sds').innerHTML='<div class="dgrid" id="bm-sdg"></div>';document.getElementById('bm-sdc').style.display='inline-block';bBDG('bm-sdg',bMSD,d=>{bMSD=d;bRenderMoveForm();});bUpdateMP();}
+function bmClearSD(){bMSD=null;document.getElementById('bm-sds').innerHTML='<button class="sdadd" onclick="bmEnableSD()">+ Sub-Date add karo</button>';document.getElementById('bm-sdc').style.display='none';bUpdateMP();}
 function bUpdateMP(){document.getElementById('bm-prev').textContent=`Date ${bMMD}${bMSD!=null?'/'+bMSD:''} — Col ${bMC}`;}
-
 async function doBundleMove(){
   if(!bMoveId)return;
   bFiles[bMoveId].md=bMMD;bFiles[bMoveId].sd=bMSD;bFiles[bMoveId].col=bMC;
-  await bSave(bFiles[bMoveId]);
+  await idbSBn(bFiles[bMoveId]);
   showToast(`✅ Moved → Date ${bMMD}${bMSD!=null?'/'+bMSD:''}-${bMC}`);
-  closeBMoveModal();bRenderGrid();
-  if(bSlot){bSlot=null;goBGrid();}
-  bRenderSearch();
+  closeBMModal();bRenderGrid();if(bSlot){bSlot=null;goBGrid();}bRenderSearch();
 }
 
-// ── Search ──
+// ════════════════════════════════════════
+// BUNDLE SEARCH
+// ════════════════════════════════════════
 function bRenderSearch(){
   const q=document.getElementById('b-si').value.trim().toLowerCase();
   const res=document.getElementById('b-sr');
-  const miss=Object.values(bFiles).filter(f=>f.st==='missing');
-  const tot=Object.keys(bFiles).length;
+  // Show hidden files in search too (so user can unhide)
+  const allV=Object.values(bFiles);
+  const miss=allV.filter(f=>f.st==='missing'&&!f.hidden);
+  const tot=allV.filter(f=>!f.hidden).length;
   if(q){
-    const r=Object.values(bFiles).filter(f=>f.id.toLowerCase().includes(q));
+    const r=allV.filter(f=>f.id.toLowerCase().includes(q));
     res.innerHTML=r.length?r.map(f=>bFCHTML(f,true)).join(''):'<div class="nores">❌ "'+esc(q)+'" nahi mili</div>';
     return;
   }
-  if(miss.length){res.innerHTML='<div style="color:var(--danger);font-weight:700;margin-bottom:10px">⚠ Missing ('+miss.length+')</div>'+miss.map(f=>bFCHTML(f,true)).join('');return;}
-  res.innerHTML=tot?'<div style="color:var(--success);font-size:13px;text-align:center;margin-top:30px;font-weight:600">✅ Koi missing nahi</div>':'<div class="bempty">Koi file add nahi ki abhi.</div>';
+  if(miss.length){res.innerHTML='<div style="color:var(--dan);font-weight:700;margin-bottom:10px">⚠ Missing ('+miss.length+')</div>'+miss.map(f=>bFCHTML(f,true)).join('');return;}
+  res.innerHTML=tot?'<div style="color:var(--suc);font-size:13px;text-align:center;margin-top:30px;font-weight:600">✅ Koi missing nahi</div>':'<div class="bempty">Koi file add nahi ki abhi.</div>';
 }
 
-// ── File card HTML ──
+// ════════════════════════════════════════
+// BUNDLE FILE CARD HTML
+// ════════════════════════════════════════
 function bFCHTML(f,showLoc){
   const id=esc(f.id);
-  return `<div class="bfc${f.st==='missing'?' miss':''}">
-    <div class="bfc-hdr"><span class="bfid">${id}</span>${f.st==='missing'?'<span class="miss-badge">⚠ MISSING</span>':''}</div>
-    ${showLoc?`<div class="bloc">📍 Date ${f.md}${f.sd!=null?'/'+f.sd:''} — Col <strong>${f.col}</strong></div>`:''}
+  const isHidden=f.hidden;
+  return `<div class="bfc${f.st==='missing'?' miss':''}${isHidden?' hidden-card':''}">
+    <div class="bfch">
+      <span class="bfid">${id}</span>
+      <div style="display:flex;gap:5px;align-items:center">
+        ${isHidden?'<span style="background:#dcfce7;color:#15803d;font-size:10px;padding:2px 7px;border-radius:4px;font-weight:700">SENT ✓</span>':''}
+        ${f.st==='missing'?'<span class="mbadge">⚠ MISSING</span>':''}
+      </div>
+    </div>
+    ${showLoc?`<div class="bloc">📍 Date ${f.md}${f.sd!=null?'/'+f.sd:''} — Col <strong>${f.col}</strong>${isHidden?' <em style="color:var(--suc);font-size:11px">(SENT — hidden from grid)</em>':''}</div>`:''}
     <div class="bact">
-      ${f.st!=='missing'
-        ?`<button class="smb" style="background:#d9770614;color:var(--amber-h);border:1px solid #d9770640" onclick="bSetStatus('${id}','missing')">Missing</button>`
-        :`<button class="smb" style="background:#10b98114;color:var(--success);border:1px solid #10b98140" onclick="bSetStatus('${id}','placed')">Wapas Mili</button>`}
-      <button class="smb" style="background:#0e7ac414;color:var(--info);border:1px solid #0e7ac440" onclick="bOpenMove('${id}')">⇄ Move</button>
-      <button class="smb" style="background:#ef444414;color:var(--danger);border:1px solid #ef444440" onclick="bDelFile('${id}')">Hatao</button>
+      ${isHidden
+        ?`<button class="smb" style="background:#e8eeff;color:var(--p);border:1px solid #c4b5fd" onclick="bUnhide('${id}')">👁 Wapas Dikhao</button>`
+        :f.st!=='missing'
+          ?`<button class="smb" style="background:#d9770614;color:var(--ambh);border:1px solid #d9770640" onclick="bSetStatus('${id}','missing')">Missing</button>`
+          :`<button class="smb" style="background:#10b98114;color:var(--suc);border:1px solid #10b98140" onclick="bSetStatus('${id}','placed')">Wapas Mili</button>`
+      }
+      ${!isHidden?`<button class="smb" style="background:#0e7ac414;color:var(--inf);border:1px solid #0e7ac440" onclick="bOpenMove('${id}')">⇄ Move</button>`:''}
+      <button class="smb" style="background:#ef444414;color:var(--dan);border:1px solid #ef444440" onclick="bDelFile('${id}')">Hatao</button>
     </div>
   </div>`;
 }
-
-// ══════════════════════════════════════════════════
-// INTEGRATION BRIDGE
-// ══════════════════════════════════════════════════
-// Called after next date is saved in CFM
-// Checks if the case has a bundle entry → if yes, prompt to move it
-async function checkBundleIntegration(caseNo, nextDateISO){
-  const id=String(caseNo).toUpperCase();
-  const bEntry=bFiles[id];
-
-  // Extract day from next date (yyyy-mm-dd → day number)
-  const dayNum=parseInt(nextDateISO.split('-')[2]);
-
-  if(bEntry){
-    // Case has a bundle location — prompt to move
-    const curLoc=`Date ${bEntry.md}${bEntry.sd!=null?'/'+bEntry.sd:''} — Col ${bEntry.col}`;
-    document.getElementById('int-sub').textContent=`Case: ${caseNo} | Next Date: ${nextDateISO}`;
-    const curEl=document.getElementById('int-current-loc');
-    curEl.textContent=`📍 Current Bundle Location: ${curLoc}`;
-    curEl.style.display='block';
-    intCaseNo=id;
-    intMD=dayNum; intSD=null; intC='A';
-    // Build integration form
-    bBuildMDG('int-mdg',intMD,d=>{intMD=d;bUpdateIntPrev();bBuildMDG('int-mdg',intMD,arguments.callee);});
-    bBuildCR('int-cr',intC,c=>{intC=c;bUpdateIntPrev();bBuildCR('int-cr',intC,arguments.callee);});
-    document.getElementById('int-sds').innerHTML='<button class="sd-add-btn" onclick="intEnableSD()">+ Sub-Date add karo</button>';
-    document.getElementById('int-sdc').style.display='none';
-    bUpdateIntPrev();
-    document.getElementById('integrationModal').classList.add('open');
-  } else {
-    // Case has no bundle — ask if they want to add it
-    // Silent — only show if case is in bundle system
-    // (Don't show modal if case was never tracked in bundle)
-  }
-}
-
-function intEnableSD(){
-  intSD=1;
-  document.getElementById('int-sds').innerHTML='<div class="dgrid" id="int-sdg"></div>';
-  document.getElementById('int-sdc').style.display='inline-block';
-  bBuildMDG('int-sdg',intSD,d=>{intSD=d;bUpdateIntPrev();bBuildMDG('int-sdg',intSD,arguments.callee);});
-  bUpdateIntPrev();
-}
-function intClearSD(){
-  intSD=null;
-  document.getElementById('int-sds').innerHTML='<button class="sd-add-btn" onclick="intEnableSD()">+ Sub-Date add karo</button>';
-  document.getElementById('int-sdc').style.display='none';
-  bUpdateIntPrev();
-}
-function bUpdateIntPrev(){document.getElementById('int-prev').textContent=`Date ${intMD}${intSD!=null?'/'+intSD:''} — Col ${intC}`;}
-
-async function doIntegrationMove(){
-  if(!intCaseNo||!bFiles[intCaseNo])return;
-  const old=bFiles[intCaseNo];
-  const oldLoc=`Date ${old.md}${old.sd!=null?'/'+old.sd:''}-${old.col}`;
-  bFiles[intCaseNo].md=intMD;bFiles[intCaseNo].sd=intSD;bFiles[intCaseNo].col=intC;
-  await bSave(bFiles[intCaseNo]);
-  showToast(`📁 ${intCaseNo}: ${oldLoc} → Date ${intMD}${intSD!=null?'/'+intSD:''}-${intC}`);
-  speak(`${intCaseNo} bundle moved to date ${intMD} column ${intC}`,'hi-IN');
-  closeIntModal();
-  if(activeTab==='bundle')bRenderGrid();
-}
-function closeIntModal(){
-  document.getElementById('integrationModal').classList.remove('open');
-  intCaseNo='';
-}
-document.getElementById('integrationModal').addEventListener('click',function(e){if(e.target===this)closeIntModal();});
-document.getElementById('nextDateModal').addEventListener('click',function(e){if(e.target===this)closeNextDateModal();});
 </script>
 </body>
 </html>
