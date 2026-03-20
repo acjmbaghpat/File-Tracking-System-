@@ -280,55 +280,27 @@ tr:hover{background:#f8fafc}
 ══════════════════════════════════════ -->
 <div class="tab-c" id="bundle-tab">
 <div class="bnav">
-  <button class="bnb on" data-bv="grid"   onclick="swBV('grid')">🗂 Grid</button>
-  <button class="bnb"    data-bv="add"    onclick="swBV('add')">➕ Add</button>
+  <button class="bnb on" data-bv="add"    onclick="swBV('add')">➕ Add</button>
   <button class="bnb"    data-bv="search" onclick="swBV('search')">🔍 Find</button>
+  <button class="bnb"    data-bv="grid"   onclick="swBV('grid')">🗂 Grid</button>
 </div>
 <div class="cnt" style="padding-top:14px">
 
-  <!-- GRID -->
-  <div class="bview on" id="bview-grid">
-    <div class="bgtbar">
-      <div style="color:var(--mu);font-size:12px">Slot tap → detail</div>
-      <button class="rtog" id="rbtn" onclick="toggleRM()">⇄ Rearrange</button>
-    </div>
-    <div class="legend">
-      <span><span class="ld" style="background:#dde1ee;border:1px solid #bbb"></span>Empty</span>
-      <span><span class="ld" style="background:#d97706"></span>Half (1–4)</span>
-      <span><span class="ld" style="background:#e03030"></span>Full (5+)</span>
-      <span><span class="ld" style="background:#e03030;opacity:.5"></span>Missing</span>
-    </div>
-    <div id="bgc"></div>
-  </div>
-
-  <!-- SLOT DETAIL -->
-  <div class="bview" id="bview-slot">
-    <button class="btn btn-g btn-sm" style="margin-bottom:14px" onclick="goBGrid()">← Wapas</button>
-    <div style="color:var(--p);font-weight:700;font-size:18px;margin-bottom:3px" id="bsd-t"></div>
-    <div style="color:var(--mu);font-size:12px;margin-bottom:14px" id="bsd-s"></div>
-    <div id="bsd-c"></div>
-  </div>
-
-  <!-- ADD -->
-  <div class="bview" id="bview-add">
+  <!-- ADD VIEW -->
+  <div class="bview on" id="bview-add">
     <div style="font-weight:700;font-size:15px;margin-bottom:14px">📥 Files Add Karo</div>
-    <span class="blbl mt0">Main Date (1–31) — Rack ka date</span>
+    <span class="blbl mt0">Main Date (1–31)</span>
     <div class="dgrid" id="b-mdg"></div>
     <div style="display:flex;align-items:center;margin-top:12px">
       <span class="blbl" style="margin:0">Sub-Date <span style="font-weight:400;text-transform:none">(optional)</span></span>
       <button class="clrbtn" id="b-sdc" onclick="bClearSD()" style="display:none">✕ Clear</button>
     </div>
-    <div id="b-sds"><button class="sdadd" onclick="bEnableSD()">+ Sub-Date add karo (overflow case)</button></div>
+    <div id="b-sds"><button class="sdadd" onclick="bEnableSD()">+ Sub-Date add karo (overflow)</button></div>
     <span class="blbl">Column</span>
-    <div class="crow" id="b-cr"></div>
+    <div id="b-cr-wrap"></div>
     <div class="sprev">Slot → <strong id="b-sp-t">—</strong> <span id="b-sp-c" style="font-size:12px"></span></div>
     <div class="div"></div>
-    <span class="blbl mt0">QR Scanner</span>
-    <button class="osb" onclick="startBundleScan()">
-      <span class="ic">📷</span>
-      <div><div>QR Code Scanner</div><div style="font-size:11px;opacity:.8;font-weight:400">Camera se scan karo (validations apply)</div></div>
-    </button>
-    <span class="blbl">Ya manually type karo <span style="font-weight:400;text-transform:none;font-size:11px">(no validation)</span></span>
+    <span class="blbl mt0">Manually type karo <span style="font-weight:400;text-transform:none;font-size:11px">(no validation)</span></span>
     <input type="text" id="b-mi" placeholder="File number, Enter dabao..." onkeydown="bMKey(event)">
     <div style="color:var(--mu);font-size:11px;margin-top:4px">↵ Enter — comma se multiple</div>
     <button class="btn" onclick="bMAdd()" style="margin-top:10px">✓ Add Karo</button>
@@ -338,18 +310,52 @@ tr:hover{background:#f8fafc}
     </div>
   </div>
 
-  <!-- SEARCH -->
+  <!-- SEARCH VIEW -->
   <div class="bview" id="bview-search">
     <div style="font-weight:700;font-size:15px;margin-bottom:14px">🔍 File Dhundo</div>
-    <div class="bswrap">
-      <span class="bsico">🔎</span>
+    <div class="bswrap"><span class="bsico">🔎</span>
       <input type="text" id="b-si" placeholder="File number type karo..." oninput="bRenderSearch()">
     </div>
     <div style="margin-top:14px" id="b-sr"></div>
   </div>
+
+  <!-- GRID: date list -->
+  <div class="bview" id="bview-grid">
+    <div class="bgtbar">
+      <div style="color:var(--mu);font-size:12px">Date tap → files dekho</div>
+      <button class="rtog" id="rbtn" onclick="toggleRM()">⇄ Rearrange</button>
+    </div>
+    <div class="legend">
+      <span><span class="ld" style="background:#d97706"></span>Half (25–39)</span>
+      <span><span class="ld" style="background:#e03030"></span>Full (40+)</span>
+      <span><span class="ld" style="background:#e03030;opacity:.6"></span>Missing</span>
+    </div>
+    <div id="bgc"></div>
+  </div>
+
+  <!-- GRID: date detail (columns of that date) -->
+  <div class="bview" id="bview-date">
+    <button class="btn btn-g btn-sm" style="margin-bottom:14px" onclick="swBV('grid')">← Dates</button>
+    <div style="color:var(--p);font-weight:700;font-size:22px;margin-bottom:2px" id="bdd-title"></div>
+    <div style="color:var(--mu);font-size:12px;margin-bottom:14px" id="bdd-sub"></div>
+    <div id="bdd-cols"></div>
+  </div>
+
+  <!-- SLOT DETAIL (col → files list) -->
+  <div class="bview" id="bview-slot">
+    <button class="btn btn-g btn-sm" style="margin-bottom:14px" id="bsd-back">← Wapas</button>
+    <div style="color:var(--p);font-weight:700;font-size:18px;margin-bottom:3px" id="bsd-t"></div>
+    <div style="color:var(--mu);font-size:12px;margin-bottom:14px" id="bsd-s"></div>
+    <div id="bsd-c"></div>
+  </div>
+
 </div>
 </div>
 
+<!-- Floating Bundle Scan button -->
+<div class="flt" id="bundleFlt" style="display:none">
+  <button class="btn" style="width:155px;background:#4f46e5;box-shadow:0 6px 18px rgba(0,0,0,.25);margin-top:0;font-size:13px;padding:12px 10px" onclick="startBundleScan()">📷 Bundle Scan</button>
+</div>
 <!-- ══ SHARED SCANNER OVERLAY ══ -->
 <div id="scan-ov">
   <div id="scan-box">
@@ -424,6 +430,8 @@ tr:hover{background:#f8fafc}
 
 <div id="toast"></div>
 
+<div id="toast"></div>
+
 <script>
 // ════════════════════════════════════════
 // IndexedDB
@@ -486,6 +494,7 @@ function switchTab(t){
   document.getElementById('cfm-tab').classList.toggle('on',t==='cfm');
   document.getElementById('bundle-tab').classList.toggle('on',t==='bundle');
   document.getElementById('cfmFlt').style.display=t==='cfm'?'flex':'none';
+  document.getElementById('bundleFlt').style.display=t==='bundle'?'flex':'none';
   if(t==='bundle'){bRenderGrid();bUpdateST();}
 }
 
@@ -912,182 +921,331 @@ async function hideBundleEntry(caseNo){
     showToast('📁 '+id+' bundle se hide ho gaya (SENT)');
   }
 }
+// Bundle state below
 
 // ════════════════════════════════════════
-// BUNDLE STATE
+// BUNDLE STATE + COLUMN SYSTEM
 // ════════════════════════════════════════
-let bFiles={}, bRM=false, bMoveId=null, bSlot=null;
+// Use COLS and DATES already declared above
+const COLS_NORMAL = COLS; // COLS = ['A','B','C','D','E','F'] from CFM section
+
+function getColsForDate(md) {
+  if(SPECIAL_DATES.includes(md)) {
+    return [
+      ...SHELF_LETTERS.map(l=>'S1'+l),
+      ...SHELF_LETTERS.map(l=>'S2'+l)
+    ];
+  }
+  return COLS_NORMAL;
+}
+function dispCol(col) {
+  // S1A → S1-A, S2O → S2-O, A → A
+  if(col && col.length === 3 && (col.startsWith('S1') || col.startsWith('S2'))) {
+    return col.slice(0,2)+'-'+col.slice(2);
+  }
+  return col;
+}
+
+// DATES already declared above (Array 1-31)
+const SHELF_LETTERS = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O'];
+const SPECIAL_DATES = [29,30,31];
+let bFiles={}, bRM=false, bMoveId=null, bSlot=null, bActiveDate=null;
 let bAMD=1, bASD=null, bAC='A';
 let bMMD=1, bMSD=null, bMC='A';
-// Mismatch pending state
-let mmPending={id:'',cfmDay:0};
+let mmPending={id:'',cfmDay:0}, mmSD=1;
 
 async function bInit(){
-  const all=await idbAB();bFiles={};all.forEach(b=>bFiles[b.id]=b);
-  bBDG('b-mdg',bAMD,d=>{bAMD=d;bRenderAdd();});
-  bBCR('b-cr',bAC,c=>{bAC=c;bRenderAdd();});
-  bBDG('bm-mdg',bMMD,d=>{bMMD=d;bUpdateMP();bBDG('bm-mdg',bMMD,arguments.callee);});
-  bBCR('bm-cr',bMC,c=>{bMC=c;bUpdateMP();bBCR('bm-cr',bMC,arguments.callee);});
-  bUpdateSP();bUpdateMP();bUpdateST();
+  const all=await idbAB(); bFiles={};
+  all.forEach(b=>bFiles[b.id]=b);
+  bBDG('b-mdg', bAMD, d=>{ bAMD=d; bRenderColButtons(); bRenderAdd(); });
+  bBDG('bm-mdg',bMMD, d=>{ bMMD=d; bUpdateMP(); bBDG('bm-mdg',bMMD,arguments.callee); });
+  bBuildMoveCR();
+  bRenderColButtons();
+  bUpdateSP(); bUpdateMP(); bUpdateST();
 }
 
 function swBV(v){
   document.querySelectorAll('.bnb').forEach(b=>b.classList.toggle('on',b.dataset.bv===v));
   document.querySelectorAll('.bview').forEach(el=>el.classList.remove('on'));
-  document.getElementById('bview-'+(v==='slot'?'slot':v)).classList.add('on');
-  if(v==='grid')bRenderGrid();
-  if(v==='search')setTimeout(()=>document.getElementById('b-si').focus(),80);
+  const id = v==='date'?'bview-date': v==='slot'?'bview-slot':'bview-'+v;
+  document.getElementById(id).classList.add('on');
+  if(v==='grid') bRenderGrid();
+  if(v==='search') setTimeout(()=>document.getElementById('b-si').focus(),80);
 }
-function goBGrid(){bSlot=null;swBV('grid');}
 
 function bBDG(id,sel,cb){
-  const el=document.getElementById(id);if(!el)return;
+  const el=document.getElementById(id); if(!el)return;
   el.innerHTML=DATES.map(d=>`<button class="db${sel===d?' on':''}" onclick="(${cb})(${d})">${d}</button>`).join('');
 }
-function bBCR(id,sel,cb){
-  const el=document.getElementById(id);if(!el)return;
-  el.innerHTML=COLS.map(c=>`<button class="cb${sel===c?' on':''}" onclick="(${cb})('${c}')">${c}</button>`).join('');
+
+// ── Column buttons (changes based on selected date) ──
+function bRenderColButtons() {
+  const wrap = document.getElementById('b-cr-wrap');
+  const cols = getColsForDate(bAMD);
+  const isSpecial = SPECIAL_DATES.includes(bAMD);
+
+  if(!isSpecial) {
+    // Simple row
+    wrap.innerHTML = `<div class="crow" id="b-cr">`+
+      cols.map(c=>`<button class="cb${bAC===c?' on':''}" onclick="bSetCol('${c}')">${c}</button>`).join('')+
+      `</div>`;
+  } else {
+    // Two safes, 5 shelves each, 3 cols per shelf
+    let h = '';
+    ['S1','S2'].forEach(safe=>{
+      h += `<div style="margin-bottom:10px">
+        <div style="color:var(--mu);font-size:11px;font-weight:600;letter-spacing:.5px;margin-bottom:6px;text-transform:uppercase">
+          🗄 Safe ${safe.slice(1)}
+        </div>`;
+      for(let shelf=0;shelf<5;shelf++){
+        h += `<div class="crow" style="margin-bottom:5px">`;
+        for(let ci=0;ci<3;ci++){
+          const letter = SHELF_LETTERS[shelf*3+ci];
+          const col = safe+letter;
+          h += `<button class="cb${bAC===col?' on':''}" onclick="bSetCol('${col}')" style="min-width:52px">${safe.slice(1)}-${letter}</button>`;
+        }
+        h += `</div>`;
+      }
+      h += `</div>`;
+    });
+    wrap.innerHTML = h;
+  }
+  // If current bAC not valid for new date, reset
+  if(!getColsForDate(bAMD).includes(bAC)){
+    bAC = getColsForDate(bAMD)[0];
+    bRenderColButtons();
+  }
 }
 
-function bSK(md,sd,c){return md+'|'+(sd==null?'-':sd)+'|'+c;}
-function bPK(k){const p=k.split('|');return{md:+p[0],sd:p[1]==='-'?null:+p[1],col:p[2]};}
+function bSetCol(c){ bAC=c; bRenderColButtons(); bUpdateSP(); bUpdateST(); }
+
+function bBuildMoveCR(){
+  const cols = getColsForDate(bMMD);
+  const isSpecial = SPECIAL_DATES.includes(bMMD);
+  const wrap = document.getElementById('bm-cr');
+  if(!wrap) return;
+  if(!isSpecial){
+    wrap.innerHTML = cols.map(c=>`<button class="cb${bMC===c?' on':''}" onclick="bMSetCol('${c}')">${c}</button>`).join('');
+    wrap.className = 'crow';
+  } else {
+    wrap.className = '';
+    let h='';
+    ['S1','S2'].forEach(safe=>{
+      h+=`<div style="margin-bottom:8px"><div style="color:var(--mu);font-size:11px;font-weight:600;margin-bottom:5px">🗄 Safe ${safe.slice(1)}</div>`;
+      for(let sh=0;sh<5;sh++){
+        h+=`<div class="crow" style="margin-bottom:4px">`;
+        for(let ci=0;ci<3;ci++){
+          const l=SHELF_LETTERS[sh*3+ci], col=safe+l;
+          h+=`<button class="cb${bMC===col?' on':''}" onclick="bMSetCol('${col}')" style="min-width:52px">${safe.slice(1)}-${l}</button>`;
+        }
+        h+=`</div>`;
+      }
+      h+=`</div>`;
+    });
+    wrap.innerHTML=h;
+  }
+}
+function bMSetCol(c){ bMC=c; bBuildMoveCR(); bUpdateMP(); }
+
+function bSK(md,sd,c){ return md+'|'+(sd==null?'-':sd)+'|'+c; }
+function bPK(k){ const p=k.split('|'); return{md:+p[0],sd:p[1]==='-'?null:+p[1],col:p[2]}; }
 function bSM(){
   const m={};
-  // Only show NON-hidden files
   Object.values(bFiles).filter(f=>!f.hidden).forEach(f=>{
-    const k=bSK(f.md,f.sd,f.col);if(!m[k])m[k]=[];m[k].push(f);
+    const k=bSK(f.md,f.sd,f.col); if(!m[k])m[k]=[]; m[k].push(f);
   });
   return m;
 }
 function bCC(arr){
-  if(!arr||!arr.length)return'sc-e';
-  if(arr.some(f=>f.st==='missing'))return'sc-m';
-  return arr.length>=5?'sc-f':'sc-h';
+  if(!arr||!arr.length) return 'sc-e';
+  if(arr.some(f=>f.st==='missing')) return 'sc-m';
+  return arr.length>=40?'sc-f': arr.length>=25?'sc-h':'sc-e';
 }
 
-// ════════════════════════════════════════
-// BUNDLE GRID
-// ════════════════════════════════════════
+// ── GRID: date list ──
 function bRenderGrid(){
-  const m=bSM();
-  const dates=[...new Set(Object.values(bFiles).filter(f=>!f.hidden).map(f=>f.md))].sort((a,b)=>a-b);
-  const gc=document.getElementById('bgc');
-  if(!dates.length){gc.innerHTML='<div class="bempty">Koi file nahi. Add tab se shuru karo.</div>';return;}
+  const m = bSM();
+  const dates = [...new Set(Object.values(bFiles).filter(f=>!f.hidden).map(f=>f.md))].sort((a,b)=>a-b);
+  const gc = document.getElementById('bgc');
+  if(!dates.length){ gc.innerHTML='<div class="bempty">Koi file nahi. Add tab se shuru karo.</div>'; return; }
+
   let h='';
   dates.forEach(date=>{
-    const slots=Object.entries(m).filter(([k])=>+k.split('|')[0]===date).map(([k,arr])=>({...bPK(k),arr}));
-    const tot=slots.reduce((s,x)=>s+x.arr.length,0);
-    h+=`<div class="bsec"><div class="dshdr"><span class="dbadge">${date}</span><span style="color:var(--mu);font-size:11px">— ${tot} files</span></div><div class="sgrid">`;
-    slots.forEach(({md,sd,col,arr})=>{
-      const cls=bCC(arr),ic=cls==='sc-e'?'⚪':cls==='sc-h'?'🟡':'🔴';
-      const ms=arr.filter(f=>f.st==='missing').length;
-      let rf='';if(bRM)arr.forEach(f=>{rf+=`<button class="rmfb" onclick="bOpenMove('${esc(f.id)}')">⇄ ${esc(f.id)}</button>`;});
-      const oc=bRM?'void(0)':`bOSlot(${md},${sd==null?'null':sd},'${esc(col)}')`;
-      h+=`<button class="sc ${cls}${bRM?' rm':''}" onclick="${oc}">`;
-      h+=`<div style="display:flex;align-items:center;gap:4px"><div class="scol">${col}</div><span>${ic}</span></div>`;
-      if(sd!=null)h+=`<div class="ssub">sub:${sd}</div>`;
-      h+=`<div class="scnt">${arr.length} files</div>`;
-      if(ms>0)h+=`<div class="smiss">⚠ ${ms} missing</div>`;
-      h+=rf+'</button>';
-    });
-    h+='</div></div>';
+    const allInDate = Object.values(bFiles).filter(f=>!f.hidden && f.md===date);
+    const tot = allInDate.length;
+    const missCount = allInDate.filter(f=>f.st==='missing').length;
+    const maxSlotFiles = Math.max(0,...Object.entries(m)
+      .filter(([k])=>+k.split('|')[0]===date)
+      .map(([,arr])=>arr.length));
+    const cls = maxSlotFiles>=40?'sc-f': maxSlotFiles>=25?'sc-h':'sc-e';
+
+    h += `<button class="sc ${cls}" style="width:100%;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;padding:14px 16px"
+      onclick="bOpenDate(${date})">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:28px;font-weight:800;color:${cls==='sc-e'?'var(--mu)':cls==='sc-h'?'var(--ambh)':'var(--dan)'}">${date}</span>
+        <div style="text-align:left">
+          <div style="font-size:13px;font-weight:600;color:var(--txt)">${tot} files</div>
+          ${missCount>0?`<div style="font-size:11px;color:var(--dan);font-weight:700">⚠ ${missCount} missing</div>`:''}
+          ${SPECIAL_DATES.includes(date)?'<div style="font-size:10px;color:var(--inf);font-weight:600">🗄 S1 + S2 Safe</div>':''}
+        </div>
+      </div>
+      <span style="color:var(--mu);font-size:18px">›</span>
+    </button>`;
+
+    // Rearrange mode: show files inline
+    if(bRM){
+      allInDate.forEach(f=>{
+        h+=`<div style="margin:-6px 0 8px 14px"><button class="rmfb" onclick="bOpenMove('${esc(f.id)}')" style="display:inline-block;width:auto;margin-right:4px">⇄ ${esc(f.id)} (${dispCol(f.col)})</button></div>`;
+      });
+    }
   });
-  gc.innerHTML=h;
+  gc.innerHTML = h;
 }
+
 function toggleRM(){
-  bRM=!bRM;const b=document.getElementById('rbtn');
-  b.textContent=bRM?'✓ Done':'⇄ Rearrange';b.classList.toggle('on',bRM);bRenderGrid();
+  bRM=!bRM;
+  const b=document.getElementById('rbtn');
+  b.textContent=bRM?'✓ Done':'⇄ Rearrange';
+  b.classList.toggle('on',bRM);
+  bRenderGrid();
 }
-function bOSlot(md,sd,col){
-  bSlot={md,sd,col};bRenderSlot();
+
+// ── Date detail: columns of that date ──
+function bOpenDate(date){
+  bActiveDate = date;
+  const m = bSM();
+  const isSpecial = SPECIAL_DATES.includes(date);
+  const allCols = getColsForDate(date);
+
+  // Get all slots for this date
+  const slotsForDate = Object.entries(m)
+    .filter(([k])=>+k.split('|')[0]===date)
+    .map(([k,arr])=>({...bPK(k),arr}));
+
+  document.getElementById('bdd-title').textContent = `📅 Date ${date}`;
+  const tot = slotsForDate.reduce((s,x)=>s+x.arr.length,0);
+  document.getElementById('bdd-sub').textContent = `${tot} files — Slot tap karo files dekhne ke liye`;
+
+  let h = '';
+  if(isSpecial){
+    ['S1','S2'].forEach(safe=>{
+      const safeSlots = slotsForDate.filter(s=>s.col.startsWith(safe));
+      if(!safeSlots.length) return;
+      h += `<div style="background:#f1f5f9;border-radius:8px;padding:8px 12px;margin-bottom:8px;font-size:12px;font-weight:700;color:var(--p)">🗄 Safe ${safe.slice(1)}</div>`;
+      h += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:14px">`;
+      safeSlots.forEach(({md,sd,col,arr})=>{
+        const cls=bCC(arr), ic=cls==='sc-e'?'⚪':cls==='sc-h'?'🟡':'🔴';
+        const ms=arr.filter(f=>f.st==='missing').length;
+        h+=`<button class="sc ${cls}" onclick="bOSlot(${md},${sd==null?'null':sd},'${esc(col)}','date')" style="padding:10px 8px">
+          <div style="display:flex;align-items:center;gap:3px"><span class="scol" style="font-size:18px">${dispCol(col)}</span><span style="font-size:12px">${ic}</span></div>
+          <div class="scnt">${arr.length}</div>
+          ${ms>0?`<div class="smiss">⚠${ms}</div>`:''}
+        </button>`;
+      });
+      h += `</div>`;
+    });
+  } else {
+    h += `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px">`;
+    slotsForDate.forEach(({md,sd,col,arr})=>{
+      const cls=bCC(arr), ic=cls==='sc-e'?'⚪':cls==='sc-h'?'🟡':'🔴';
+      const ms=arr.filter(f=>f.st==='missing').length;
+      h+=`<button class="sc ${cls}" onclick="bOSlot(${md},${sd==null?'null':sd},'${esc(col)}','date')">
+        <div style="display:flex;align-items:center;gap:4px"><div class="scol">${col}</div><span>${ic}</span></div>
+        ${sd!=null?`<div class="ssub">sub:${sd}</div>`:''}
+        <div class="scnt">${arr.length} files</div>
+        ${ms>0?`<div class="smiss">⚠ ${ms} missing</div>`:''}
+      </button>`;
+    });
+    h += `</div>`;
+  }
+  if(!slotsForDate.length) h='<div class="bempty">Is date mein koi slot nahi.</div>';
+  document.getElementById('bdd-cols').innerHTML = h;
+
+  // Show date view
+  document.querySelectorAll('.bnb').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll('.bview').forEach(el=>el.classList.remove('on'));
+  document.getElementById('bview-date').classList.add('on');
+}
+
+// ── Slot detail (files in col) ──
+function bOSlot(md,sd,col,backView){
+  bSlot={md,sd,col};
+  document.getElementById('bsd-back').onclick = ()=>{ if(backView==='date') bOpenDate(md); else swBV('grid'); };
+  bRenderSlot();
   document.querySelectorAll('.bview').forEach(el=>el.classList.remove('on'));
   document.getElementById('bview-slot').classList.add('on');
-  document.querySelectorAll('.bnb').forEach(b=>b.classList.toggle('on',b.dataset.bv==='slot'));
 }
 function bRenderSlot(){
   if(!bSlot)return;
   const arr=(bSM()[bSK(bSlot.md,bSlot.sd,bSlot.col)]||[]);
-  document.getElementById('bsd-t').textContent=`Date ${bSlot.md}${bSlot.sd!=null?'/'+bSlot.sd:''} — Column ${bSlot.col}`;
+  document.getElementById('bsd-t').textContent=`Date ${bSlot.md}${bSlot.sd!=null?'/'+bSlot.sd:''} — Col ${dispCol(bSlot.col)}`;
   document.getElementById('bsd-s').textContent=arr.length+' files';
   document.getElementById('bsd-c').innerHTML=arr.length?arr.map(f=>bFCHTML(f,false)).join(''):'<div class="bempty">Koi file nahi.</div>';
 }
 
-// ════════════════════════════════════════
-// BUNDLE ADD FORM
-// ════════════════════════════════════════
+// ── Add form ──
 function bRenderAdd(){
-  bBDG('b-mdg',bAMD,d=>{bAMD=d;bRenderAdd();});
-  if(bASD!==null){const el=document.getElementById('b-sdg');if(el)bBDG('b-sdg',bASD,d=>{bASD=d;bRenderAdd();});}
-  bBCR('b-cr',bAC,c=>{bAC=c;bRenderAdd();});
-  bUpdateSP();bUpdateST();
+  bBDG('b-mdg', bAMD, d=>{ bAMD=d; bRenderColButtons(); bRenderAdd(); });
+  if(bASD!==null){ const el=document.getElementById('b-sdg'); if(el) bBDG('b-sdg',bASD,d=>{ bASD=d; bRenderAdd(); }); }
+  bUpdateSP(); bUpdateST();
 }
 function bEnableSD(){
-  bASD=1;document.getElementById('b-sds').innerHTML='<div class="dgrid" id="b-sdg"></div>';
+  bASD=1;
+  document.getElementById('b-sds').innerHTML='<div class="dgrid" id="b-sdg"></div>';
   document.getElementById('b-sdc').style.display='inline-block';
-  bBDG('b-sdg',bASD,d=>{bASD=d;bRenderAdd();});bUpdateSP();bUpdateST();
+  bBDG('b-sdg',bASD,d=>{ bASD=d; bRenderAdd(); });
+  bUpdateSP(); bUpdateST();
 }
 function bClearSD(){
-  bASD=null;document.getElementById('b-sds').innerHTML='<button class="sdadd" onclick="bEnableSD()">+ Sub-Date add karo (overflow case)</button>';
-  document.getElementById('b-sdc').style.display='none';bUpdateSP();bUpdateST();
+  bASD=null;
+  document.getElementById('b-sds').innerHTML='<button class="sdadd" onclick="bEnableSD()">+ Sub-Date add karo (overflow)</button>';
+  document.getElementById('b-sdc').style.display='none';
+  bUpdateSP(); bUpdateST();
 }
 function bUpdateSP(){
   const ex=(bSM()[bSK(bAMD,bASD,bAC)]||[]);
-  document.getElementById('b-sp-t').textContent=`Date ${bAMD}${bASD!=null?'/'+bASD:''} — Col ${bAC}`;
+  document.getElementById('b-sp-t').textContent=`Date ${bAMD}${bASD!=null?'/'+bASD:''} — Col ${dispCol(bAC)}`;
   document.getElementById('b-sp-c').textContent=`(${ex.length} files)`;
   const eb=document.getElementById('b-exbox'),et=document.getElementById('b-extags');
-  if(ex.length){eb.style.display='block';et.innerHTML=ex.map(f=>`<span class="etag${f.st==='missing'?' miss':''}">${esc(f.id)}${f.st==='missing'?' ⚠':''}</span>`).join('');}
-  else eb.style.display='none';
+  if(ex.length){
+    eb.style.display='block';
+    et.innerHTML=ex.map(f=>`<span class="etag${f.st==='missing'?' miss':''}">${esc(f.id)}${f.st==='missing'?' ⚠':''}</span>`).join('');
+  } else eb.style.display='none';
 }
 function bUpdateST(){
   const el=document.getElementById('scan-ml');
-  if(el&&scanCtx==='bundle') el.textContent=`📷 Bundle → Date ${bAMD}${bASD!=null?'/'+bASD:''} Col ${bAC}`;
+  if(el&&scanCtx==='bundle') el.textContent=`📷 Bundle → Date ${bAMD}${bASD!=null?'/'+bASD:''} ${dispCol(bAC)}`;
 }
 
-// ════════════════════════════════════════
-// BUNDLE ADD FILE
-// Core logic with all 3 rules applied
-// ════════════════════════════════════════
+// ── Add file (all 3 rules) ──
 async function bAddFile(rawId, fromScan){
-  const id=rawId.trim().toUpperCase();if(!id)return false;
+  const id=rawId.trim().toUpperCase(); if(!id) return false;
 
-  // ── RULE 1: Scan only — CFM must have this file ──
   if(fromScan){
     const rec=getCFMRecord(id);
-    if(!rec){
-      showSC('❌ CFM mein nahi hai: '+id+'\nPehle Excel upload karo','#e03030');
-      speak("File CFM mein nahi hai");
-      return false;
-    }
+    if(!rec){ showSC('❌ CFM mein nahi hai: '+id,'#e03030'); speak("File CFM mein nahi hai"); return false; }
   }
 
-  // ── RULE 2: Duplicate check — error for BOTH scan & manual ──
   if(bFiles[id]&&!bFiles[id].hidden){
     const ex=bFiles[id];
-    const msg=`"${id}" pehle se hai: Date ${ex.md}${ex.sd!=null?'/'+ex.sd:''} — Col ${ex.col}. Pehle manually hatao.`;
+    const msg=`"${id}" pehle se: Date ${ex.md}${ex.sd!=null?'/'+ex.sd:''} — ${dispCol(ex.col)}. Pehle hatao.`;
     fromScan?showSC(msg,'#e03030'):showToast(msg,'d');
-    speak("File pehle se hai");
-    return false;
+    speak("File pehle se hai"); return false;
   }
 
-  // ── RULE 3: Scan only — Date mismatch check ──
   if(fromScan){
     const cfmDay=getCFMDay(id);
-    // If CFM has a next date and it doesn't match selected main date
-    // AND no sub-date is selected → block and show mismatch modal
     if(cfmDay!==null && cfmDay!==bAMD && bASD===null){
-      // Show mismatch modal
-      openMismatchModal(id, cfmDay);
-      return false;
+      openMismatchModal(id, cfmDay); return false;
     }
   }
 
-  // ── ALL CHECKS PASSED: Add file ──
   const obj={id,md:bAMD,sd:bASD,col:bAC,at:Date.now(),st:'placed',hidden:false};
-  bFiles[id]=obj;await idbSBn(obj);
-  const sl=`${bAMD}${bASD!=null?'/'+bASD:''}-${bAC}`;
-  if(fromScan){showSC('✅ '+id+' → Date '+sl,'#18a558');speak(bAMD+' '+bAC,'hi-IN');}
+  bFiles[id]=obj; await idbSBn(obj);
+  const sl=`${bAMD}${bASD!=null?'/'+bASD:''}-${dispCol(bAC)}`;
+  if(fromScan){ showSC('✅ '+id+' → Date '+sl,'#18a558'); speak(bAMD+' '+dispCol(bAC),'hi-IN'); }
   else showToast('✅ '+id+' → '+sl);
-  bUpdateSP();bRenderGrid();
+  bUpdateSP(); bRenderGrid();
   return true;
 }
 
@@ -1103,138 +1261,124 @@ function bMAdd(){
   document.getElementById('b-mi').value='';
 }
 
-// ════════════════════════════════════════
-// BUNDLE SCANNER
-// ════════════════════════════════════════
+// ── Scanner ──
 function startBundleScan(){
   bUpdateST();
-  openScan('bundle',`📷 Bundle → Date ${bAMD}${bASD!=null?'/'+bASD:''} Col ${bAC}`,true);
+  openScan('bundle',`📷 Bundle → Date ${bAMD}${bASD!=null?'/'+bASD:''} ${dispCol(bAC)}`,true);
 }
-function handleBundleScan(dec){
-  bAddFile(dec,true);
-  // If file was added successfully and continuous mode, update target label
-  if(scanActive)bUpdateST();
-}
+function handleBundleScan(dec){ bAddFile(dec,true); if(scanActive) bUpdateST(); }
 
-// ════════════════════════════════════════
-// MISMATCH MODAL
-// ════════════════════════════════════════
-let mmSD=1; // sub-date selected in mismatch modal
-
+// ── Mismatch modal ──
 function openMismatchModal(id, cfmDay){
-  mmPending={id, cfmDay};
-  mmSD=1;
+  mmPending={id,cfmDay}; mmSD=1;
   document.getElementById('mm-title').textContent=`⚠ Case: ${id}`;
-  document.getElementById('mm-body').textContent=
-    `CFM mein next date ki day = ${cfmDay}, lekin aap Date ${bAMD} mein rakh rahe ho. Mismatch!`;
-  bBDG('mm-sdg', mmSD, d=>{mmSD=d; document.getElementById('mm-prev').textContent=`Date ${bAMD} / Sub-Date ${d} — Col ${bAC}`;
-    bBDG('mm-sdg',mmSD,arguments.callee);});
-  document.getElementById('mm-prev').textContent=`Date ${bAMD} / Sub-Date ${mmSD} — Col ${bAC}`;
+  document.getElementById('mm-body').textContent=`CFM next date day = ${cfmDay}, aap Date ${bAMD} mein rakh rahe ho. Mismatch!`;
+  bBDG('mm-sdg',mmSD,d=>{ mmSD=d; document.getElementById('mm-prev').textContent=`Date ${bAMD}/${d} — ${dispCol(bAC)}`; bBDG('mm-sdg',mmSD,arguments.callee); });
+  document.getElementById('mm-prev').textContent=`Date ${bAMD}/${mmSD} — ${dispCol(bAC)}`;
   document.getElementById('mmModal').classList.add('on');
 }
-
 async function confirmMismatch(){
-  // Add file with the sub-date from mismatch modal
-  const id=mmPending.id;
-  // Temporarily set sub-date to mmSD
-  const prevSD=bASD;
+  const id=mmPending.id, prevSD=bASD;
   bASD=mmSD;
-  // Now add (fromScan=false to skip scan checks since we already validated)
   const obj={id,md:bAMD,sd:bASD,col:bAC,at:Date.now(),st:'placed',hidden:false};
-  bFiles[id]=obj;await idbSBn(obj);
-  const sl=`${bAMD}/${bASD}-${bAC}`;
-  showSC('✅ '+id+' → Date '+sl+' (sub-date override)','#18a558');
-  speak(bAMD+' '+bAC,'hi-IN');
-  bUpdateSP();bRenderGrid();
-  bASD=prevSD; // restore
+  bFiles[id]=obj; await idbSBn(obj);
+  showSC('✅ '+id+` → Date ${bAMD}/${bASD}-${dispCol(bAC)}`,'#18a558');
+  speak(bAMD+' '+dispCol(bAC),'hi-IN');
+  bUpdateSP(); bRenderGrid();
+  bASD=prevSD;
   document.getElementById('mmModal').classList.remove('on');
   mmPending={id:'',cfmDay:0};
 }
-
 function cancelMismatch(){
   document.getElementById('mmModal').classList.remove('on');
   mmPending={id:'',cfmDay:0};
-  showSC('❌ Scan reject: date mismatch tha','#e03030');
+  showSC('❌ Scan reject: date mismatch','#e03030');
 }
 
-// ════════════════════════════════════════
-// BUNDLE FILE ACTIONS
-// ════════════════════════════════════════
+// ── File actions ──
 async function bSetStatus(id,st){
-  if(!bFiles[id])return;bFiles[id].st=st;await idbSBn(bFiles[id]);
-  showToast(st==='missing'?'⚠ Missing: '+id:'✅ Restored: '+id,st==='missing'?'w':'');
-  bRenderGrid();if(bSlot)bRenderSlot();bRenderSearch();
+  if(!bFiles[id])return;
+  bFiles[id].st=st; await idbSBn(bFiles[id]);
+  showToast(st==='missing'?'⚠ Missing: '+id:'✅ Restored: '+id, st==='missing'?'w':'');
+  bRenderGrid(); if(bSlot)bRenderSlot(); bRenderSearch();
 }
 async function bUnhide(id){
-  if(!bFiles[id])return;bFiles[id].hidden=false;await idbSBn(bFiles[id]);
-  showToast('✅ '+id+' wapas dikhaya','');bRenderGrid();bRenderSearch();
+  if(!bFiles[id])return;
+  bFiles[id].hidden=false; await idbSBn(bFiles[id]);
+  showToast('✅ '+id+' wapas dikhaya'); bRenderGrid(); bRenderSearch();
 }
 async function bDelFile(id){
-  delete bFiles[id];await idbDB(id);
-  showToast('Hata diya: '+id,'d');bRenderGrid();if(bSlot)bRenderSlot();bRenderSearch();
+  delete bFiles[id]; await idbDB(id);
+  showToast('Hata diya: '+id,'d');
+  bRenderGrid(); if(bSlot)bRenderSlot(); bRenderSearch();
 }
 
-// ════════════════════════════════════════
-// BUNDLE MOVE MODAL
-// ════════════════════════════════════════
+// ── Move modal ──
 function bOpenMove(id){
-  bMoveId=id;const f=bFiles[id];
-  bMMD=f.md;bMSD=f.sd!=null?f.sd:null;bMC=f.col;
+  bMoveId=id; const f=bFiles[id];
+  bMMD=f.md; bMSD=f.sd!=null?f.sd:null; bMC=f.col;
   document.getElementById('bm-fid').textContent=id;
-  bRenderMoveForm();document.getElementById('bmModal').classList.add('on');
+  bRenderMoveForm();
+  document.getElementById('bmModal').classList.add('on');
 }
-function closeBMModal(){document.getElementById('bmModal').classList.remove('on');bMoveId=null;}
-document.getElementById('bmModal').addEventListener('click',function(e){if(e.target===this)closeBMModal();});
+function closeBMModal(){ document.getElementById('bmModal').classList.remove('on'); bMoveId=null; }
+document.getElementById('bmModal').addEventListener('click',function(e){ if(e.target===this)closeBMModal(); });
+
 function bRenderMoveForm(){
-  bBDG('bm-mdg',bMMD,d=>{bMMD=d;bRenderMoveForm();});
-  bBCR('bm-cr',bMC,c=>{bMC=c;bRenderMoveForm();});
+  bBDG('bm-mdg',bMMD,d=>{ bMMD=d; bBuildMoveCR(); bRenderMoveForm(); });
+  bBuildMoveCR();
   const sec=document.getElementById('bm-sds');
   if(bMSD!==null){
-    if(!document.getElementById('bm-sdg')){sec.innerHTML='<div class="dgrid" id="bm-sdg"></div>';document.getElementById('bm-sdc').style.display='inline-block';}
-    bBDG('bm-sdg',bMSD,d=>{bMSD=d;bRenderMoveForm();});
+    if(!document.getElementById('bm-sdg')){
+      sec.innerHTML='<div class="dgrid" id="bm-sdg"></div>';
+      document.getElementById('bm-sdc').style.display='inline-block';
+    }
+    bBDG('bm-sdg',bMSD,d=>{ bMSD=d; bRenderMoveForm(); });
   } else {
     sec.innerHTML='<button class="sdadd" onclick="bmEnableSD()">+ Sub-Date add karo</button>';
     document.getElementById('bm-sdc').style.display='none';
   }
   bUpdateMP();
 }
-function bmEnableSD(){bMSD=1;document.getElementById('bm-sds').innerHTML='<div class="dgrid" id="bm-sdg"></div>';document.getElementById('bm-sdc').style.display='inline-block';bBDG('bm-sdg',bMSD,d=>{bMSD=d;bRenderMoveForm();});bUpdateMP();}
-function bmClearSD(){bMSD=null;document.getElementById('bm-sds').innerHTML='<button class="sdadd" onclick="bmEnableSD()">+ Sub-Date add karo</button>';document.getElementById('bm-sdc').style.display='none';bUpdateMP();}
-function bUpdateMP(){document.getElementById('bm-prev').textContent=`Date ${bMMD}${bMSD!=null?'/'+bMSD:''} — Col ${bMC}`;}
+function bmEnableSD(){ bMSD=1; document.getElementById('bm-sds').innerHTML='<div class="dgrid" id="bm-sdg"></div>'; document.getElementById('bm-sdc').style.display='inline-block'; bBDG('bm-sdg',bMSD,d=>{ bMSD=d; bRenderMoveForm(); }); bUpdateMP(); }
+function bmClearSD(){ bMSD=null; document.getElementById('bm-sds').innerHTML='<button class="sdadd" onclick="bmEnableSD()">+ Sub-Date add karo</button>'; document.getElementById('bm-sdc').style.display='none'; bUpdateMP(); }
+function bUpdateMP(){ document.getElementById('bm-prev').textContent=`Date ${bMMD}${bMSD!=null?'/'+bMSD:''} — ${dispCol(bMC)}`; }
+
 async function doBundleMove(){
   if(!bMoveId)return;
-  bFiles[bMoveId].md=bMMD;bFiles[bMoveId].sd=bMSD;bFiles[bMoveId].col=bMC;
+  bFiles[bMoveId].md=bMMD; bFiles[bMoveId].sd=bMSD; bFiles[bMoveId].col=bMC;
   await idbSBn(bFiles[bMoveId]);
-  showToast(`✅ Moved → Date ${bMMD}${bMSD!=null?'/'+bMSD:''}-${bMC}`);
-  closeBMModal();bRenderGrid();if(bSlot){bSlot=null;goBGrid();}bRenderSearch();
+  showToast(`✅ Moved → Date ${bMMD}${bMSD!=null?'/'+bMSD:''}-${dispCol(bMC)}`);
+  closeBMModal(); bRenderGrid();
+  if(bSlot){ bSlot=null; swBV('grid'); }
+  bRenderSearch();
 }
 
-// ════════════════════════════════════════
-// BUNDLE SEARCH
-// ════════════════════════════════════════
+// ── Search ──
 function bRenderSearch(){
   const q=document.getElementById('b-si').value.trim().toLowerCase();
   const res=document.getElementById('b-sr');
-  // Show hidden files in search too (so user can unhide)
   const allV=Object.values(bFiles);
+  // Missing: only files with missing tag (not hidden)
   const miss=allV.filter(f=>f.st==='missing'&&!f.hidden);
   const tot=allV.filter(f=>!f.hidden).length;
+
   if(q){
     const r=allV.filter(f=>f.id.toLowerCase().includes(q));
     res.innerHTML=r.length?r.map(f=>bFCHTML(f,true)).join(''):'<div class="nores">❌ "'+esc(q)+'" nahi mili</div>';
     return;
   }
-  if(miss.length){res.innerHTML='<div style="color:var(--dan);font-weight:700;margin-bottom:10px">⚠ Missing ('+miss.length+')</div>'+miss.map(f=>bFCHTML(f,true)).join('');return;}
+  if(miss.length){
+    res.innerHTML='<div style="color:var(--dan);font-weight:700;margin-bottom:10px">⚠ Missing Files ('+miss.length+')</div>'+miss.map(f=>bFCHTML(f,true)).join('');
+    return;
+  }
   res.innerHTML=tot?'<div style="color:var(--suc);font-size:13px;text-align:center;margin-top:30px;font-weight:600">✅ Koi missing nahi</div>':'<div class="bempty">Koi file add nahi ki abhi.</div>';
 }
 
-// ════════════════════════════════════════
-// BUNDLE FILE CARD HTML
-// ════════════════════════════════════════
+// ── File card HTML ──
 function bFCHTML(f,showLoc){
-  const id=esc(f.id);
-  const isHidden=f.hidden;
-  return `<div class="bfc${f.st==='missing'?' miss':''}${isHidden?' hidden-card':''}">
+  const id=esc(f.id), isHidden=f.hidden;
+  return `<div class="bfc${f.st==='missing'?' miss':''}">
     <div class="bfch">
       <span class="bfid">${id}</span>
       <div style="display:flex;gap:5px;align-items:center">
@@ -1242,7 +1386,7 @@ function bFCHTML(f,showLoc){
         ${f.st==='missing'?'<span class="mbadge">⚠ MISSING</span>':''}
       </div>
     </div>
-    ${showLoc?`<div class="bloc">📍 Date ${f.md}${f.sd!=null?'/'+f.sd:''} — Col <strong>${f.col}</strong>${isHidden?' <em style="color:var(--suc);font-size:11px">(SENT — hidden from grid)</em>':''}</div>`:''}
+    ${showLoc?`<div class="bloc">📍 Date ${f.md}${f.sd!=null?'/'+f.sd:''} — Col <strong>${dispCol(f.col)}</strong>${isHidden?' <em style="color:var(--suc);font-size:11px">(SENT)</em>':''}</div>`:''}
     <div class="bact">
       ${isHidden
         ?`<button class="smb" style="background:#e8eeff;color:var(--p);border:1px solid #c4b5fd" onclick="bUnhide('${id}')">👁 Wapas Dikhao</button>`
@@ -1255,6 +1399,7 @@ function bFCHTML(f,showLoc){
     </div>
   </div>`;
 }
+
 </script>
 </body>
 </html>
