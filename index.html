@@ -1,563 +1,802 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Bundle Tracker</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Courier New',monospace;background:#0f1117;color:#e8eaf0;min-height:100vh;padding-bottom:70px}
+  :root{
+    --bg:#0f1117;--surface:#1a1d27;--card:#21253a;--border:#2e3352;
+    --accent:#f0a500;--accent-dim:#f0a50018;--text:#e8eaf0;--muted:#7a7f9a;
+    --success:#2ecc71;--danger:#e74c3c;--warning:#e67e22;--info:#3498db;
+  }
+  button{cursor:pointer;font-family:'Courier New',monospace;border:none;outline:none}
 
-const COLUMNS = ["A", "B", "C", "D", "E", "F"];
-const DATES = Array.from({ length: 31 }, (_, i) => i + 1);
+  /* Header */
+  #header{background:var(--surface);border-bottom:2px solid var(--accent);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+  #header-title{color:var(--accent);font-weight:700;font-size:17px;letter-spacing:2px}
+  #header-sub{color:var(--muted);font-size:10px;margin-top:2px}
+  #stats{display:flex;gap:5px}
+  .stat{text-align:center;background:#ffffff08;border-radius:5px;padding:3px 9px}
+  .stat-val{font-weight:700;font-size:15px}
+  .stat-lbl{color:var(--muted);font-size:10px}
 
-const C = {
-  bg: "#0f1117", surface: "#1a1d27", card: "#21253a", border: "#2e3352",
-  accent: "#f0a500", accentDim: "#f0a50018", text: "#e8eaf0", muted: "#7a7f9a",
-  success: "#2ecc71", danger: "#e74c3c", warning: "#e67e22", info: "#3498db",
-};
+  /* Nav */
+  #nav{display:flex;background:var(--surface);border-bottom:1px solid var(--border);padding:0 6px}
+  .nav-btn{background:none;color:var(--muted);font-size:13px;padding:10px 13px;border-bottom:2px solid transparent;font-weight:400;transition:all .15s}
+  .nav-btn.active{color:var(--accent);border-bottom:2px solid var(--accent);font-weight:700}
 
-async function loadData() {
-  try { const r = await window.storage.get("bundle_v2"); return r ? JSON.parse(r.value) : {}; }
-  catch { return {}; }
+  /* Content */
+  #content{padding:14px 13px}
+
+  /* Views */
+  .view{display:none}
+  .view.active{display:block}
+
+  /* Labels */
+  .lbl{color:var(--muted);font-size:10px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;margin-top:14px}
+  .lbl:first-child{margin-top:0}
+
+  /* Date Grid */
+  .date-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:14px}
+  .date-btn{background:var(--card);color:var(--muted);border:1px solid var(--border);border-radius:5px;padding:5px 2px;font-size:12px;font-weight:400;transition:all .1s}
+  .date-btn.sel{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700}
+
+  /* Column buttons */
+  .col-row{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap}
+  .col-btn{background:var(--card);color:var(--muted);border:1px solid var(--border);border-radius:7px;padding:8px 16px;font-size:16px;font-weight:700;transition:all .1s}
+  .col-btn.sel{background:var(--accent);color:#000;border-color:var(--accent)}
+
+  /* Slot preview */
+  .slot-preview{background:var(--accent-dim);border:1px solid #f0a50044;border-radius:8px;padding:9px 13px;margin-bottom:16px;font-size:13px}
+  .slot-preview span{color:var(--accent);font-weight:700}
+
+  /* Sub-date toggle */
+  .subdate-add-btn{background:var(--card);border:1px dashed var(--border);color:var(--muted);border-radius:7px;padding:8px 14px;font-size:12px;margin-bottom:14px;display:block}
+  .clear-btn{background:none;border:1px solid #e74c3c55;color:var(--danger);border-radius:4px;padding:2px 8px;font-size:10px;margin-left:8px}
+
+  /* Scanner */
+  #scanner-box{position:relative;display:none;margin-bottom:10px}
+  #scanner-box video{width:100%;max-width:340px;border-radius:10px;border:2px solid var(--info);display:block}
+  #viewfinder{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:140px;height:140px;border:2px solid var(--accent);border-radius:8px;box-shadow:0 0 0 9999px #00000066;pointer-events:none}
+  #scanner-msg{font-size:12px;margin-bottom:10px}
+  #scanner-canvas{display:none}
+  .scan-btn{border-radius:8px;padding:10px 20px;font-size:13px;margin-bottom:12px;display:inline-block}
+  .scan-start{background:#3498db22;border:1px solid var(--info);color:var(--info)}
+  .scan-stop{background:#e74c3c22;border:1px solid var(--danger);color:var(--danger)}
+
+  /* Text input */
+  .txt-input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:11px 13px;font-size:14px;font-family:'Courier New',monospace;outline:none}
+  .txt-input:focus{border-color:var(--accent)}
+  .hint{color:var(--muted);font-size:11px;margin-bottom:12px;margin-top:4px}
+
+  /* Primary btn */
+  .primary-btn{background:var(--accent);color:#000;border:none;border-radius:8px;padding:10px 24px;font-size:14px;font-weight:700}
+  .back-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:6px 14px;font-size:12px;margin-bottom:14px}
+
+  /* Grid view */
+  .date-section{margin-bottom:22px}
+  .date-badge{background:var(--accent);color:#000;border-radius:5px;padding:2px 13px;font-weight:700;font-size:15px;display:inline-block;margin-right:8px}
+  .date-section-hdr{display:flex;align-items:center;margin-bottom:10px}
+  .slot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+  .slot-card{background:var(--card);border:1.5px solid var(--border);border-radius:9px;padding:10px 11px;text-align:left;width:100%;transition:border-color .15s}
+  .slot-card:hover{border-color:var(--accent)}
+  .slot-card.has-missing{border-color:var(--danger)}
+  .slot-card.rearrange{border-color:#e67e2277}
+  .slot-col{color:var(--accent);font-weight:700;font-size:22px;line-height:1}
+  .slot-subdate{color:var(--info);font-size:10px;margin-top:2px}
+  .slot-count{color:var(--text);font-size:11px;margin-top:4px}
+  .slot-missing{color:var(--danger);font-size:10px}
+  .rearrange-file-btn{display:block;width:100%;background:#e67e2222;border:1px solid #e67e2255;color:var(--warning);border-radius:4px;padding:3px 6px;font-size:10px;margin-bottom:3px;text-align:left;margin-top:6px}
+
+  /* Rearrange toggle */
+  .rearrange-toggle{background:var(--card);color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:11px}
+  .rearrange-toggle.on{background:#e67e2233;color:var(--warning);border-color:var(--warning);font-weight:700}
+  .grid-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+
+  /* File card */
+  .file-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 13px;margin-bottom:8px}
+  .file-card.missing{border-color:var(--danger)}
+  .file-card-hdr{display:flex;justify-content:space-between;align-items:center}
+  .file-id{color:var(--accent);font-weight:700;font-size:15px}
+  .missing-badge{color:var(--danger);font-size:11px;background:#e74c3c22;padding:2px 7px;border-radius:4px}
+  .file-loc{color:var(--text);font-size:12px;margin-top:4px}
+  .file-actions{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}
+  .sm-btn{border-radius:5px;padding:4px 10px;font-size:11px;font-family:'Courier New',monospace}
+
+  /* Existing slot tags */
+  .existing-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
+  .tag{border-radius:4px;padding:3px 8px;font-size:11px}
+
+  /* Search */
+  .search-no-result{background:var(--card);border:1px solid var(--danger);border-radius:8px;padding:16px;color:var(--danger);text-align:center}
+
+  /* Slot detail header */
+  .slot-detail-hdr{color:var(--accent);font-weight:700;font-size:18px;margin-bottom:3px}
+  .slot-detail-sub{color:var(--muted);font-size:12px;margin-bottom:14px}
+
+  /* Empty */
+  .empty{color:var(--muted);font-size:13px;text-align:center;margin-top:40px}
+
+  /* Move modal */
+  #move-modal{position:fixed;inset:0;background:#000c;z-index:200;display:none;align-items:flex-end}
+  #move-modal.open{display:flex}
+  #move-inner{background:var(--surface);border:1px solid var(--border);border-radius:16px 16px 0 0;padding:20px;width:100%;max-height:88vh;overflow-y:auto}
+  .move-title{color:var(--accent);font-weight:700;font-size:16px;margin-bottom:3px}
+  .move-file-id{color:var(--info);font-size:14px;font-weight:700;margin-bottom:16px}
+  .move-actions{display:flex;gap:10px;margin-top:4px}
+  .move-confirm{background:var(--accent);color:#000;border:none;border-radius:8px;padding:11px 0;font-size:14px;font-weight:700;flex:1}
+  .move-cancel{background:var(--card);color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:11px 16px;font-size:14px}
+  .new-location-preview{background:var(--accent-dim);border:1px solid #f0a50044;border-radius:7px;padding:8px 12px;margin-bottom:16px;font-size:13px}
+  .new-location-preview span{color:var(--accent);font-weight:700}
+
+  /* Toast */
+  #toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);border-radius:8px;padding:9px 20px;font-size:13px;font-weight:700;z-index:300;white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;display:none;color:#fff}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="header">
+  <div>
+    <div id="header-title">📁 BUNDLE TRACKER</div>
+    <div id="header-sub">Physical File Location System</div>
+  </div>
+  <div id="stats">
+    <div class="stat"><div class="stat-val" id="stat-total" style="color:var(--info)">0</div><div class="stat-lbl">Files</div></div>
+    <div class="stat" id="stat-missing-box" style="display:none"><div class="stat-val" id="stat-missing" style="color:var(--danger)">0</div><div class="stat-lbl">Missing</div></div>
+  </div>
+</div>
+
+<!-- NAV -->
+<div id="nav">
+  <button class="nav-btn active" data-view="grid">🗂 Grid</button>
+  <button class="nav-btn" data-view="add">➕ Add</button>
+  <button class="nav-btn" data-view="search">🔍 Find</button>
+</div>
+
+<!-- CONTENT -->
+<div id="content">
+
+  <!-- ══ GRID VIEW ══ -->
+  <div class="view active" id="view-grid">
+    <div class="grid-toolbar">
+      <div style="color:var(--muted);font-size:12px">Slot tap karke detail dekho</div>
+      <button class="rearrange-toggle" id="rearrange-btn" onclick="toggleRearrange()">⇄ Rearrange</button>
+    </div>
+    <div id="grid-content"></div>
+  </div>
+
+  <!-- ══ SLOT DETAIL VIEW ══ -->
+  <div class="view" id="view-slot">
+    <button class="back-btn" onclick="goGrid()">← Wapas</button>
+    <div class="slot-detail-hdr" id="slot-detail-title"></div>
+    <div class="slot-detail-sub" id="slot-detail-sub"></div>
+    <div id="slot-detail-content"></div>
+  </div>
+
+  <!-- ══ ADD VIEW ══ -->
+  <div class="view" id="view-add">
+    <div style="font-weight:700;font-size:15px;margin-bottom:14px">📥 Files Add Karo</div>
+
+    <div class="lbl" style="margin-top:0">Main Date (1–31) — Rack ka date</div>
+    <div class="date-grid" id="main-date-grid"></div>
+
+    <div style="display:flex;align-items:center;margin-top:4px">
+      <div class="lbl" style="margin:0">Sub-Date — file ki alag date (optional)</div>
+      <button class="clear-btn" id="sub-clear-btn" onclick="clearSubDate()" style="display:none">✕ Clear</button>
+    </div>
+    <div id="sub-date-section">
+      <button class="subdate-add-btn" onclick="enableSubDate()">+ Sub-Date add karo (e.g. date 1 ke rack mein date 25 ki files)</button>
+    </div>
+
+    <div class="lbl">Column</div>
+    <div class="col-row" id="col-row"></div>
+
+    <div class="slot-preview" id="slot-preview">Slot → <span id="slot-preview-txt">—</span> <span id="slot-existing-count" style="color:var(--muted)"></span></div>
+
+    <!-- QR Scanner -->
+    <div class="lbl">QR / Barcode Scanner</div>
+    <button class="scan-btn scan-start" id="scan-toggle-btn" onclick="toggleScanner()">📷 Camera se Scan</button>
+    <div id="scanner-box">
+      <video id="scanner-video" playsinline muted></video>
+      <div id="viewfinder"></div>
+    </div>
+    <canvas id="scanner-canvas"></canvas>
+    <div id="scanner-msg"></div>
+
+    <div class="lbl">Ya manually type / paste karo</div>
+    <input class="txt-input" id="manual-input" placeholder="File number type karo, Enter dabao..." onkeydown="handleManualKey(event)"/>
+    <div class="hint">↵ Enter — multiple ke liye comma se alag karo</div>
+    <button class="primary-btn" onclick="manualAdd()">✓ Add Karo</button>
+
+    <div id="existing-in-slot" style="margin-top:16px;display:none">
+      <div class="lbl">Is slot mein pehle se:</div>
+      <div class="existing-tags" id="existing-tags-list"></div>
+    </div>
+  </div>
+
+  <!-- ══ SEARCH VIEW ══ -->
+  <div class="view" id="view-search">
+    <div style="font-weight:700;font-size:15px;margin-bottom:12px">🔍 File Dhundo</div>
+    <input class="txt-input" id="search-input" placeholder="File number type karo..." oninput="renderSearch()"/>
+    <div style="margin-top:14px" id="search-results"></div>
+  </div>
+
+</div><!-- end content -->
+
+<!-- MOVE MODAL -->
+<div id="move-modal">
+  <div id="move-inner">
+    <div class="move-title">⇄ Move / Rearrange</div>
+    <div class="move-file-id" id="move-file-lbl"></div>
+
+    <div class="lbl" style="margin-top:0">Naya Main Date</div>
+    <div class="date-grid" id="move-main-date-grid"></div>
+
+    <div style="display:flex;align-items:center">
+      <div class="lbl" style="margin:0">Sub-Date (optional)</div>
+      <button class="clear-btn" id="move-sub-clear" onclick="clearMoveSubDate()" style="display:none">✕ Clear</button>
+    </div>
+    <div id="move-sub-section">
+      <button class="subdate-add-btn" onclick="enableMoveSubDate()">+ Sub-Date add karo</button>
+    </div>
+
+    <div class="lbl">Naya Column</div>
+    <div class="col-row" id="move-col-row"></div>
+
+    <div class="new-location-preview">New Location → <span id="move-preview-txt">—</span></div>
+
+    <div class="move-actions">
+      <button class="move-confirm" onclick="doMove()">✓ Move Karo</button>
+      <button class="move-cancel" onclick="closeMove()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
+<script>
+// ══ STATE ══════════════════════════════════════════════════════════════════
+let files = {}; // { id: { id, mainDate, subDate, col, addedAt, status } }
+let currentView = 'grid';
+let currentSlot = null; // { mainDate, subDate, col }
+let rearrangeMode = false;
+let moveFileId = null;
+
+// Add form state
+let addMainDate = 1;
+let addSubDate = null;
+let addCol = 'A';
+
+// Move form state
+let moveMainDate = 1;
+let moveSubDate = null;
+let movCol = 'A';
+
+// Scanner
+let scanStream = null;
+let scanRaf = null;
+let scanning = false;
+
+const COLUMNS = ['A','B','C','D','E','F'];
+const DATES = Array.from({length:31},(_,i)=>i+1);
+
+// ══ STORAGE ════════════════════════════════════════════════════════════════
+async function loadData(){
+  try{
+    const r = await window.storage.get('bundle_v2');
+    if(r) files = JSON.parse(r.value);
+  } catch(e){ files = {}; }
+  renderAll();
 }
-async function saveData(d) {
-  try { await window.storage.set("bundle_v2", JSON.stringify(d)); } catch {}
+async function save(){
+  try{ await window.storage.set('bundle_v2', JSON.stringify(files)); } catch(e){}
 }
 
-function loadJsQR() {
-  return new Promise((res, rej) => {
-    if (window.jsQR) return res(window.jsQR);
-    const s = document.createElement("script");
-    s.src = "https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js";
-    s.onload = () => res(window.jsQR);
-    s.onerror = rej;
-    document.head.appendChild(s);
-  });
-}
+// ══ SLOT KEY ═══════════════════════════════════════════════════════════════
+function slotKey(md, sd, c){ return `${md}|${sd == null ? '-' : sd}|${c}`; }
+function parseKey(k){ const [md,sd,c]=k.split('|'); return {mainDate:+md, subDate:sd==='-'?null:+sd, col:c}; }
 
-export default function App() {
-  const [files, setFiles] = useState({});
-  const [view, setView] = useState("grid");
-  const [selectedSlot, setSelectedSlot] = useState(null);
-
-  const [mainDate, setMainDate] = useState(1);
-  const [subDate, setSubDate] = useState(null);
-  const [col, setCol] = useState("A");
-  const [scanInput, setScanInput] = useState("");
-
-  const [scannerOn, setScannerOn] = useState(false);
-  const [scannerMsg, setScannerMsg] = useState("");
-  const videoRef = useRef();
-  const canvasRef = useRef();
-  const streamRef = useRef();
-  const rafRef = useRef();
-  const scanningRef = useRef(false);
-
-  const [searchQ, setSearchQ] = useState("");
-  const [moveModal, setMoveModal] = useState(null);
-  const [moveTo, setMoveTo] = useState({ mainDate: 1, subDate: null, col: "A" });
-  const [toast, setToast] = useState(null);
-  const [rearrangeMode, setRearrangeMode] = useState(false);
-
-  useEffect(() => { loadData().then(setFiles); }, []);
-  useEffect(() => () => stopScanner(), []);
-
-  const showToast = (msg, type = "success") => {
-    setToast({ msg, type });
-    setTimeout(() => setToast(null), 2500);
-  };
-
-  const slotKey = (md, sd, c) => `${md}|${sd ?? "-"}|${c}`;
-
-  const slotMap = {};
-  Object.values(files).forEach(f => {
+function buildSlotMap(){
+  const m = {};
+  Object.values(files).forEach(f=>{
     const k = slotKey(f.mainDate, f.subDate, f.col);
-    if (!slotMap[k]) slotMap[k] = [];
-    slotMap[k].push(f);
+    if(!m[k]) m[k]=[];
+    m[k].push(f);
   });
+  return m;
+}
 
-  const activeDates = [...new Set(Object.values(files).map(f => f.mainDate))].sort((a, b) => a - b);
-  const totalFiles = Object.keys(files).length;
-  const missingCount = Object.values(files).filter(f => f.status === "missing").length;
+// ══ TOAST ══════════════════════════════════════════════════════════════════
+let toastTimer;
+function showToast(msg, type='success'){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = type==='success'?'#2ecc71':type==='warning'?'#e67e22':'#e74c3c';
+  t.style.display = 'block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>{ t.style.display='none'; }, 2500);
+}
 
-  const searchResults = searchQ.trim().length >= 1
-    ? Object.values(files).filter(f => f.id.toLowerCase().includes(searchQ.toLowerCase()))
-    : [];
+// ══ VIEW SWITCHING ══════════════════════════════════════════════════════════
+document.querySelectorAll('.nav-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const v = btn.dataset.view;
+    switchView(v);
+    if(v==='grid') currentSlot=null;
+    if(v==='search') setTimeout(()=>document.getElementById('search-input').focus(),100);
+  });
+});
 
-  const addFile = useCallback(async (rawId) => {
-    const id = rawId.trim().toUpperCase();
-    if (!id) return;
-    setFiles(prev => {
-      if (prev[id]) {
-        const ex = prev[id];
-        setTimeout(() => showToast(`"${id}" pehle se: Date ${ex.mainDate}${ex.subDate ? "/" + ex.subDate : ""} Col ${ex.col}`, "warning"), 0);
-        return prev;
+function switchView(v){
+  currentView = v;
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.view===v));
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  if(v==='slot'){
+    document.getElementById('view-slot').classList.add('active');
+  } else {
+    document.getElementById('view-'+v).classList.add('active');
+  }
+}
+
+function goGrid(){
+  currentSlot = null;
+  switchView('grid');
+  renderGrid();
+}
+
+// ══ RENDER ALL ═════════════════════════════════════════════════════════════
+function renderAll(){
+  updateStats();
+  renderGrid();
+  renderAddForm();
+  renderSearch();
+}
+
+function updateStats(){
+  const total = Object.keys(files).length;
+  const missing = Object.values(files).filter(f=>f.status==='missing').length;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-missing').textContent = missing;
+  document.getElementById('stat-missing-box').style.display = missing>0?'block':'none';
+}
+
+// ══ GRID VIEW ══════════════════════════════════════════════════════════════
+function renderGrid(){
+  if(currentView !== 'grid') return;
+  const slotMap = buildSlotMap();
+  const activeDates = [...new Set(Object.values(files).map(f=>f.mainDate))].sort((a,b)=>a-b);
+  const gc = document.getElementById('grid-content');
+
+  if(activeDates.length===0){
+    gc.innerHTML = '<div class="empty">Koi file nahi. \'Add\' tab se shuru karo.</div>';
+    return;
+  }
+
+  let html = '';
+  activeDates.forEach(date=>{
+    const slotsForDate = Object.entries(slotMap)
+      .filter(([k])=>+k.split('|')[0]===date)
+      .map(([k,arr])=>({...parseKey(k), arr}));
+    const totalInDate = slotsForDate.reduce((s,x)=>s+x.arr.length,0);
+
+    html += `<div class="date-section">
+      <div class="date-section-hdr">
+        <span class="date-badge">${date}</span>
+        <span style="color:var(--muted);font-size:11px">— ${totalInDate} files</span>
+      </div>
+      <div class="slot-grid">`;
+
+    slotsForDate.forEach(({mainDate:md, subDate:sd, col:c, arr})=>{
+      const miss = arr.filter(f=>f.status==='missing').length;
+      const k = slotKey(md,sd,c);
+      let rearrangeFiles = '';
+      if(rearrangeMode){
+        arr.forEach(f=>{
+          rearrangeFiles += `<button class="rearrange-file-btn" onclick="openMove('${esc(f.id)}')">⇄ ${esc(f.id)}</button>`;
+        });
       }
-      const updated = {
-        ...prev,
-        [id]: { id, mainDate, subDate: subDate ?? null, col, addedAt: Date.now(), status: "placed" }
-      };
-      saveData(updated);
-      setTimeout(() => showToast(`✓ ${id} → ${mainDate}${subDate ? "/" + subDate : ""}-${col}`), 0);
-      return updated;
+      html += `<button class="slot-card${miss>0?' has-missing':''}${rearrangeMode?' rearrange':''}"
+        onclick="${rearrangeMode?'':` openSlot('${esc(md)}','${sd==null?'null':sd}','${esc(c)}')`}">
+        <div class="slot-col">${c}</div>
+        ${sd!=null?`<div class="slot-subdate">sub: ${sd}</div>`:''}
+        <div class="slot-count">${arr.length} files</div>
+        ${miss>0?`<div class="slot-missing">⚠ ${miss} missing</div>`:''}
+        ${rearrangeFiles}
+      </button>`;
     });
-  }, [mainDate, subDate, col]);
 
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      const parts = scanInput.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
-      parts.forEach(p => addFile(p));
-      setScanInput("");
-    }
-  };
+    html += `</div></div>`;
+  });
+  gc.innerHTML = html;
+}
 
-  const startScanner = async () => {
-    setScannerMsg("Camera shuru ho rahi hai...");
-    try {
-      await loadJsQR();
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
-      streamRef.current = stream;
-      videoRef.current.srcObject = stream;
-      await videoRef.current.play();
-      setScannerOn(true);
-      scanningRef.current = true;
-      setScannerMsg("QR code dikhao — scan hoga automatically");
-      requestAnimationFrame(scanFrame);
-    } catch (err) {
-      setScannerMsg("Camera nahi mili: " + err.message);
-    }
-  };
+function toggleRearrange(){
+  rearrangeMode = !rearrangeMode;
+  const btn = document.getElementById('rearrange-btn');
+  btn.textContent = rearrangeMode ? '✓ Done' : '⇄ Rearrange';
+  btn.classList.toggle('on', rearrangeMode);
+  renderGrid();
+}
 
-  const stopScanner = () => {
-    scanningRef.current = false;
-    cancelAnimationFrame(rafRef.current);
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach(t => t.stop());
-      streamRef.current = null;
-    }
-    setScannerOn(false);
-    setScannerMsg("");
-  };
+function openSlot(md, sd, c){
+  currentSlot = { mainDate:+md, subDate: sd==='null'?null:+sd, col:c };
+  renderSlotDetail();
+  switchView('slot');
+}
 
-  const scanFrame = () => {
-    if (!scanningRef.current) return;
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    if (!video || !canvas || video.readyState < 2) {
-      rafRef.current = requestAnimationFrame(scanFrame);
-      return;
-    }
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0);
-    const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const code = window.jsQR(img.data, img.width, img.height);
-    if (code && code.data) {
-      setScannerMsg(`✓ Scanned: ${code.data}`);
+function renderSlotDetail(){
+  if(!currentSlot) return;
+  const {mainDate:md, subDate:sd, col:c} = currentSlot;
+  const slotMap = buildSlotMap();
+  const arr = slotMap[slotKey(md,sd,c)] || [];
+  document.getElementById('slot-detail-title').textContent = `Date ${md}${sd!=null?'/'+sd:''} — Column ${c}`;
+  document.getElementById('slot-detail-sub').textContent = `${arr.length} files`;
+  const cont = document.getElementById('slot-detail-content');
+  if(arr.length===0){ cont.innerHTML='<div class="empty">Koi file nahi.</div>'; return; }
+  cont.innerHTML = arr.map(f=>fileCardHTML(f, false)).join('');
+}
+
+// ══ ADD FORM ═══════════════════════════════════════════════════════════════
+function renderAddForm(){
+  renderDateGrid('main-date-grid', addMainDate, (d)=>{ addMainDate=d; renderAddForm(); });
+  if(addSubDate !== null){
+    renderDateGrid('sub-date-inner-grid', addSubDate, (d)=>{ addSubDate=d; renderAddForm(); });
+  }
+  renderColRow('col-row', addCol, (c)=>{ addCol=c; renderAddForm(); });
+  updateSlotPreview();
+}
+
+function renderDateGrid(containerId, selVal, cb){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  el.innerHTML = DATES.map(d=>
+    `<button class="date-btn${selVal===d?' sel':''}" onclick="(${cb.toString()})(${d})">${d}</button>`
+  ).join('');
+}
+
+function renderColRow(containerId, selVal, cb){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  el.innerHTML = COLUMNS.map(c=>
+    `<button class="col-btn${selVal===c?' sel':''}" onclick="(${cb.toString()})('${c}')">${c}</button>`
+  ).join('');
+}
+
+function enableSubDate(){
+  addSubDate = 1;
+  const sec = document.getElementById('sub-date-section');
+  sec.innerHTML = `<div class="date-grid" id="sub-date-inner-grid"></div>`;
+  document.getElementById('sub-clear-btn').style.display = 'inline-block';
+  renderDateGrid('sub-date-inner-grid', addSubDate, (d)=>{ addSubDate=d; updateSlotPreview(); renderSubDateGrid(); });
+  updateSlotPreview();
+}
+
+function renderSubDateGrid(){
+  renderDateGrid('sub-date-inner-grid', addSubDate, (d)=>{ addSubDate=d; updateSlotPreview(); renderSubDateGrid(); });
+}
+
+function clearSubDate(){
+  addSubDate = null;
+  document.getElementById('sub-date-section').innerHTML =
+    `<button class="subdate-add-btn" onclick="enableSubDate()">+ Sub-Date add karo (e.g. date 1 ke rack mein date 25 ki files)</button>`;
+  document.getElementById('sub-clear-btn').style.display = 'none';
+  updateSlotPreview();
+}
+
+function updateSlotPreview(){
+  const slotMap = buildSlotMap();
+  const k = slotKey(addMainDate, addSubDate, addCol);
+  const existing = slotMap[k] || [];
+  document.getElementById('slot-preview-txt').textContent =
+    `Date ${addMainDate}${addSubDate!=null?'/'+addSubDate:''} — Col ${addCol}`;
+  document.getElementById('slot-existing-count').textContent = `(${existing.length} files already)`;
+
+  const exBox = document.getElementById('existing-in-slot');
+  const tagList = document.getElementById('existing-tags-list');
+  if(existing.length > 0){
+    exBox.style.display = 'block';
+    tagList.innerHTML = existing.map(f=>
+      `<span class="tag" style="background:var(--card);border:1px solid ${f.status==='missing'?'var(--danger)':'var(--border)'};color:${f.status==='missing'?'var(--danger)':'var(--text)'}">
+        ${esc(f.id)}${f.status==='missing'?' ⚠':''}
+      </span>`
+    ).join('');
+  } else {
+    exBox.style.display = 'none';
+  }
+}
+
+// ══ ADD FILE ════════════════════════════════════════════════════════════════
+function addFile(rawId){
+  const id = rawId.trim().toUpperCase();
+  if(!id) return;
+  if(files[id]){
+    const ex = files[id];
+    showToast(`"${id}" pehle se hai: Date ${ex.mainDate}${ex.subDate!=null?'/'+ex.subDate:''} Col ${ex.col}`, 'warning');
+    return;
+  }
+  files[id] = { id, mainDate:addMainDate, subDate:addSubDate, col:addCol, addedAt:Date.now(), status:'placed' };
+  save();
+  showToast(`✓ ${id} → ${addMainDate}${addSubDate!=null?'/'+addSubDate:''}-${addCol}`);
+  updateStats();
+  updateSlotPreview();
+}
+
+function handleManualKey(e){
+  if(e.key === 'Enter'){
+    e.preventDefault();
+    const parts = document.getElementById('manual-input').value.split(/[\n,]+/).map(s=>s.trim()).filter(Boolean);
+    parts.forEach(p=>addFile(p));
+    document.getElementById('manual-input').value = '';
+  }
+}
+
+function manualAdd(){
+  const val = document.getElementById('manual-input').value;
+  const parts = val.split(/,/).map(s=>s.trim()).filter(Boolean);
+  if(!parts.length) return;
+  parts.forEach(p=>addFile(p));
+  document.getElementById('manual-input').value = '';
+}
+
+// ══ QR SCANNER ═════════════════════════════════════════════════════════════
+async function toggleScanner(){
+  if(scanning){ stopScanner(); return; }
+  setScanMsg('Camera shuru ho rahi hai...');
+  try{
+    const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
+    scanStream = stream;
+    const vid = document.getElementById('scanner-video');
+    vid.srcObject = stream;
+    await vid.play();
+    scanning = true;
+    document.getElementById('scanner-box').style.display = 'block';
+    document.getElementById('scan-toggle-btn').textContent = '✕ Scanner Band Karo';
+    document.getElementById('scan-toggle-btn').className = 'scan-btn scan-stop';
+    setScanMsg('QR code dikhao — scan hoga automatically');
+    scanFrame();
+  } catch(err){
+    setScanMsg('Camera nahi mili: '+err.message);
+  }
+}
+
+function stopScanner(){
+  scanning = false;
+  cancelAnimationFrame(scanRaf);
+  if(scanStream){ scanStream.getTracks().forEach(t=>t.stop()); scanStream=null; }
+  document.getElementById('scanner-box').style.display = 'none';
+  document.getElementById('scan-toggle-btn').textContent = '📷 Camera se Scan';
+  document.getElementById('scan-toggle-btn').className = 'scan-btn scan-start';
+  setScanMsg('');
+}
+
+function setScanMsg(msg){
+  const el = document.getElementById('scanner-msg');
+  el.textContent = msg;
+  el.style.color = msg.startsWith('✓') ? 'var(--success)' : 'var(--muted)';
+}
+
+function scanFrame(){
+  if(!scanning) return;
+  const vid = document.getElementById('scanner-video');
+  const canvas = document.getElementById('scanner-canvas');
+  if(vid.readyState < 2){ scanRaf = requestAnimationFrame(scanFrame); return; }
+  canvas.width = vid.videoWidth;
+  canvas.height = vid.videoHeight;
+  const ctx = canvas.getContext('2d');
+  ctx.drawImage(vid,0,0);
+  const img = ctx.getImageData(0,0,canvas.width,canvas.height);
+  if(window.jsQR){
+    const code = jsQR(img.data, img.width, img.height);
+    if(code && code.data){
+      setScanMsg(`✓ Scanned: ${code.data}`);
       addFile(code.data);
       stopScanner();
       return;
     }
-    rafRef.current = requestAnimationFrame(scanFrame);
-  };
+  }
+  scanRaf = requestAnimationFrame(scanFrame);
+}
 
-  const setStatus = async (id, status) => {
-    setFiles(prev => {
-      const updated = { ...prev, [id]: { ...prev[id], status } };
-      saveData(updated);
-      return updated;
-    });
-    showToast(status === "missing" ? `⚠ Missing: ${id}` : `✓ Restored: ${id}`, status === "missing" ? "warning" : "success");
-  };
+// ══ FILE ACTIONS ════════════════════════════════════════════════════════════
+function setStatus(id, status){
+  if(!files[id]) return;
+  files[id].status = status;
+  save();
+  showToast(status==='missing'?`⚠ Missing: ${id}`:`✓ Restored: ${id}`, status==='missing'?'warning':'success');
+  updateStats();
+  renderGrid();
+  if(currentView==='slot') renderSlotDetail();
+  if(currentView==='search') renderSearch();
+}
 
-  const removeFile = async (id) => {
-    setFiles(prev => {
-      const { [id]: _, ...rest } = prev;
-      saveData(rest);
-      return rest;
-    });
-    showToast(`Hata diya: ${id}`, "danger");
-  };
+function removeFile(id){
+  delete files[id];
+  save();
+  showToast(`Hata diya: ${id}`, 'danger');
+  updateStats();
+  renderGrid();
+  if(currentView==='slot') renderSlotDetail();
+  if(currentView==='search') renderSearch();
+}
 
-  const openMove = (id) => {
-    const f = files[id];
-    setMoveTo({ mainDate: f.mainDate, subDate: f.subDate ?? null, col: f.col });
-    setMoveModal(id);
-  };
+// ══ MOVE MODAL ══════════════════════════════════════════════════════════════
+function openMove(id){
+  moveFileId = id;
+  const f = files[id];
+  moveMainDate = f.mainDate;
+  moveSubDate = f.subDate ?? null;
+  movCol = f.col;
+  document.getElementById('move-file-lbl').textContent = id;
+  renderMoveForm();
+  document.getElementById('move-modal').classList.add('open');
+}
 
-  const doMove = async () => {
-    setFiles(prev => {
-      const updated = { ...prev, [moveModal]: { ...prev[moveModal], mainDate: moveTo.mainDate, subDate: moveTo.subDate, col: moveTo.col } };
-      saveData(updated);
-      return updated;
-    });
-    setMoveModal(null);
-    if (selectedSlot) { setSelectedSlot(null); setView("grid"); }
-    showToast(`✓ Moved → Date ${moveTo.mainDate}${moveTo.subDate ? "/" + moveTo.subDate : ""}-${moveTo.col}`);
-  };
+function closeMove(){
+  document.getElementById('move-modal').classList.remove('open');
+  moveFileId = null;
+}
 
-  const slotFiles = selectedSlot ? (slotMap[slotKey(selectedSlot.mainDate, selectedSlot.subDate, selectedSlot.col)] || []) : [];
+document.getElementById('move-modal').addEventListener('click', function(e){
+  if(e.target === this) closeMove();
+});
 
-  const slotsForDate = (date) =>
-    Object.entries(slotMap)
-      .filter(([k]) => +k.split("|")[0] === date)
-      .map(([k, arr]) => { const [, sd, c] = k.split("|"); return { key: k, subDate: sd === "-" ? null : +sd, col: c, arr }; });
+function renderMoveForm(){
+  renderDateGrid('move-main-date-grid', moveMainDate, (d)=>{ moveMainDate=d; updateMovePreview(); renderMoveMainGrid(); });
+  renderColRow('move-col-row', movCol, (c)=>{ movCol=c; updateMovePreview(); renderMoveColRow(); });
+  if(moveSubDate !== null){
+    const sec = document.getElementById('move-sub-section');
+    if(!document.getElementById('move-sub-inner-grid')){
+      sec.innerHTML = `<div class="date-grid" id="move-sub-inner-grid"></div>`;
+      document.getElementById('move-sub-clear').style.display = 'inline-block';
+    }
+    renderDateGrid('move-sub-inner-grid', moveSubDate, (d)=>{ moveSubDate=d; updateMovePreview(); renderMoveSubGrid(); });
+  } else {
+    document.getElementById('move-sub-section').innerHTML =
+      `<button class="subdate-add-btn" onclick="enableMoveSubDate()">+ Sub-Date add karo</button>`;
+    document.getElementById('move-sub-clear').style.display = 'none';
+  }
+  updateMovePreview();
+}
 
-  return (
-    <div style={{ fontFamily: "'Courier New', monospace", background: C.bg, minHeight: "100vh", color: C.text, paddingBottom: 60 }}>
+function renderMoveMainGrid(){
+  renderDateGrid('move-main-date-grid', moveMainDate, (d)=>{ moveMainDate=d; updateMovePreview(); renderMoveMainGrid(); });
+}
+function renderMoveSubGrid(){
+  renderDateGrid('move-sub-inner-grid', moveSubDate, (d)=>{ moveSubDate=d; updateMovePreview(); renderMoveSubGrid(); });
+}
+function renderMoveColRow(){
+  renderColRow('move-col-row', movCol, (c)=>{ movCol=c; updateMovePreview(); renderMoveColRow(); });
+}
 
-      {/* Header */}
-      <div style={{ background: C.surface, borderBottom: `2px solid ${C.accent}`, padding: "12px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100 }}>
-        <div>
-          <div style={{ color: C.accent, fontWeight: 700, fontSize: 17, letterSpacing: 2 }}>📁 BUNDLE TRACKER</div>
-          <div style={{ color: C.muted, fontSize: 10, marginTop: 1 }}>Physical File Location System</div>
-        </div>
-        <div style={{ display: "flex", gap: 5 }}>
-          <Stat label="Files" val={totalFiles} color={C.info} />
-          {missingCount > 0 && <Stat label="Missing" val={missingCount} color={C.danger} />}
-        </div>
-      </div>
+function enableMoveSubDate(){
+  moveSubDate = 1;
+  const sec = document.getElementById('move-sub-section');
+  sec.innerHTML = `<div class="date-grid" id="move-sub-inner-grid"></div>`;
+  document.getElementById('move-sub-clear').style.display = 'inline-block';
+  renderDateGrid('move-sub-inner-grid', moveSubDate, (d)=>{ moveSubDate=d; updateMovePreview(); renderMoveSubGrid(); });
+  updateMovePreview();
+}
 
-      {/* Nav */}
-      <div style={{ display: "flex", background: C.surface, borderBottom: `1px solid ${C.border}`, padding: "0 6px" }}>
-        {[["grid","🗂 Grid"],["add","➕ Add"],["search","🔍 Find"]].map(([v,l]) => (
-          <NavBtn key={v} label={l} active={view === v} onClick={() => { setView(v); setSelectedSlot(null); }} />
-        ))}
-      </div>
+function clearMoveSubDate(){
+  moveSubDate = null;
+  document.getElementById('move-sub-section').innerHTML =
+    `<button class="subdate-add-btn" onclick="enableMoveSubDate()">+ Sub-Date add karo</button>`;
+  document.getElementById('move-sub-clear').style.display = 'none';
+  updateMovePreview();
+}
 
-      <div style={{ padding: "14px 13px" }}>
+function updateMovePreview(){
+  document.getElementById('move-preview-txt').textContent =
+    `Date ${moveMainDate}${moveSubDate!=null?'/'+moveSubDate:''} — Col ${movCol}`;
+}
 
-        {/* ══ GRID ══ */}
-        {view === "grid" && !selectedSlot && (
-          <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-              <div style={{ color: C.muted, fontSize: 12 }}>Slot tap karke detail dekho</div>
-              <button onClick={() => setRearrangeMode(r => !r)}
-                style={{ background: rearrangeMode ? C.warning + "33" : C.card, color: rearrangeMode ? C.warning : C.muted, border: `1px solid ${rearrangeMode ? C.warning : C.border}`, borderRadius: 6, padding: "5px 12px", fontSize: 11, cursor: "pointer", fontFamily: "inherit", fontWeight: rearrangeMode ? 700 : 400 }}>
-                {rearrangeMode ? "✓ Done" : "⇄ Rearrange Mode"}
-              </button>
-            </div>
+function doMove(){
+  if(!moveFileId) return;
+  files[moveFileId].mainDate = moveMainDate;
+  files[moveFileId].subDate = moveSubDate;
+  files[moveFileId].col = movCol;
+  save();
+  showToast(`✓ Moved → Date ${moveMainDate}${moveSubDate!=null?'/'+moveSubDate:''}-${movCol}`);
+  closeMove();
+  renderGrid();
+  if(currentView==='slot'){ currentSlot=null; goGrid(); }
+  if(currentView==='search') renderSearch();
+  if(currentView==='add') updateSlotPreview();
+}
 
-            {activeDates.length === 0
-              ? <Empty msg="Koi file nahi. 'Add' tab se shuru karo." />
-              : activeDates.map(date => (
-                <div key={date} style={{ marginBottom: 22 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-                    <span style={{ background: C.accent, color: "#000", borderRadius: 5, padding: "2px 13px", fontWeight: 700, fontSize: 15 }}>{date}</span>
-                    <span style={{ color: C.muted, fontSize: 11 }}>— {slotsForDate(date).reduce((s, x) => s + x.arr.length, 0)} files total</span>
-                  </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 7 }}>
-                    {slotsForDate(date).map(({ key, subDate: sd, col: c, arr }) => {
-                      const miss = arr.filter(f => f.status === "missing").length;
-                      return (
-                        <button key={key}
-                          onClick={() => { if (!rearrangeMode) { setSelectedSlot({ mainDate: date, subDate: sd, col: c }); setView("slot"); } }}
-                          style={{ background: C.card, border: `1.5px solid ${miss > 0 ? C.danger : rearrangeMode ? C.warning + "77" : C.border}`, borderRadius: 9, padding: "10px 11px", cursor: rearrangeMode ? "default" : "pointer", textAlign: "left", position: "relative" }}>
-                          <div style={{ color: C.accent, fontWeight: 700, fontSize: 22, lineHeight: 1 }}>{c}</div>
-                          {sd !== null && <div style={{ color: C.info, fontSize: 10, marginTop: 2 }}>sub-date: {sd}</div>}
-                          <div style={{ color: C.text, fontSize: 11, marginTop: 4 }}>{arr.length} files</div>
-                          {miss > 0 && <div style={{ color: C.danger, fontSize: 10 }}>⚠ {miss} missing</div>}
-                          {rearrangeMode && (
-                            <div style={{ marginTop: 8 }}>
-                              {arr.map(f => (
-                                <button key={f.id} onClick={() => openMove(f.id)}
-                                  style={{ display: "block", width: "100%", background: C.warning + "22", border: `1px solid ${C.warning}55`, color: C.warning, borderRadius: 4, padding: "3px 6px", fontSize: 10, cursor: "pointer", fontFamily: "inherit", marginBottom: 3, textAlign: "left" }}>
-                                  ⇄ {f.id}
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))
-            }
-          </div>
-        )}
+// ══ SEARCH ══════════════════════════════════════════════════════════════════
+function renderSearch(){
+  if(currentView !== 'search' && document.getElementById('search-input').value === '') return;
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  const res = document.getElementById('search-results');
+  const missing = Object.values(files).filter(f=>f.status==='missing');
+  const total = Object.keys(files).length;
 
-        {/* ══ SLOT DETAIL ══ */}
-        {view === "slot" && selectedSlot && (
-          <div>
-            <button onClick={() => { setView("grid"); setSelectedSlot(null); }}
-              style={{ background: "none", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 6, padding: "6px 14px", cursor: "pointer", fontSize: 12, marginBottom: 14, fontFamily: "inherit" }}>
-              ← Wapas
-            </button>
-            <div style={{ color: C.accent, fontWeight: 700, fontSize: 18, marginBottom: 3 }}>
-              Date {selectedSlot.mainDate}{selectedSlot.subDate != null ? " / " + selectedSlot.subDate : ""} — Col {selectedSlot.col}
-            </div>
-            <div style={{ color: C.muted, fontSize: 12, marginBottom: 14 }}>{slotFiles.length} files</div>
-            {slotFiles.length === 0
-              ? <Empty msg="Koi file nahi." />
-              : slotFiles.map(f => (
-                <FileCard key={f.id} f={f}
-                  onMissing={() => setStatus(f.id, "missing")}
-                  onRestore={() => setStatus(f.id, "placed")}
-                  onRemove={() => removeFile(f.id)}
-                  onMove={() => openMove(f.id)} />
-              ))
-            }
-          </div>
-        )}
+  if(q.length > 0){
+    const results = Object.values(files).filter(f=>f.id.toLowerCase().includes(q));
+    if(results.length === 0){
+      res.innerHTML = `<div class="search-no-result">❌ "${esc(q)}" nahi mili<div style="color:var(--muted);font-size:12px;margin-top:4px">Missing hai ya add nahi ki gayi</div></div>`;
+    } else {
+      res.innerHTML = results.map(f=>fileCardHTML(f, true)).join('');
+    }
+    return;
+  }
 
-        {/* ══ ADD ══ */}
-        {view === "add" && (
-          <div>
-            <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 14 }}>📥 Files Add Karo</div>
+  if(missing.length > 0){
+    res.innerHTML = `<div style="color:var(--danger);font-weight:700;margin-bottom:8px">⚠ Missing Files (${missing.length})</div>` +
+      missing.map(f=>fileCardHTML(f, true)).join('');
+    return;
+  }
+  if(total > 0){
+    res.innerHTML = `<div style="color:var(--muted);font-size:13px;text-align:center;margin-top:30px">✓ Koi missing nahi</div>`;
+    return;
+  }
+  res.innerHTML = `<div class="empty">Koi file add nahi ki abhi.</div>`;
+}
 
-            <Lbl>Main Date (1–31) — Rack ka date</Lbl>
-            <DateGrid value={mainDate} onChange={setMainDate} />
-
-            <div style={{ display: "flex", alignItems: "center", gap: 10, margin: "4px 0 7px" }}>
-              <Lbl>Sub-Date — File ki alag date (optional)</Lbl>
-              {subDate !== null && (
-                <button onClick={() => setSubDate(null)}
-                  style={{ background: "none", border: `1px solid ${C.danger}55`, color: C.danger, borderRadius: 4, padding: "2px 8px", fontSize: 10, cursor: "pointer", fontFamily: "inherit" }}>✕ Clear</button>
-              )}
-            </div>
-            {subDate === null
-              ? <button onClick={() => setSubDate(1)}
-                  style={{ background: C.card, border: `1px dashed ${C.border}`, color: C.muted, borderRadius: 7, padding: "8px 14px", cursor: "pointer", fontSize: 12, fontFamily: "inherit", marginBottom: 14, display: "block" }}>
-                  + Sub-Date add karo (e.g. date 1 ke rack mein date 25 ki files)
-                </button>
-              : <div style={{ marginBottom: 14 }}><DateGrid value={subDate} onChange={setSubDate} /></div>
-            }
-
-            <Lbl>Column</Lbl>
-            <div style={{ display: "flex", gap: 7, marginBottom: 14, flexWrap: "wrap" }}>
-              {COLUMNS.map(c => (
-                <button key={c} onClick={() => setCol(c)}
-                  style={{ background: col === c ? C.accent : C.card, color: col === c ? "#000" : C.muted, border: `1px solid ${col === c ? C.accent : C.border}`, borderRadius: 7, padding: "8px 16px", cursor: "pointer", fontSize: 16, fontWeight: 700, fontFamily: "inherit" }}>
-                  {c}
-                </button>
-              ))}
-            </div>
-
-            <div style={{ background: C.accentDim, border: `1px solid ${C.accent}44`, borderRadius: 8, padding: "9px 13px", marginBottom: 16, fontSize: 13 }}>
-              Slot → <span style={{ color: C.accent, fontWeight: 700 }}>Date {mainDate}{subDate ? "/" + subDate : ""} — Col {col}</span>
-              <span style={{ color: C.muted }}> ({(slotMap[slotKey(mainDate, subDate, col)] || []).length} files already)</span>
-            </div>
-
-            {/* QR Scanner */}
-            <Lbl>QR / Barcode Scanner</Lbl>
-            <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
-              {!scannerOn
-                ? <button onClick={startScanner}
-                    style={{ background: C.info + "22", border: `1px solid ${C.info}`, color: C.info, borderRadius: 8, padding: "10px 20px", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
-                    📷 Camera se Scan
-                  </button>
-                : <button onClick={stopScanner}
-                    style={{ background: C.danger + "22", border: `1px solid ${C.danger}`, color: C.danger, borderRadius: 8, padding: "10px 20px", fontSize: 13, cursor: "pointer", fontFamily: "inherit" }}>
-                    ✕ Scanner Band Karo
-                  </button>
-              }
-            </div>
-
-            {/* Video */}
-            <div style={{ position: "relative", display: scannerOn ? "block" : "none", marginBottom: 10 }}>
-              <video ref={videoRef} playsInline muted
-                style={{ width: "100%", maxWidth: 340, borderRadius: 10, border: `2px solid ${C.info}`, display: "block" }} />
-              {/* Viewfinder overlay */}
-              <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%,-50%)", width: 140, height: 140, border: `2px solid ${C.accent}`, borderRadius: 8, boxShadow: `0 0 0 9999px #00000066`, pointerEvents: "none" }} />
-            </div>
-            <canvas ref={canvasRef} style={{ display: "none" }} />
-
-            {scannerMsg && (
-              <div style={{ color: scannerMsg.startsWith("✓") ? C.success : C.muted, fontSize: 12, marginBottom: 10 }}>{scannerMsg}</div>
-            )}
-
-            {/* Manual input */}
-            <Lbl>Ya manually type / paste karo</Lbl>
-            <input value={scanInput} onChange={e => setScanInput(e.target.value)} onKeyDown={handleKeyDown}
-              placeholder="File number type karo, Enter dabao..."
-              style={{ width: "100%", boxSizing: "border-box", background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, color: C.text, padding: "11px 13px", fontSize: 14, fontFamily: "inherit", outline: "none", marginBottom: 6 }} />
-            <div style={{ color: C.muted, fontSize: 11, marginBottom: 12 }}>↵ Enter — multiple ke liye comma se alag karo</div>
-
-            <button onClick={() => { const p = scanInput.split(/,/).map(s => s.trim()).filter(Boolean); p.forEach(x => addFile(x)); setScanInput(""); }}
-              style={{ background: C.accent, color: "#000", border: "none", borderRadius: 8, padding: "10px 24px", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
-              ✓ Add Karo
-            </button>
-
-            {(slotMap[slotKey(mainDate, subDate, col)] || []).length > 0 && (
-              <div style={{ marginTop: 16 }}>
-                <Lbl>Is slot mein pehle se:</Lbl>
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
-                  {(slotMap[slotKey(mainDate, subDate, col)] || []).map(f => (
-                    <span key={f.id} style={{ background: C.card, border: `1px solid ${f.status === "missing" ? C.danger : C.border}`, borderRadius: 4, padding: "3px 8px", fontSize: 11, color: f.status === "missing" ? C.danger : C.text }}>
-                      {f.id}{f.status === "missing" ? " ⚠" : ""}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ══ SEARCH ══ */}
-        {view === "search" && (
-          <div>
-            <div style={{ fontWeight: 700, fontSize: 15, marginBottom: 12 }}>🔍 File Dhundo</div>
-            <input autoFocus value={searchQ} onChange={e => setSearchQ(e.target.value)}
-              placeholder="File number type karo..."
-              style={{ width: "100%", boxSizing: "border-box", background: C.card, border: `1px solid ${C.accent}`, borderRadius: 8, color: C.text, padding: "11px 13px", fontSize: 14, fontFamily: "inherit", outline: "none", marginBottom: 14 }} />
-
-            {searchQ.trim().length > 0 && searchResults.length === 0 && (
-              <div style={{ background: C.card, border: `1px solid ${C.danger}`, borderRadius: 8, padding: 16, color: C.danger, textAlign: "center" }}>
-                ❌ "{searchQ}" nahi mili
-                <div style={{ color: C.muted, fontSize: 12, marginTop: 4 }}>Missing hai ya add nahi ki gayi</div>
-              </div>
-            )}
-
-            {searchResults.map(f => (
-              <FileCard key={f.id} f={f} showLocation
-                onMissing={() => setStatus(f.id, "missing")}
-                onRestore={() => setStatus(f.id, "placed")}
-                onRemove={() => removeFile(f.id)}
-                onMove={() => openMove(f.id)} />
-            ))}
-
-            {!searchQ && missingCount > 0 && (
-              <div>
-                <div style={{ color: C.danger, fontWeight: 700, marginBottom: 8 }}>⚠ Missing Files ({missingCount})</div>
-                {Object.values(files).filter(f => f.status === "missing").map(f => (
-                  <FileCard key={f.id} f={f} showLocation
-                    onRestore={() => setStatus(f.id, "placed")}
-                    onRemove={() => removeFile(f.id)}
-                    onMove={() => openMove(f.id)} />
-                ))}
-              </div>
-            )}
-
-            {!searchQ && missingCount === 0 && totalFiles > 0 && (
-              <div style={{ color: C.muted, fontSize: 13, textAlign: "center", marginTop: 30 }}>✓ Koi missing nahi</div>
-            )}
-            {!searchQ && totalFiles === 0 && <Empty msg="Koi file add nahi ki abhi." />}
-          </div>
-        )}
-      </div>
-
-      {/* ══ MOVE MODAL ══ */}
-      {moveModal && (
-        <div style={{ position: "fixed", inset: 0, background: "#000c", zIndex: 200, display: "flex", alignItems: "flex-end" }}
-          onClick={() => setMoveModal(null)}>
-          <div style={{ background: C.surface, border: `1px solid ${C.border}`, borderRadius: "16px 16px 0 0", padding: 20, width: "100%", maxHeight: "88vh", overflowY: "auto", boxSizing: "border-box" }}
-            onClick={e => e.stopPropagation()}>
-            <div style={{ color: C.accent, fontWeight: 700, fontSize: 16, marginBottom: 3 }}>⇄ Move / Rearrange</div>
-            <div style={{ color: C.info, fontSize: 14, marginBottom: 16, fontWeight: 700 }}>{moveModal}</div>
-
-            <Lbl>Naya Main Date</Lbl>
-            <DateGrid value={moveTo.mainDate} onChange={v => setMoveTo(t => ({ ...t, mainDate: v }))} />
-
-            <div style={{ display: "flex", alignItems: "center", gap: 8, margin: "4px 0 7px" }}>
-              <Lbl>Sub-Date (optional)</Lbl>
-              {moveTo.subDate !== null && (
-                <button onClick={() => setMoveTo(t => ({ ...t, subDate: null }))}
-                  style={{ background: "none", border: `1px solid ${C.danger}55`, color: C.danger, borderRadius: 4, padding: "2px 8px", fontSize: 10, cursor: "pointer", fontFamily: "inherit" }}>✕ Clear</button>
-              )}
-            </div>
-            {moveTo.subDate === null
-              ? <button onClick={() => setMoveTo(t => ({ ...t, subDate: 1 }))}
-                  style={{ background: C.card, border: `1px dashed ${C.border}`, color: C.muted, borderRadius: 7, padding: "7px 12px", cursor: "pointer", fontSize: 12, fontFamily: "inherit", marginBottom: 12, display: "block" }}>
-                  + Sub-Date add karo
-                </button>
-              : <div style={{ marginBottom: 12 }}><DateGrid value={moveTo.subDate} onChange={v => setMoveTo(t => ({ ...t, subDate: v }))} /></div>
-            }
-
-            <Lbl>Naya Column</Lbl>
-            <div style={{ display: "flex", gap: 7, marginBottom: 18, flexWrap: "wrap" }}>
-              {COLUMNS.map(c => (
-                <button key={c} onClick={() => setMoveTo(t => ({ ...t, col: c }))}
-                  style={{ background: moveTo.col === c ? C.accent : C.card, color: moveTo.col === c ? "#000" : C.muted, border: `1px solid ${moveTo.col === c ? C.accent : C.border}`, borderRadius: 7, padding: "7px 14px", cursor: "pointer", fontSize: 15, fontWeight: 700, fontFamily: "inherit" }}>
-                  {c}
-                </button>
-              ))}
-            </div>
-
-            <div style={{ background: C.accentDim, border: `1px solid ${C.accent}44`, borderRadius: 7, padding: "8px 12px", marginBottom: 16, fontSize: 13 }}>
-              New Location → <span style={{ color: C.accent, fontWeight: 700 }}>Date {moveTo.mainDate}{moveTo.subDate ? "/" + moveTo.subDate : ""} — Col {moveTo.col}</span>
-            </div>
-
-            <div style={{ display: "flex", gap: 10 }}>
-              <button onClick={doMove}
-                style={{ background: C.accent, color: "#000", border: "none", borderRadius: 8, padding: "11px 0", fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", flex: 1 }}>
-                ✓ Move Karo
-              </button>
-              <button onClick={() => setMoveModal(null)}
-                style={{ background: C.card, color: C.muted, border: `1px solid ${C.border}`, borderRadius: 8, padding: "11px 16px", fontSize: 14, cursor: "pointer", fontFamily: "inherit" }}>
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Toast */}
-      {toast && (
-        <div style={{ position: "fixed", bottom: 18, left: "50%", transform: "translateX(-50%)", background: toast.type === "success" ? C.success : toast.type === "warning" ? C.warning : C.danger, color: "#fff", borderRadius: 8, padding: "9px 20px", fontSize: 13, fontWeight: 700, zIndex: 300, whiteSpace: "nowrap", maxWidth: "90vw", overflow: "hidden", textOverflow: "ellipsis" }}>
-          {toast.msg}
-        </div>
-      )}
+// ══ FILE CARD HTML ══════════════════════════════════════════════════════════
+function fileCardHTML(f, showLoc){
+  const id = esc(f.id);
+  return `<div class="file-card${f.status==='missing'?' missing':''}">
+    <div class="file-card-hdr">
+      <span class="file-id">${id}</span>
+      ${f.status==='missing'?`<span class="missing-badge">⚠ MISSING</span>`:''}
     </div>
-  );
+    ${showLoc?`<div class="file-loc">📍 Date ${f.mainDate}${f.subDate!=null?'/'+f.subDate:''} — Col <strong>${f.col}</strong></div>`:''}
+    <div class="file-actions">
+      ${f.status!=='missing'
+        ?`<button class="sm-btn" style="background:#e67e2222;color:var(--warning);border:1px solid #e67e2255" onclick="setStatus('${id}','missing')">Missing</button>`
+        :`<button class="sm-btn" style="background:#2ecc7122;color:var(--success);border:1px solid #2ecc7155" onclick="setStatus('${id}','placed')">Wapas Mili</button>`
+      }
+      <button class="sm-btn" style="background:#3498db22;color:var(--info);border:1px solid #3498db55" onclick="openMove('${id}')">⇄ Move</button>
+      <button class="sm-btn" style="background:#e74c3c22;color:var(--danger);border:1px solid #e74c3c55" onclick="removeFile('${id}')">Hatao</button>
+    </div>
+  </div>`;
 }
 
-function NavBtn({ label, active, onClick }) {
-  return (
-    <button onClick={onClick}
-      style={{ background: "none", border: "none", color: active ? C.accent : C.muted, fontFamily: "inherit", fontSize: 13, padding: "10px 13px", cursor: "pointer", borderBottom: active ? `2px solid ${C.accent}` : "2px solid transparent", fontWeight: active ? 700 : 400 }}>
-      {label}
-    </button>
-  );
+function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+// ══ INIT ═══════════════════════════════════════════════════════════════════
+// Build initial add form grids immediately
+(function initAddForm(){
+  // Main date grid
+  const mg = document.getElementById('main-date-grid');
+  mg.innerHTML = DATES.map(d=>
+    `<button class="date-btn${addMainDate===d?' sel':''}" onclick="addMainDate=${d};renderAddForm()">${d}</button>`
+  ).join('');
+
+  // Col row
+  const cr = document.getElementById('col-row');
+  cr.innerHTML = COLUMNS.map(c=>
+    `<button class="col-btn${addCol===c?' sel':''}" onclick="addCol='${c}';renderAddForm()">${c}</button>`
+  ).join('');
+  updateSlotPreview();
+})();
+
+// Build move col row
+(function initMoveColRow(){
+  const el = document.getElementById('move-col-row');
+  el.innerHTML = COLUMNS.map(c=>
+    `<button class="col-btn${movCol===c?' sel':''}" onclick="movCol='${c}';updateMovePreview();renderMoveColRow()">${c}</button>`
+  ).join('');
+  const mg = document.getElementById('move-main-date-grid');
+  mg.innerHTML = DATES.map(d=>
+    `<button class="date-btn${moveMainDate===d?' sel':''}" onclick="moveMainDate=${d};updateMovePreview();renderMoveMainGrid()">${d}</button>`
+  ).join('');
+  updateMovePreview();
+})();
+
+// Load data from storage
+if(window.storage){
+  loadData();
+} else {
+  renderAll();
 }
-function Stat({ label, val, color }) {
-  return (
-    <div style={{ textAlign: "center", background: "#ffffff08", borderRadius: 5, padding: "3px 9px" }}>
-      <div style={{ color, fontWeight: 700, fontSize: 15 }}>{val}</div>
-      <div style={{ color: C.muted, fontSize: 10 }}>{label}</div>
-    </div>
-  );
-}
-function Lbl({ children }) {
-  return <div style={{ color: C.muted, fontSize: 10, letterSpacing: 1, textTransform: "uppercase", marginBottom: 6 }}>{children}</div>;
-}
-function Empty({ msg }) {
-  return <div style={{ color: C.muted, fontSize: 13, textAlign: "center", marginTop: 40 }}>{msg}</div>;
-}
-function DateGrid({ value, onChange }) {
-  return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 4, marginBottom: 14 }}>
-      {DATES.map(d => (
-        <button key={d} onClick={() => onChange(d)}
-          style={{ background: value === d ? C.accent : C.card, color: value === d ? "#000" : C.muted, border: `1px solid ${value === d ? C.accent : C.border}`, borderRadius: 5, padding: "5px 2px", cursor: "pointer", fontSize: 12, fontFamily: "inherit", fontWeight: value === d ? 700 : 400 }}>
-          {d}
-        </button>
-      ))}
-    </div>
-  );
-}
-function FileCard({ f, showLocation, onMissing, onRestore, onRemove, onMove }) {
-  return (
-    <div style={{ background: C.card, border: `1px solid ${f.status === "missing" ? C.danger : C.border}`, borderRadius: 8, padding: "10px 13px", marginBottom: 8 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <span style={{ color: C.accent, fontWeight: 700, fontSize: 15 }}>{f.id}</span>
-        {f.status === "missing" && <span style={{ color: C.danger, fontSize: 11, background: C.danger + "22", padding: "2px 7px", borderRadius: 4 }}>⚠ MISSING</span>}
-      </div>
-      {showLocation && (
-        <div style={{ color: C.text, fontSize: 12, marginTop: 4 }}>
-          📍 Date {f.mainDate}{f.subDate ? "/" + f.subDate : ""} — Col <strong>{f.col}</strong>
-        </div>
-      )}
-      <div style={{ display: "flex", gap: 7, marginTop: 9, flexWrap: "wrap" }}>
-        {f.status !== "missing"
-          ? <SmBtn label="Missing" color={C.warning} onClick={onMissing} />
-          : <SmBtn label="Wapas Mili" color={C.success} onClick={onRestore} />}
-        <SmBtn label="⇄ Move" color={C.info} onClick={onMove} />
-        <SmBtn label="Hatao" color={C.danger} onClick={onRemove} />
-      </div>
-    </div>
-  );
-}
-function SmBtn({ label, color, onClick }) {
-  return (
-    <button onClick={onClick}
-      style={{ background: color + "22", color, border: `1px solid ${color}55`, borderRadius: 5, padding: "4px 10px", fontSize: 11, cursor: "pointer", fontFamily: "inherit" }}>
-      {label}
-    </button>
-  );
-}
+</script>
+</body>
+</html>
