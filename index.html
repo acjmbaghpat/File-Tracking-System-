@@ -12,127 +12,162 @@ button{cursor:pointer;font-family:inherit;border:none;outline:none}
 
 :root{
   --bg:#f0f2f7;--surface:#fff;--card:#fff;--card2:#f7f8fc;--border:#dde1ee;
-  --accent:#1a56e8;--accent-dim:#1a56e812;--accent-light:#e8eeff;
+  --accent:#1a56e8;--accent-light:#e8eeff;
   --text:#1a1d2e;--muted:#7a82a0;
   --success:#18a558;--danger:#e03030;--warning:#d97706;--info:#0e7ac4;
   --shadow:0 2px 12px #1a56e812;--shadow-md:0 4px 24px #1a56e820;
 }
 
-#header{background:var(--accent);padding:14px 16px 12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px #1a56e840}
-#header-title{color:#fff;font-weight:700;font-size:17px;letter-spacing:.5px}
+/* ── HEADER ── */
+#header{background:var(--accent);padding:13px 16px 11px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px #1a56e840}
+#header-title{color:#fff;font-weight:700;font-size:17px}
 #header-sub{color:#b8caff;font-size:10px;margin-top:2px}
-#stats{display:flex;gap:6px}
+#stats{display:flex;gap:5px}
 .stat{text-align:center;background:#ffffff20;border-radius:6px;padding:3px 10px}
 .stat-val{font-weight:700;font-size:15px;color:#fff}
 .stat-lbl{color:#b8caff;font-size:10px}
 
+/* ── NAV ── */
 #nav{display:flex;background:var(--surface);border-bottom:1px solid var(--border);padding:0 8px;box-shadow:var(--shadow)}
 .nav-btn{background:none;color:var(--muted);font-size:13px;padding:11px 14px;border-bottom:2px solid transparent;font-weight:500;transition:all .15s}
 .nav-btn.active{color:var(--accent);border-bottom:2px solid var(--accent);font-weight:700}
 
 #content{padding:14px 13px;max-width:600px;margin:0 auto}
 .view{display:none}.view.active{display:block}
-
-.sec-title{font-weight:700;font-size:15px;margin-bottom:14px;color:var(--text)}
+.sec-title{font-weight:700;font-size:15px;margin-bottom:14px}
 .lbl{color:var(--muted);font-size:11px;letter-spacing:.5px;font-weight:600;text-transform:uppercase;margin-bottom:7px;margin-top:16px}
 .lbl:first-child{margin-top:0}
 
+/* ── DATE / COL GRIDS ── */
 .date-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px}
 .date-btn{background:var(--card2);color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:6px 2px;font-size:12px;font-weight:500;transition:all .1s}
 .date-btn.sel{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}
 .date-btn:active{transform:scale(.93)}
-
 .col-row{display:flex;gap:7px;flex-wrap:wrap}
 .col-btn{background:var(--card2);color:var(--muted);border:1.5px solid var(--border);border-radius:8px;padding:8px 18px;font-size:16px;font-weight:700;transition:all .1s}
 .col-btn.sel{background:var(--accent);color:#fff;border-color:var(--accent)}
 .col-btn:active{transform:scale(.93)}
 
+/* ── SLOT PREVIEW ── */
 .slot-preview{background:var(--accent-light);border:1.5px solid var(--accent);border-radius:10px;padding:10px 14px;margin-top:14px;font-size:13px;color:var(--muted)}
 .slot-preview strong{color:var(--accent);font-weight:700}
 
-.subdate-add-btn{background:var(--card2);border:1.5px dashed var(--border);color:var(--muted);border-radius:8px;padding:9px 14px;font-size:12px;margin-top:8px;display:inline-block;transition:border-color .15s}
-.subdate-add-btn:hover{border-color:var(--accent);color:var(--accent)}
+.subdate-add-btn{background:var(--card2);border:1.5px dashed var(--border);color:var(--muted);border-radius:8px;padding:9px 14px;font-size:12px;margin-top:8px;display:inline-block}
 .clear-btn{background:none;border:1px solid #e0303040;color:var(--danger);border-radius:4px;padding:2px 8px;font-size:10px;margin-left:8px;font-weight:600}
+.divider{height:1px;background:var(--border);margin:16px 0}
 
-/* ── FLOATING SCANNER ────────────────── */
+/* ── SCANNER OVERLAY ── */
 #scanner-overlay{
   display:none;position:fixed;inset:0;z-index:500;
-  background:#000000dd;
-  flex-direction:column;align-items:center;justify-content:center;
-  gap:18px;
+  background:#000000ee;flex-direction:column;align-items:center;justify-content:center;gap:14px;
 }
 #scanner-overlay.open{display:flex}
 
-#scanner-wrap{
-  position:relative;width:min(88vw,320px);border-radius:14px;overflow:hidden;
-  box-shadow:0 8px 40px #0006;
-}
-#scanner-video{
-  width:100%;display:block;border-radius:14px;
-  background:#111;
-}
+#scanner-wrap{position:relative;width:min(90vw,330px);border-radius:16px;overflow:hidden;box-shadow:0 8px 40px #0008}
+#scanner-video{width:100%;display:block;background:#111;aspect-ratio:1/1;object-fit:cover}
 #scanner-canvas-hidden{display:none}
 
-/* Corner aim brackets */
-.aim{position:absolute;inset:0;pointer-events:none}
-.aim::before,.aim::after,.aim-b::before,.aim-b::after{
-  content:'';position:absolute;width:32px;height:32px;border-color:#f0a500;border-style:solid;
+/* Aim corners */
+.aim,.aim-b{position:absolute;inset:0;pointer-events:none}
+.aim::before,.aim::after,.aim-b::before,.aim-b::after{content:'';position:absolute;width:30px;height:30px;border-color:#f0a500;border-style:solid}
+.aim::before{top:16px;left:16px;border-width:3px 0 0 3px;border-radius:4px 0 0 0}
+.aim::after{top:16px;right:16px;border-width:3px 3px 0 0;border-radius:0 4px 0 0}
+.aim-b::before{bottom:16px;left:16px;border-width:0 0 3px 3px;border-radius:0 0 0 4px}
+.aim-b::after{bottom:16px;right:16px;border-width:0 3px 3px 0;border-radius:0 0 4px 0}
+
+/* Scan line */
+@keyframes sl{0%{top:15%}100%{top:82%}}
+.scan-line{position:absolute;left:12%;right:12%;height:2px;background:linear-gradient(90deg,transparent,#f0a500,transparent);animation:sl 1.8s ease-in-out infinite alternate}
+
+/* Flash on scan */
+@keyframes flash{0%{opacity:.7}100%{opacity:0}}
+#scan-flash{position:absolute;inset:0;background:#fff;pointer-events:none;opacity:0}
+#scan-flash.go{animation:flash .35s ease-out forwards}
+
+#scanner-status{position:absolute;bottom:0;left:0;right:0;background:#000000bb;color:#fff;text-align:center;font-size:12px;padding:9px;font-weight:500}
+
+/* Scanner bottom controls */
+.scanner-controls{display:flex;flex-direction:column;align-items:center;gap:10px;width:min(90vw,330px)}
+.scanner-target-lbl{color:#ffffffaa;font-size:12px;text-align:center}
+
+#continuous-toggle{
+  background:#ffffff18;border:1.5px solid #ffffff44;color:#fff;
+  border-radius:9px;padding:9px 20px;font-size:13px;font-weight:600;width:100%;
 }
-.aim::before{top:18px;left:18px;border-width:3px 0 0 3px;border-radius:4px 0 0 0}
-.aim::after{top:18px;right:18px;border-width:3px 3px 0 0;border-radius:0 4px 0 0}
-.aim-b::before{bottom:18px;left:18px;border-width:0 0 3px 3px;border-radius:0 0 0 4px}
-.aim-b::after{bottom:18px;right:18px;border-width:0 3px 3px 0;border-radius:0 0 4px 0}
+#continuous-toggle.on{background:#18a55833;border-color:#18a558;color:#4eff8c}
 
-/* scan line animation */
-@keyframes scanline{0%{top:18%}100%{top:82%}}
-.scan-line{position:absolute;left:15%;right:15%;height:2px;background:#f0a50088;border-radius:2px;animation:scanline 2s ease-in-out infinite alternate}
-
-#scanner-status{
-  position:absolute;bottom:0;left:0;right:0;
-  background:#000000aa;color:#fff;text-align:center;font-size:12px;padding:10px;
+.scanner-close-btn{
+  background:#ffffff18;border:1.5px solid #ffffff44;
+  color:#fff;border-radius:9px;padding:11px 0;font-size:14px;font-weight:600;width:100%;
 }
 
+/* Scan success card */
+#scan-result-card{
+  display:none;background:#18a558;border-radius:10px;
+  padding:10px 16px;color:#fff;font-size:13px;font-weight:600;
+  width:min(90vw,330px);text-align:center;
+}
+
+/* ── OPEN SCANNER BTN ── */
 .scanner-open-btn{
   display:flex;align-items:center;gap:10px;
   background:var(--accent);color:#fff;
   border-radius:10px;padding:13px 18px;font-size:14px;font-weight:600;
   box-shadow:0 3px 14px #1a56e840;width:100%;margin-top:4px;
-  transition:transform .1s,box-shadow .1s;
 }
-.scanner-open-btn:active{transform:scale(.97)}
 .scanner-open-btn .icon{font-size:22px}
 
-.scanner-close-btn{
-  background:#ffffff22;border:1.5px solid #ffffff55;
-  color:#fff;border-radius:10px;padding:11px 38px;font-size:14px;font-weight:600;
-}
-
-/* ── REST ─── */
+/* ── INPUTS ── */
 .txt-input{width:100%;background:var(--card2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);padding:11px 13px;font-size:14px;font-family:inherit;outline:none;margin-top:4px;transition:border-color .15s}
 .txt-input:focus{border-color:var(--accent)}
 .hint{color:var(--muted);font-size:11px;margin-top:4px}
 .primary-btn{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:11px 26px;font-size:14px;font-weight:600;margin-top:12px;box-shadow:0 2px 10px #1a56e830}
 .back-btn{background:var(--card2);border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:7px 15px;font-size:12px;margin-bottom:14px;font-weight:600}
-.divider{height:1px;background:var(--border);margin:16px 0}
 
+/* ── GRID ── */
 .grid-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
 .rearrange-toggle{background:var(--card2);color:var(--muted);border:1.5px solid var(--border);border-radius:7px;padding:6px 13px;font-size:12px;font-weight:600;transition:all .15s}
-.rearrange-toggle.on{background:#d9770620;color:var(--warning);border-color:var(--warning)}
+.rearrange-toggle.on{background:#d9770618;color:var(--warning);border-color:var(--warning)}
 
-.date-section{margin-bottom:22px}
-.date-badge{background:var(--accent);color:#fff;border-radius:7px;padding:3px 13px;font-weight:700;font-size:15px;display:inline-block;margin-right:8px}
-.date-section-hdr{display:flex;align-items:center;margin-bottom:10px}
-.slot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.slot-card{background:var(--card);border:1.5px solid var(--border);border-radius:11px;padding:11px 12px;text-align:left;width:100%;transition:all .15s;box-shadow:var(--shadow)}
-.slot-card:hover{border-color:var(--accent);box-shadow:var(--shadow-md)}
-.slot-card.has-missing{border-color:var(--danger)}
-.slot-card.rm{border-color:var(--warning)}
-.slot-col-big{color:var(--accent);font-weight:800;font-size:24px;line-height:1}
+/* Color legend */
+.legend{display:flex;gap:10px;margin-bottom:12px;font-size:11px;color:var(--muted);align-items:center;flex-wrap:wrap}
+.legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:3px}
+
+.date-section{margin-bottom:20px}
+.date-badge{background:var(--accent);color:#fff;border-radius:7px;padding:3px 13px;font-weight:700;font-size:14px;display:inline-block;margin-right:8px}
+.date-section-hdr{display:flex;align-items:center;margin-bottom:9px}
+.slot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+
+/* ── SLOT CARD color states ── */
+.slot-card{
+  border-radius:11px;padding:11px 12px;text-align:left;width:100%;
+  transition:all .15s;box-shadow:var(--shadow);border:2px solid;
+}
+/* Empty - white */
+.slot-card.sc-empty{background:#fff;border-color:#dde1ee;color:var(--muted)}
+/* Half - yellow */
+.slot-card.sc-half{background:#fffbf0;border-color:#d9770680}
+/* Full - red */
+.slot-card.sc-full{background:#fff5f5;border-color:#e0303080}
+/* Has missing - red override */
+.slot-card.sc-missing{background:#fff0f0;border-color:var(--danger)}
+/* Rearrange */
+.slot-card.rm{border-color:var(--warning) !important}
+
+.slot-card:active{transform:scale(.97)}
+.slot-col-big{font-weight:800;font-size:22px;line-height:1}
+.sc-empty .slot-col-big{color:var(--muted)}
+.sc-half .slot-col-big{color:#d97706}
+.sc-full .slot-col-big,.sc-missing .slot-col-big{color:var(--danger)}
 .slot-subdate{color:var(--info);font-size:10px;margin-top:2px;font-weight:600}
-.slot-count{color:var(--muted);font-size:11px;margin-top:5px}
-.slot-missing-lbl{color:var(--danger);font-size:10px;font-weight:600}
-.rm-file-btn{display:block;width:100%;background:#d9770614;border:1px solid #d9770640;color:var(--warning);border-radius:5px;padding:4px 7px;font-size:10px;margin-top:4px;text-align:left;font-weight:600}
+.slot-count{font-size:11px;margin-top:4px}
+.sc-empty .slot-count{color:var(--muted)}
+.sc-half .slot-count{color:#d97706}
+.sc-full .slot-count,.sc-missing .slot-count{color:var(--danger)}
+.slot-missing-lbl{color:var(--danger);font-size:10px;font-weight:700;margin-top:2px}
+.rm-file-btn{display:block;width:100%;background:#d9770612;border:1px solid #d9770640;color:var(--warning);border-radius:5px;padding:4px 7px;font-size:10px;margin-top:4px;text-align:left;font-weight:600}
 
+/* ── FILE CARD ── */
 .file-card{background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:11px 13px;margin-bottom:9px;box-shadow:var(--shadow)}
 .file-card.missing{border-color:var(--danger);background:#fff5f5}
 .file-card-hdr{display:flex;justify-content:space-between;align-items:center}
@@ -145,17 +180,18 @@ button{cursor:pointer;font-family:inherit;border:none;outline:none}
 .slot-detail-hdr{color:var(--accent);font-weight:700;font-size:18px;margin-bottom:3px}
 .slot-detail-sub{color:var(--muted);font-size:12px;margin-bottom:14px}
 
+/* ── SEARCH ── */
 .search-wrap{position:relative}
 .search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:16px;pointer-events:none}
 .search-wrap .txt-input{padding-left:36px}
-.no-result{background:var(--card);border:1.5px solid var(--danger);border-radius:10px;padding:18px;color:var(--danger);text-align:center;box-shadow:var(--shadow)}
+.no-result{background:var(--card);border:1.5px solid var(--danger);border-radius:10px;padding:18px;color:var(--danger);text-align:center}
 
 .existing-wrap{margin-top:14px}
 .tag{display:inline-block;border-radius:5px;padding:3px 9px;font-size:11px;font-weight:600;background:var(--card2);border:1px solid var(--border);color:var(--text);margin:2px}
 .tag.miss{background:#fff5f5;border-color:#e0303060;color:var(--danger)}
-
 .empty{color:var(--muted);font-size:13px;text-align:center;margin-top:44px}
 
+/* ── MOVE MODAL ── */
 #move-modal{position:fixed;inset:0;background:#00000055;z-index:200;display:none;align-items:flex-end}
 #move-modal.open{display:flex}
 #move-inner{background:var(--surface);border-radius:18px 18px 0 0;padding:20px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 -4px 24px #1a1d2e20}
@@ -163,15 +199,17 @@ button{cursor:pointer;font-family:inherit;border:none;outline:none}
 .move-fileid{color:var(--info);font-size:14px;font-weight:700;margin-bottom:16px}
 .new-loc-preview{background:var(--accent-light);border:1.5px solid var(--accent);border-radius:8px;padding:9px 13px;margin-bottom:16px;font-size:13px;color:var(--muted)}
 .new-loc-preview strong{color:var(--accent)}
-.move-actions{display:flex;gap:10px}
+.move-actions{display:flex;gap:10px;margin-top:16px}
 .move-confirm{background:var(--accent);color:#fff;border:none;border-radius:9px;padding:12px 0;font-size:14px;font-weight:700;flex:1}
 .move-cancel{background:var(--card2);color:var(--muted);border:1.5px solid var(--border);border-radius:9px;padding:12px 18px;font-size:14px;font-weight:600}
 
+/* ── TOAST ── */
 #toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);border-radius:10px;padding:10px 22px;font-size:13px;font-weight:700;z-index:600;white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis;display:none;color:#fff;box-shadow:0 4px 20px #0003}
 </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <div id="header">
   <div>
     <div id="header-title">📁 Bundle Tracker</div>
@@ -186,6 +224,7 @@ button{cursor:pointer;font-family:inherit;border:none;outline:none}
   </div>
 </div>
 
+<!-- NAV -->
 <div id="nav">
   <button class="nav-btn active" data-view="grid">🗂 Grid</button>
   <button class="nav-btn" data-view="add">➕ Add</button>
@@ -199,6 +238,13 @@ button{cursor:pointer;font-family:inherit;border:none;outline:none}
     <div class="grid-toolbar">
       <div style="color:var(--muted);font-size:12px">Slot tap → detail</div>
       <button class="rearrange-toggle" id="rearrange-btn" onclick="toggleRearrange()">⇄ Rearrange</button>
+    </div>
+    <!-- Color legend -->
+    <div class="legend">
+      <span><span class="legend-dot" style="background:#dde1ee;border:1px solid #bbb"></span>Empty</span>
+      <span><span class="legend-dot" style="background:#d97706"></span>Half</span>
+      <span><span class="legend-dot" style="background:#e03030"></span>Full</span>
+      <span><span class="legend-dot" style="background:#e03030;opacity:.5"></span>⚠ Missing</span>
     </div>
     <div id="grid-content"></div>
   </div>
@@ -214,11 +260,11 @@ button{cursor:pointer;font-family:inherit;border:none;outline:none}
   <!-- ADD -->
   <div class="view" id="view-add">
     <div class="sec-title">📥 Files Add Karo</div>
-    <div class="lbl" style="margin-top:0">Main Date (1–31) — Rack ka date</div>
+    <div class="lbl" style="margin-top:0">Main Date (1–31)</div>
     <div class="date-grid" id="main-date-grid"></div>
 
     <div style="display:flex;align-items:center;margin-top:14px">
-      <div class="lbl" style="margin:0">Sub-Date <span style="font-weight:400;text-transform:none">(optional — file ki actual date)</span></div>
+      <div class="lbl" style="margin:0">Sub-Date <span style="font-weight:400;text-transform:none">(optional)</span></div>
       <button class="clear-btn" id="sub-clear-btn" onclick="clearSubDate()" style="display:none">✕ Clear</button>
     </div>
     <div id="sub-date-section">
@@ -235,10 +281,13 @@ button{cursor:pointer;font-family:inherit;border:none;outline:none}
 
     <div class="divider"></div>
 
-    <div class="lbl" style="margin-top:0">Scanner</div>
+    <div class="lbl" style="margin-top:0">QR Scanner</div>
     <button class="scanner-open-btn" onclick="openScanner()">
       <span class="icon">📷</span>
-      <div><div>QR / Barcode Scanner</div><div style="font-size:11px;opacity:.8;font-weight:400">Camera se file scan karo</div></div>
+      <div>
+        <div>QR Code Scanner</div>
+        <div style="font-size:11px;opacity:.8;font-weight:400">Camera se file scan karo</div>
+      </div>
     </button>
 
     <div class="lbl">Ya manually type karo</div>
@@ -266,13 +315,22 @@ button{cursor:pointer;font-family:inherit;border:none;outline:none}
 <!-- FLOATING SCANNER OVERLAY -->
 <div id="scanner-overlay">
   <div id="scanner-wrap">
-    <video id="scanner-video" playsinline muted autoplay></video>
+    <video id="scanner-video" playsinline muted></video>
     <canvas id="scanner-canvas-hidden"></canvas>
     <div class="aim"><div class="aim-b"></div></div>
     <div class="scan-line"></div>
+    <div id="scan-flash"></div>
     <div id="scanner-status">📷 Camera shuru ho rahi hai...</div>
   </div>
-  <button class="scanner-close-btn" onclick="closeScanner()">✕ Band Karo</button>
+
+  <!-- Scan result flash card -->
+  <div id="scan-result-card"></div>
+
+  <div class="scanner-controls">
+    <div class="scanner-target-lbl" id="scanner-target-lbl">—</div>
+    <button id="continuous-toggle" onclick="toggleContinuous()">🔁 Continuous Mode: OFF</button>
+    <button class="scanner-close-btn" onclick="closeScanner()">✕ Band Karo</button>
+  </div>
 </div>
 
 <!-- MOVE MODAL -->
@@ -312,13 +370,20 @@ let moveFileId = null;
 let addMainDate = 1, addSubDate = null, addCol = 'A';
 let moveMainDate = 1, moveSubDate = null, movCol = 'A';
 
+// Slot capacity thresholds for color coding
+const HALF_THRESHOLD = 5;   // 1-4 = half (yellow), 5+ = full (red)
+const FULL_THRESHOLD = 5;
+
 const COLUMNS = ['A','B','C','D','E','F'];
 const DATES   = Array.from({length:31}, (_, i) => i + 1);
 
-// Scanner state
-let scanStream = null;
-let scanRaf   = null;
-let scanActive = false;
+// Scanner
+let scanStream   = null;
+let scanRaf      = null;
+let scanActive   = false;
+let scanCooldown = false; // prevents duplicate in same frame burst
+let continuousMode = false;
+let lastScannedId  = '';
 
 // ══ STORAGE ════════════════════════════════════════════════════════════════
 async function loadData() {
@@ -336,7 +401,7 @@ async function save() {
 
 // ══ HELPERS ════════════════════════════════════════════════════════════════
 function slotKey(md, sd, c) { return `${md}|${sd == null ? '-' : sd}|${c}`; }
-function parseKey(k) { const [md, sd, c] = k.split('|'); return { mainDate:+md, subDate: sd==='-' ? null : +sd, col:c }; }
+function parseKey(k) { const [md, sd, c] = k.split('|'); return {mainDate:+md, subDate:sd==='-'?null:+sd, col:c}; }
 function buildSlotMap() {
   const m = {};
   Object.values(files).forEach(f => {
@@ -346,17 +411,43 @@ function buildSlotMap() {
   });
   return m;
 }
-function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function esc(s) {
+  return String(s).replace(/[&<>"']/g, c =>
+    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])
+  );
+}
+
+// slot color class
+function slotColorClass(arr) {
+  if (!arr || arr.length === 0) return 'sc-empty';
+  const hasMissing = arr.some(f => f.status === 'missing');
+  if (hasMissing) return 'sc-missing';
+  if (arr.length >= FULL_THRESHOLD) return 'sc-full';
+  return 'sc-half';
+}
+
+// ══ VOICE ══════════════════════════════════════════════════════════════════
+function speak(text) {
+  try {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'hi-IN';
+    u.rate = 1.1;
+    u.volume = 1;
+    window.speechSynthesis.speak(u);
+  } catch(e) {}
+}
 
 // ══ TOAST ══════════════════════════════════════════════════════════════════
 let toastTimer;
 function showToast(msg, type='success') {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.style.background = type==='success' ? '#18a558' : type==='warning' ? '#d97706' : '#e03030';
+  t.style.background = type==='success'?'#18a558':type==='warning'?'#d97706':'#e03030';
   t.style.display = 'block';
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => t.style.display='none', 2600);
+  toastTimer = setTimeout(() => t.style.display='none', 2500);
 }
 
 // ══ NAV ════════════════════════════════════════════════════════════════════
@@ -365,7 +456,7 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
     const v = btn.dataset.view;
     switchView(v);
     if (v === 'grid') currentSlot = null;
-    if (v === 'search') setTimeout(() => document.getElementById('search-input').focus(), 100);
+    if (v === 'search') setTimeout(() => document.getElementById('search-input').focus(), 80);
   });
 });
 function switchView(v) {
@@ -378,10 +469,9 @@ function goGrid() { currentSlot = null; switchView('grid'); renderGrid(); }
 
 // ══ RENDER ══════════════════════════════════════════════════════════════════
 function renderAll() { updateStats(); renderGrid(); renderAddForm(); renderSearch(); }
-
 function updateStats() {
-  const total  = Object.keys(files).length;
-  const miss   = Object.values(files).filter(f => f.status === 'missing').length;
+  const total = Object.keys(files).length;
+  const miss  = Object.values(files).filter(f => f.status === 'missing').length;
   document.getElementById('stat-total').textContent   = total;
   document.getElementById('stat-missing').textContent = miss;
   document.getElementById('stat-missing-box').style.display = miss > 0 ? 'block' : 'none';
@@ -393,25 +483,37 @@ function renderGrid() {
   const slotMap = buildSlotMap();
   const activeDates = [...new Set(Object.values(files).map(f => f.mainDate))].sort((a,b)=>a-b);
   const gc = document.getElementById('grid-content');
-  if (activeDates.length === 0) { gc.innerHTML = '<div class="empty">Koi file nahi. \'Add\' tab se shuru karo.</div>'; return; }
+  if (activeDates.length === 0) {
+    gc.innerHTML = '<div class="empty">Koi file nahi. \'Add\' tab se shuru karo.</div>';
+    return;
+  }
   let html = '';
   activeDates.forEach(date => {
     const slots = Object.entries(slotMap)
       .filter(([k]) => +k.split('|')[0] === date)
       .map(([k, arr]) => ({...parseKey(k), arr}));
-    const total = slots.reduce((s,x) => s + x.arr.length, 0);
+    const total = slots.reduce((s, x) => s + x.arr.length, 0);
     html += `<div class="date-section">
-      <div class="date-section-hdr"><span class="date-badge">${date}</span><span style="color:var(--muted);font-size:11px">— ${total} files</span></div>
+      <div class="date-section-hdr">
+        <span class="date-badge">${date}</span>
+        <span style="color:var(--muted);font-size:11px">— ${total} files</span>
+      </div>
       <div class="slot-grid">`;
+
     slots.forEach(({mainDate:md, subDate:sd, col:c, arr}) => {
-      const miss = arr.filter(f => f.status==='missing').length;
+      const colorCls = slotColorClass(arr);
+      const miss = arr.filter(f => f.status === 'missing').length;
+      const indicator = colorCls === 'sc-empty' ? '⚪' : colorCls === 'sc-half' ? '🟡' : '🔴';
       let rFiles = '';
       if (rearrangeMode) arr.forEach(f => {
         rFiles += `<button class="rm-file-btn" onclick="openMove('${esc(f.id)}')">⇄ ${esc(f.id)}</button>`;
       });
-      html += `<button class="slot-card${miss>0?' has-missing':''}${rearrangeMode?' rm':''}"
+      html += `<button class="slot-card ${colorCls}${rearrangeMode?' rm':''}"
         onclick="${rearrangeMode ? 'void(0)' : `openSlot(${md},${sd==null?'null':sd},'${esc(c)}')`}">
-        <div class="slot-col-big">${c}</div>
+        <div style="display:flex;align-items:center;gap:4px">
+          <div class="slot-col-big">${c}</div>
+          <div style="font-size:14px">${indicator}</div>
+        </div>
         ${sd != null ? `<div class="slot-subdate">sub: ${sd}</div>` : ''}
         <div class="slot-count">${arr.length} files</div>
         ${miss > 0 ? `<div class="slot-missing-lbl">⚠ ${miss} missing</div>` : ''}
@@ -430,15 +532,20 @@ function toggleRearrange() {
   btn.classList.toggle('on', rearrangeMode);
   renderGrid();
 }
-function openSlot(md, sd, c) { currentSlot = {mainDate:md, subDate:sd, col:c}; renderSlotDetail(); switchView('slot'); }
+function openSlot(md, sd, c) {
+  currentSlot = {mainDate:md, subDate:sd, col:c};
+  renderSlotDetail();
+  switchView('slot');
+}
 function renderSlotDetail() {
   if (!currentSlot) return;
   const {mainDate:md, subDate:sd, col:c} = currentSlot;
-  const arr = (buildSlotMap()[slotKey(md,sd,c)] || []);
+  const arr = (buildSlotMap()[slotKey(md, sd, c)] || []);
   document.getElementById('slot-detail-title').textContent = `Date ${md}${sd!=null?'/'+sd:''} — Column ${c}`;
   document.getElementById('slot-detail-sub').textContent   = `${arr.length} files`;
   document.getElementById('slot-detail-content').innerHTML =
-    arr.length === 0 ? '<div class="empty">Koi file nahi.</div>' : arr.map(f => fileCardHTML(f, false)).join('');
+    arr.length === 0 ? '<div class="empty">Koi file nahi.</div>' :
+    arr.map(f => fileCardHTML(f, false)).join('');
 }
 
 // ══ ADD FORM ════════════════════════════════════════════════════════════════
@@ -450,6 +557,7 @@ function renderAddForm() {
   }
   buildColRow('col-row', addCol, c => { addCol = c; renderAddForm(); });
   updateSlotPreview();
+  updateScannerTarget();
 }
 function buildDateGrid(id, sel, cb) {
   const el = document.getElementById(id); if (!el) return;
@@ -468,20 +576,20 @@ function enableSubDate() {
   document.getElementById('sub-date-section').innerHTML = `<div class="date-grid" id="sub-date-inner-grid"></div>`;
   document.getElementById('sub-clear-btn').style.display = 'inline-block';
   buildDateGrid('sub-date-inner-grid', addSubDate, d => { addSubDate = d; renderAddForm(); });
-  updateSlotPreview();
+  updateSlotPreview(); updateScannerTarget();
 }
 function clearSubDate() {
   addSubDate = null;
   document.getElementById('sub-date-section').innerHTML = `<button class="subdate-add-btn" onclick="enableSubDate()">+ Sub-Date add karo</button>`;
   document.getElementById('sub-clear-btn').style.display = 'none';
-  updateSlotPreview();
+  updateSlotPreview(); updateScannerTarget();
 }
 function updateSlotPreview() {
   const ex = (buildSlotMap()[slotKey(addMainDate, addSubDate, addCol)] || []);
   document.getElementById('slot-preview-txt').textContent =
     `Date ${addMainDate}${addSubDate!=null?'/'+addSubDate:''} — Col ${addCol}`;
   document.getElementById('slot-existing-count').textContent = `(${ex.length} files already)`;
-  const exBox  = document.getElementById('existing-in-slot');
+  const exBox   = document.getElementById('existing-in-slot');
   const tagList = document.getElementById('existing-tags-list');
   if (ex.length > 0) {
     exBox.style.display = 'block';
@@ -490,82 +598,151 @@ function updateSlotPreview() {
     ).join('');
   } else exBox.style.display = 'none';
 }
+function updateScannerTarget() {
+  const lbl = document.getElementById('scanner-target-lbl');
+  if (lbl) lbl.textContent =
+    `Scanning into → Date ${addMainDate}${addSubDate!=null?'/'+addSubDate:''} - Col ${addCol}`;
+}
 
 // ══ ADD FILE ════════════════════════════════════════════════════════════════
-function addFile(rawId) {
-  const id = rawId.trim().toUpperCase(); if (!id) return;
+function addFile(rawId, fromScan) {
+  const id = rawId.trim().toUpperCase(); if (!id) return false;
   if (files[id]) {
     const ex = files[id];
-    showToast(`"${id}" pehle se: Date ${ex.mainDate}${ex.subDate!=null?'/'+ex.subDate:''} Col ${ex.col}`, 'warning');
-    return;
+    if (fromScan) {
+      showScanResult(`⚠ Already: ${id} → Date ${ex.mainDate}${ex.subDate!=null?'/'+ex.subDate:''}-${ex.col}`, '#d97706');
+      speak(`${id} pehle se hai`);
+    } else {
+      showToast(`"${id}" pehle se: Date ${ex.mainDate} Col ${ex.col}`, 'warning');
+    }
+    return false;
   }
   files[id] = { id, mainDate:addMainDate, subDate:addSubDate, col:addCol, addedAt:Date.now(), status:'placed' };
   save();
-  showToast(`✓ ${id} → ${addMainDate}${addSubDate!=null?'/'+addSubDate:''}-${addCol}`);
-  updateStats(); updateSlotPreview();
+  const slotLabel = `${addMainDate}${addSubDate!=null?'/'+addSubDate:''}-${addCol}`;
+  if (fromScan) {
+    showScanResult(`✓ ${id} → Date ${slotLabel}`, '#18a558');
+    speak(`${addMainDate} ${addCol}`); // voice: "Date Col" e.g. "1 A"
+  } else {
+    showToast(`✓ ${id} → ${slotLabel}`);
+  }
+  updateStats(); updateSlotPreview(); renderGrid();
+  return true;
 }
+
 function handleManualKey(e) {
   if (e.key === 'Enter') {
     e.preventDefault();
-    document.getElementById('manual-input').value.split(/[\n,]+/).map(s=>s.trim()).filter(Boolean).forEach(addFile);
+    document.getElementById('manual-input').value
+      .split(/[\n,]+/).map(s=>s.trim()).filter(Boolean).forEach(p => addFile(p, false));
     document.getElementById('manual-input').value = '';
   }
 }
 function manualAdd() {
-  document.getElementById('manual-input').value.split(/,/).map(s=>s.trim()).filter(Boolean).forEach(addFile);
+  document.getElementById('manual-input').value
+    .split(/,/).map(s=>s.trim()).filter(Boolean).forEach(p => addFile(p, false));
   document.getElementById('manual-input').value = '';
 }
 
-// ══ QR SCANNER (jsQR + native camera) ════════════════════════════════════════
+// ══ QR SCANNER ════════════════════════════════════════════════════════════
 function openScanner() {
+  updateScannerTarget();
   document.getElementById('scanner-overlay').classList.add('open');
   document.getElementById('scanner-status').textContent = '📷 Camera shuru ho rahi hai...';
-  scanActive = true;
+  document.getElementById('scan-result-card').style.display = 'none';
+  lastScannedId = '';
+  scanCooldown  = false;
+  scanActive    = true;
 
-  const constraints = { video: { facingMode: { ideal: 'environment' } } };
-  navigator.mediaDevices.getUserMedia(constraints)
-    .then(stream => {
-      scanStream = stream;
-      const vid = document.getElementById('scanner-video');
-      vid.srcObject = stream;
-      vid.onloadedmetadata = () => {
-        vid.play();
-        document.getElementById('scanner-status').textContent = '📷 QR code frame ke andar laao';
-        scanRaf = requestAnimationFrame(doScanFrame);
-      };
-    })
-    .catch(err => {
-      document.getElementById('scanner-status').textContent = '❌ Camera nahi mili: ' + err.message;
+  navigator.mediaDevices.getUserMedia({
+    video: {
+      facingMode: { ideal: 'environment' },
+      width:  { ideal: 1280 },
+      height: { ideal: 720 }
+    }
+  })
+  .then(stream => {
+    scanStream = stream;
+    const vid = document.getElementById('scanner-video');
+    vid.srcObject = stream;
+    vid.play().then(() => {
+      document.getElementById('scanner-status').textContent = '📷 QR code ko frame ke bilkul beech mein laao';
+      scanRaf = requestAnimationFrame(doScanFrame);
     });
+  })
+  .catch(err => {
+    document.getElementById('scanner-status').textContent = '❌ Camera nahi mili: ' + err.message;
+  });
 }
 
 function doScanFrame() {
   if (!scanActive) return;
+
   const vid    = document.getElementById('scanner-video');
   const canvas = document.getElementById('scanner-canvas-hidden');
-  if (!vid || vid.readyState < 2 || vid.videoWidth === 0) {
-    scanRaf = requestAnimationFrame(doScanFrame); return;
-  }
-  canvas.width  = vid.videoWidth;
-  canvas.height = vid.videoHeight;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(vid, 0, 0);
-  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-  // jsQR check
-  if (typeof jsQR !== 'undefined') {
-    const code = jsQR(imgData.data, imgData.width, imgData.height, { inversionAttempts: 'dontInvert' });
-    if (code && code.data) {
-      document.getElementById('scanner-status').textContent = '✓ Scanned: ' + code.data;
-      const scannedValue = code.data;
-      closeScanner();
-      setTimeout(() => addFile(scannedValue), 100);
+  if (!vid || vid.readyState < 2 || vid.videoWidth === 0) {
+    scanRaf = requestAnimationFrame(doScanFrame);
+    return;
+  }
+
+  const W = vid.videoWidth;
+  const H = vid.videoHeight;
+  canvas.width  = W;
+  canvas.height = H;
+
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  ctx.drawImage(vid, 0, 0, W, H);
+
+  // crop centre square for better accuracy
+  const size    = Math.min(W, H) * 0.8;
+  const offsetX = (W - size) / 2;
+  const offsetY = (H - size) / 2;
+  const imgData = ctx.getImageData(offsetX, offsetY, size, size);
+
+  const code = jsQR(imgData.data, size, size, {
+    inversionAttempts: 'attemptBoth'
+  });
+
+  if (code && code.data && !scanCooldown) {
+    const scanned = code.data.trim();
+
+    if (!continuousMode || scanned !== lastScannedId) {
+      scanCooldown  = true;
+      lastScannedId = scanned;
+
+      // Flash effect
+      const flash = document.getElementById('scan-flash');
+      flash.classList.remove('go');
+      void flash.offsetWidth;
+      flash.classList.add('go');
+
+      const added = addFile(scanned, true);
+
+      if (!continuousMode) {
+        // Single mode: close scanner, go to grid
+        setTimeout(() => {
+          closeScanner();
+          goGrid();
+        }, 700);
+      } else {
+        // Continuous mode: keep scanning, cooldown 2 sec
+        setTimeout(() => { scanCooldown = false; }, 2000);
+        scanRaf = requestAnimationFrame(doScanFrame);
+      }
       return;
     }
-  } else {
-    document.getElementById('scanner-status').textContent = '⚠ jsQR load nahi hua, internet check karo';
   }
+
   scanRaf = requestAnimationFrame(doScanFrame);
+}
+
+function showScanResult(msg, bg) {
+  const card = document.getElementById('scan-result-card');
+  card.textContent = msg;
+  card.style.background = bg;
+  card.style.display = 'block';
+  setTimeout(() => { card.style.display = 'none'; }, 2000);
 }
 
 function closeScanner() {
@@ -575,6 +752,15 @@ function closeScanner() {
   const vid = document.getElementById('scanner-video');
   vid.srcObject = null;
   document.getElementById('scanner-overlay').classList.remove('open');
+}
+
+function toggleContinuous() {
+  continuousMode = !continuousMode;
+  lastScannedId  = '';
+  scanCooldown   = false;
+  const btn = document.getElementById('continuous-toggle');
+  btn.textContent = `🔁 Continuous Mode: ${continuousMode ? 'ON' : 'OFF'}`;
+  btn.classList.toggle('on', continuousMode);
 }
 
 // ══ FILE ACTIONS ════════════════════════════════════════════════════════════
@@ -694,7 +880,7 @@ function fileCardHTML(f, showLoc) {
   </div>`;
 }
 
-// ══ INIT ═══════════════════════════════════════════════════════════════════
+// ══ INIT ════════════════════════════════════════════════════════════════════
 (function init() {
   buildDateGrid('main-date-grid', addMainDate, d => { addMainDate = d; renderAddForm(); });
   buildColRow('col-row', addCol, c => { addCol = c; renderAddForm(); });
@@ -702,6 +888,7 @@ function fileCardHTML(f, showLoc) {
   buildColRow('move-col-row', movCol, c => { movCol = c; updateMovePreview(); buildColRow('move-col-row', movCol, arguments.callee); });
   updateSlotPreview();
   updateMovePreview();
+  updateScannerTarget();
   if (window.storage) { loadData(); } else { renderAll(); }
 })();
 </script>
