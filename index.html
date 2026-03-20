@@ -503,7 +503,8 @@ function switchTab(t){
 // ════════════════════════════════════════
 const DK=["srno","caseno","partyname","section","ps","sent","received","receiveddate","nextdate","remark"];
 let cData=[], upV=1, aFilter='all', lastRcvCase=null, dropIdx=-1;
-let sDeb, rTimer;
+let sDeb;
+const rTimers = {}; // per-case debounce timers
 function sId(id){return String(id||"").replace(/[^a-zA-Z0-9-_]/g,'_');}
 function gSrch(r){return DK.map(k=>r[k]||"").join(' ').toLowerCase();}
 function dKey(){return workDate.value+"_"+upV;}
@@ -653,10 +654,11 @@ function drawTable(data){
 }
 searchBox.addEventListener("input",()=>{clearTimeout(sDeb);sDeb=setTimeout(()=>drawTable(getFiltered()),150);});
 async function updateRemark(cn,val){
-  clearTimeout(rTimer);
-  rTimer=setTimeout(async()=>{
+  clearTimeout(rTimers[cn]);
+  rTimers[cn]=setTimeout(async()=>{
     const i=cData.findIndex(r=>r.caseno===cn);
     if(i!==-1){cData[i].remark=val;cData[i].searchableText=gSrch(cData[i]);await saveLocal();}
+    delete rTimers[cn];
   },400);
 }
 
@@ -958,7 +960,8 @@ async function bInit(){
   const all=await idbAB(); bFiles={};
   all.forEach(b=>bFiles[b.id]=b);
   bBDG('b-mdg', bAMD, d=>{ bAMD=d; bRenderColButtons(); bRenderAdd(); });
-  bBDG('bm-mdg',bMMD, d=>{ bMMD=d; bUpdateMP(); bBDG('bm-mdg',bMMD,arguments.callee); });
+  function rebuildMoveMDG(){ bBDG('bm-mdg',bMMD, d=>{ bMMD=d; bUpdateMP(); bBuildMoveCR(); rebuildMoveMDG(); }); }
+  rebuildMoveMDG();
   bBuildMoveCR();
   bRenderColButtons();
   bUpdateSP(); bUpdateMP(); bUpdateST();
@@ -1273,7 +1276,8 @@ function openMismatchModal(id, cfmDay){
   mmPending={id,cfmDay}; mmSD=1;
   document.getElementById('mm-title').textContent=`⚠ Case: ${id}`;
   document.getElementById('mm-body').textContent=`CFM next date day = ${cfmDay}, aap Date ${bAMD} mein rakh rahe ho. Mismatch!`;
-  bBDG('mm-sdg',mmSD,d=>{ mmSD=d; document.getElementById('mm-prev').textContent=`Date ${bAMD}/${d} — ${dispCol(bAC)}`; bBDG('mm-sdg',mmSD,arguments.callee); });
+  function rebuildMMSDG(){ bBDG('mm-sdg',mmSD,d=>{ mmSD=d; document.getElementById('mm-prev').textContent=`Date ${bAMD}/${d} — ${dispCol(bAC)}`; rebuildMMSDG(); }); }
+  rebuildMMSDG();
   document.getElementById('mm-prev').textContent=`Date ${bAMD}/${mmSD} — ${dispCol(bAC)}`;
   document.getElementById('mmModal').classList.add('on');
 }
