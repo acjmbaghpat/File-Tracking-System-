@@ -2,174 +2,208 @@
 <html lang="hi">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
 <title>Bundle Tracker</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  body{font-family:'Courier New',monospace;background:#0f1117;color:#e8eaf0;min-height:100vh;padding-bottom:70px}
-  :root{
-    --bg:#0f1117;--surface:#1a1d27;--card:#21253a;--border:#2e3352;
-    --accent:#f0a500;--accent-dim:#f0a50018;--text:#e8eaf0;--muted:#7a7f9a;
-    --success:#2ecc71;--danger:#e74c3c;--warning:#e67e22;--info:#3498db;
-  }
-  button{cursor:pointer;font-family:'Courier New',monospace;border:none;outline:none}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f2f7;color:#1a1d2e;min-height:100vh;padding-bottom:70px}
+button{cursor:pointer;font-family:inherit;border:none;outline:none}
 
-  /* Header */
-  #header{background:var(--surface);border-bottom:2px solid var(--accent);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-  #header-title{color:var(--accent);font-weight:700;font-size:17px;letter-spacing:2px}
-  #header-sub{color:var(--muted);font-size:10px;margin-top:2px}
-  #stats{display:flex;gap:5px}
-  .stat{text-align:center;background:#ffffff08;border-radius:5px;padding:3px 9px}
-  .stat-val{font-weight:700;font-size:15px}
-  .stat-lbl{color:var(--muted);font-size:10px}
+:root{
+  --bg:#f0f2f7;--surface:#fff;--card:#fff;--card2:#f7f8fc;--border:#dde1ee;
+  --accent:#1a56e8;--accent-dim:#1a56e812;--accent-light:#e8eeff;
+  --text:#1a1d2e;--muted:#7a82a0;
+  --success:#18a558;--danger:#e03030;--warning:#d97706;--info:#0e7ac4;
+  --shadow:0 2px 12px #1a56e812;--shadow-md:0 4px 24px #1a56e820;
+}
 
-  /* Nav */
-  #nav{display:flex;background:var(--surface);border-bottom:1px solid var(--border);padding:0 6px}
-  .nav-btn{background:none;color:var(--muted);font-size:13px;padding:10px 13px;border-bottom:2px solid transparent;font-weight:400;transition:all .15s}
-  .nav-btn.active{color:var(--accent);border-bottom:2px solid var(--accent);font-weight:700}
+#header{background:var(--accent);padding:14px 16px 12px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px #1a56e840}
+#header-title{color:#fff;font-weight:700;font-size:17px;letter-spacing:.5px}
+#header-sub{color:#b8caff;font-size:10px;margin-top:2px}
+#stats{display:flex;gap:6px}
+.stat{text-align:center;background:#ffffff20;border-radius:6px;padding:3px 10px}
+.stat-val{font-weight:700;font-size:15px;color:#fff}
+.stat-lbl{color:#b8caff;font-size:10px}
 
-  /* Content */
-  #content{padding:14px 13px}
+#nav{display:flex;background:var(--surface);border-bottom:1px solid var(--border);padding:0 8px;box-shadow:var(--shadow)}
+.nav-btn{background:none;color:var(--muted);font-size:13px;padding:11px 14px;border-bottom:2px solid transparent;font-weight:500;transition:all .15s}
+.nav-btn.active{color:var(--accent);border-bottom:2px solid var(--accent);font-weight:700}
 
-  /* Views */
-  .view{display:none}
-  .view.active{display:block}
+#content{padding:14px 13px;max-width:600px;margin:0 auto}
+.view{display:none}.view.active{display:block}
 
-  /* Labels */
-  .lbl{color:var(--muted);font-size:10px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;margin-top:14px}
-  .lbl:first-child{margin-top:0}
+.sec-title{font-weight:700;font-size:15px;margin-bottom:14px;color:var(--text)}
+.lbl{color:var(--muted);font-size:11px;letter-spacing:.5px;font-weight:600;text-transform:uppercase;margin-bottom:7px;margin-top:16px}
+.lbl:first-child{margin-top:0}
 
-  /* Date Grid */
-  .date-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:14px}
-  .date-btn{background:var(--card);color:var(--muted);border:1px solid var(--border);border-radius:5px;padding:5px 2px;font-size:12px;font-weight:400;transition:all .1s}
-  .date-btn.sel{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700}
+.date-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px}
+.date-btn{background:var(--card2);color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:6px 2px;font-size:12px;font-weight:500;transition:all .1s}
+.date-btn.sel{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:700}
+.date-btn:active{transform:scale(.93)}
 
-  /* Column buttons */
-  .col-row{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap}
-  .col-btn{background:var(--card);color:var(--muted);border:1px solid var(--border);border-radius:7px;padding:8px 16px;font-size:16px;font-weight:700;transition:all .1s}
-  .col-btn.sel{background:var(--accent);color:#000;border-color:var(--accent)}
+.col-row{display:flex;gap:7px;flex-wrap:wrap}
+.col-btn{background:var(--card2);color:var(--muted);border:1.5px solid var(--border);border-radius:8px;padding:8px 18px;font-size:16px;font-weight:700;transition:all .1s}
+.col-btn.sel{background:var(--accent);color:#fff;border-color:var(--accent)}
+.col-btn:active{transform:scale(.93)}
 
-  /* Slot preview */
-  .slot-preview{background:var(--accent-dim);border:1px solid #f0a50044;border-radius:8px;padding:9px 13px;margin-bottom:16px;font-size:13px}
-  .slot-preview span{color:var(--accent);font-weight:700}
+.slot-preview{background:var(--accent-light);border:1.5px solid var(--accent);border-radius:10px;padding:10px 14px;margin-top:14px;font-size:13px;color:var(--muted)}
+.slot-preview strong{color:var(--accent);font-weight:700}
 
-  /* Sub-date toggle */
-  .subdate-add-btn{background:var(--card);border:1px dashed var(--border);color:var(--muted);border-radius:7px;padding:8px 14px;font-size:12px;margin-bottom:14px;display:block}
-  .clear-btn{background:none;border:1px solid #e74c3c55;color:var(--danger);border-radius:4px;padding:2px 8px;font-size:10px;margin-left:8px}
+.subdate-add-btn{background:var(--card2);border:1.5px dashed var(--border);color:var(--muted);border-radius:8px;padding:9px 14px;font-size:12px;margin-top:8px;display:inline-block;transition:border-color .15s}
+.subdate-add-btn:hover{border-color:var(--accent);color:var(--accent)}
+.clear-btn{background:none;border:1px solid #e0303040;color:var(--danger);border-radius:4px;padding:2px 8px;font-size:10px;margin-left:8px;font-weight:600}
 
-  /* Scanner */
-  #scanner-box{position:relative;display:none;margin-bottom:10px}
-  #scanner-box video{width:100%;max-width:340px;border-radius:10px;border:2px solid var(--info);display:block}
-  #viewfinder{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:140px;height:140px;border:2px solid var(--accent);border-radius:8px;box-shadow:0 0 0 9999px #00000066;pointer-events:none}
-  #scanner-msg{font-size:12px;margin-bottom:10px}
-  #scanner-canvas{display:none}
-  .scan-btn{border-radius:8px;padding:10px 20px;font-size:13px;margin-bottom:12px;display:inline-block}
-  .scan-start{background:#3498db22;border:1px solid var(--info);color:var(--info)}
-  .scan-stop{background:#e74c3c22;border:1px solid var(--danger);color:var(--danger)}
+/* ── FLOATING SCANNER ────────────────── */
+#scanner-overlay{
+  display:none;position:fixed;inset:0;z-index:500;
+  background:#000000dd;
+  flex-direction:column;align-items:center;justify-content:center;
+  gap:18px;
+}
+#scanner-overlay.open{display:flex}
 
-  /* Text input */
-  .txt-input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:11px 13px;font-size:14px;font-family:'Courier New',monospace;outline:none}
-  .txt-input:focus{border-color:var(--accent)}
-  .hint{color:var(--muted);font-size:11px;margin-bottom:12px;margin-top:4px}
+#scanner-wrap{
+  position:relative;width:min(88vw,320px);border-radius:14px;overflow:hidden;
+  box-shadow:0 8px 40px #0006;
+}
+#scanner-video{
+  width:100%;display:block;border-radius:14px;
+  background:#111;
+}
+#scanner-canvas-hidden{display:none}
 
-  /* Primary btn */
-  .primary-btn{background:var(--accent);color:#000;border:none;border-radius:8px;padding:10px 24px;font-size:14px;font-weight:700}
-  .back-btn{background:none;border:1px solid var(--border);color:var(--muted);border-radius:6px;padding:6px 14px;font-size:12px;margin-bottom:14px}
+/* Corner aim brackets */
+.aim{position:absolute;inset:0;pointer-events:none}
+.aim::before,.aim::after,.aim-b::before,.aim-b::after{
+  content:'';position:absolute;width:32px;height:32px;border-color:#f0a500;border-style:solid;
+}
+.aim::before{top:18px;left:18px;border-width:3px 0 0 3px;border-radius:4px 0 0 0}
+.aim::after{top:18px;right:18px;border-width:3px 3px 0 0;border-radius:0 4px 0 0}
+.aim-b::before{bottom:18px;left:18px;border-width:0 0 3px 3px;border-radius:0 0 0 4px}
+.aim-b::after{bottom:18px;right:18px;border-width:0 3px 3px 0;border-radius:0 0 4px 0}
 
-  /* Grid view */
-  .date-section{margin-bottom:22px}
-  .date-badge{background:var(--accent);color:#000;border-radius:5px;padding:2px 13px;font-weight:700;font-size:15px;display:inline-block;margin-right:8px}
-  .date-section-hdr{display:flex;align-items:center;margin-bottom:10px}
-  .slot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
-  .slot-card{background:var(--card);border:1.5px solid var(--border);border-radius:9px;padding:10px 11px;text-align:left;width:100%;transition:border-color .15s}
-  .slot-card:hover{border-color:var(--accent)}
-  .slot-card.has-missing{border-color:var(--danger)}
-  .slot-card.rearrange{border-color:#e67e2277}
-  .slot-col{color:var(--accent);font-weight:700;font-size:22px;line-height:1}
-  .slot-subdate{color:var(--info);font-size:10px;margin-top:2px}
-  .slot-count{color:var(--text);font-size:11px;margin-top:4px}
-  .slot-missing{color:var(--danger);font-size:10px}
-  .rearrange-file-btn{display:block;width:100%;background:#e67e2222;border:1px solid #e67e2255;color:var(--warning);border-radius:4px;padding:3px 6px;font-size:10px;margin-bottom:3px;text-align:left;margin-top:6px}
+/* scan line animation */
+@keyframes scanline{0%{top:18%}100%{top:82%}}
+.scan-line{position:absolute;left:15%;right:15%;height:2px;background:#f0a50088;border-radius:2px;animation:scanline 2s ease-in-out infinite alternate}
 
-  /* Rearrange toggle */
-  .rearrange-toggle{background:var(--card);color:var(--muted);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:11px}
-  .rearrange-toggle.on{background:#e67e2233;color:var(--warning);border-color:var(--warning);font-weight:700}
-  .grid-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+#scanner-status{
+  position:absolute;bottom:0;left:0;right:0;
+  background:#000000aa;color:#fff;text-align:center;font-size:12px;padding:10px;
+}
 
-  /* File card */
-  .file-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 13px;margin-bottom:8px}
-  .file-card.missing{border-color:var(--danger)}
-  .file-card-hdr{display:flex;justify-content:space-between;align-items:center}
-  .file-id{color:var(--accent);font-weight:700;font-size:15px}
-  .missing-badge{color:var(--danger);font-size:11px;background:#e74c3c22;padding:2px 7px;border-radius:4px}
-  .file-loc{color:var(--text);font-size:12px;margin-top:4px}
-  .file-actions{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}
-  .sm-btn{border-radius:5px;padding:4px 10px;font-size:11px;font-family:'Courier New',monospace}
+.scanner-open-btn{
+  display:flex;align-items:center;gap:10px;
+  background:var(--accent);color:#fff;
+  border-radius:10px;padding:13px 18px;font-size:14px;font-weight:600;
+  box-shadow:0 3px 14px #1a56e840;width:100%;margin-top:4px;
+  transition:transform .1s,box-shadow .1s;
+}
+.scanner-open-btn:active{transform:scale(.97)}
+.scanner-open-btn .icon{font-size:22px}
 
-  /* Existing slot tags */
-  .existing-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
-  .tag{border-radius:4px;padding:3px 8px;font-size:11px}
+.scanner-close-btn{
+  background:#ffffff22;border:1.5px solid #ffffff55;
+  color:#fff;border-radius:10px;padding:11px 38px;font-size:14px;font-weight:600;
+}
 
-  /* Search */
-  .search-no-result{background:var(--card);border:1px solid var(--danger);border-radius:8px;padding:16px;color:var(--danger);text-align:center}
+/* ── REST ─── */
+.txt-input{width:100%;background:var(--card2);border:1.5px solid var(--border);border-radius:8px;color:var(--text);padding:11px 13px;font-size:14px;font-family:inherit;outline:none;margin-top:4px;transition:border-color .15s}
+.txt-input:focus{border-color:var(--accent)}
+.hint{color:var(--muted);font-size:11px;margin-top:4px}
+.primary-btn{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:11px 26px;font-size:14px;font-weight:600;margin-top:12px;box-shadow:0 2px 10px #1a56e830}
+.back-btn{background:var(--card2);border:1px solid var(--border);color:var(--muted);border-radius:7px;padding:7px 15px;font-size:12px;margin-bottom:14px;font-weight:600}
+.divider{height:1px;background:var(--border);margin:16px 0}
 
-  /* Slot detail header */
-  .slot-detail-hdr{color:var(--accent);font-weight:700;font-size:18px;margin-bottom:3px}
-  .slot-detail-sub{color:var(--muted);font-size:12px;margin-bottom:14px}
+.grid-toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.rearrange-toggle{background:var(--card2);color:var(--muted);border:1.5px solid var(--border);border-radius:7px;padding:6px 13px;font-size:12px;font-weight:600;transition:all .15s}
+.rearrange-toggle.on{background:#d9770620;color:var(--warning);border-color:var(--warning)}
 
-  /* Empty */
-  .empty{color:var(--muted);font-size:13px;text-align:center;margin-top:40px}
+.date-section{margin-bottom:22px}
+.date-badge{background:var(--accent);color:#fff;border-radius:7px;padding:3px 13px;font-weight:700;font-size:15px;display:inline-block;margin-right:8px}
+.date-section-hdr{display:flex;align-items:center;margin-bottom:10px}
+.slot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.slot-card{background:var(--card);border:1.5px solid var(--border);border-radius:11px;padding:11px 12px;text-align:left;width:100%;transition:all .15s;box-shadow:var(--shadow)}
+.slot-card:hover{border-color:var(--accent);box-shadow:var(--shadow-md)}
+.slot-card.has-missing{border-color:var(--danger)}
+.slot-card.rm{border-color:var(--warning)}
+.slot-col-big{color:var(--accent);font-weight:800;font-size:24px;line-height:1}
+.slot-subdate{color:var(--info);font-size:10px;margin-top:2px;font-weight:600}
+.slot-count{color:var(--muted);font-size:11px;margin-top:5px}
+.slot-missing-lbl{color:var(--danger);font-size:10px;font-weight:600}
+.rm-file-btn{display:block;width:100%;background:#d9770614;border:1px solid #d9770640;color:var(--warning);border-radius:5px;padding:4px 7px;font-size:10px;margin-top:4px;text-align:left;font-weight:600}
 
-  /* Move modal */
-  #move-modal{position:fixed;inset:0;background:#000c;z-index:200;display:none;align-items:flex-end}
-  #move-modal.open{display:flex}
-  #move-inner{background:var(--surface);border:1px solid var(--border);border-radius:16px 16px 0 0;padding:20px;width:100%;max-height:88vh;overflow-y:auto}
-  .move-title{color:var(--accent);font-weight:700;font-size:16px;margin-bottom:3px}
-  .move-file-id{color:var(--info);font-size:14px;font-weight:700;margin-bottom:16px}
-  .move-actions{display:flex;gap:10px;margin-top:4px}
-  .move-confirm{background:var(--accent);color:#000;border:none;border-radius:8px;padding:11px 0;font-size:14px;font-weight:700;flex:1}
-  .move-cancel{background:var(--card);color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:11px 16px;font-size:14px}
-  .new-location-preview{background:var(--accent-dim);border:1px solid #f0a50044;border-radius:7px;padding:8px 12px;margin-bottom:16px;font-size:13px}
-  .new-location-preview span{color:var(--accent);font-weight:700}
+.file-card{background:var(--card);border:1.5px solid var(--border);border-radius:10px;padding:11px 13px;margin-bottom:9px;box-shadow:var(--shadow)}
+.file-card.missing{border-color:var(--danger);background:#fff5f5}
+.file-card-hdr{display:flex;justify-content:space-between;align-items:center}
+.file-id{color:var(--accent);font-weight:700;font-size:15px}
+.missing-badge{color:var(--danger);font-size:11px;background:#e0303015;padding:2px 8px;border-radius:5px;font-weight:700}
+.file-loc{color:var(--muted);font-size:12px;margin-top:4px}
+.file-actions{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+.sm-btn{border-radius:6px;padding:5px 11px;font-size:11px;font-weight:600}
 
-  /* Toast */
-  #toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);border-radius:8px;padding:9px 20px;font-size:13px;font-weight:700;z-index:300;white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;display:none;color:#fff}
+.slot-detail-hdr{color:var(--accent);font-weight:700;font-size:18px;margin-bottom:3px}
+.slot-detail-sub{color:var(--muted);font-size:12px;margin-bottom:14px}
+
+.search-wrap{position:relative}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:16px;pointer-events:none}
+.search-wrap .txt-input{padding-left:36px}
+.no-result{background:var(--card);border:1.5px solid var(--danger);border-radius:10px;padding:18px;color:var(--danger);text-align:center;box-shadow:var(--shadow)}
+
+.existing-wrap{margin-top:14px}
+.tag{display:inline-block;border-radius:5px;padding:3px 9px;font-size:11px;font-weight:600;background:var(--card2);border:1px solid var(--border);color:var(--text);margin:2px}
+.tag.miss{background:#fff5f5;border-color:#e0303060;color:var(--danger)}
+
+.empty{color:var(--muted);font-size:13px;text-align:center;margin-top:44px}
+
+#move-modal{position:fixed;inset:0;background:#00000055;z-index:200;display:none;align-items:flex-end}
+#move-modal.open{display:flex}
+#move-inner{background:var(--surface);border-radius:18px 18px 0 0;padding:20px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 -4px 24px #1a1d2e20}
+.move-title{color:var(--accent);font-weight:700;font-size:16px;margin-bottom:3px}
+.move-fileid{color:var(--info);font-size:14px;font-weight:700;margin-bottom:16px}
+.new-loc-preview{background:var(--accent-light);border:1.5px solid var(--accent);border-radius:8px;padding:9px 13px;margin-bottom:16px;font-size:13px;color:var(--muted)}
+.new-loc-preview strong{color:var(--accent)}
+.move-actions{display:flex;gap:10px}
+.move-confirm{background:var(--accent);color:#fff;border:none;border-radius:9px;padding:12px 0;font-size:14px;font-weight:700;flex:1}
+.move-cancel{background:var(--card2);color:var(--muted);border:1.5px solid var(--border);border-radius:9px;padding:12px 18px;font-size:14px;font-weight:600}
+
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);border-radius:10px;padding:10px 22px;font-size:13px;font-weight:700;z-index:600;white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis;display:none;color:#fff;box-shadow:0 4px 20px #0003}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <div id="header">
   <div>
-    <div id="header-title">📁 BUNDLE TRACKER</div>
+    <div id="header-title">📁 Bundle Tracker</div>
     <div id="header-sub">Physical File Location System</div>
   </div>
   <div id="stats">
-    <div class="stat"><div class="stat-val" id="stat-total" style="color:var(--info)">0</div><div class="stat-lbl">Files</div></div>
-    <div class="stat" id="stat-missing-box" style="display:none"><div class="stat-val" id="stat-missing" style="color:var(--danger)">0</div><div class="stat-lbl">Missing</div></div>
+    <div class="stat"><div class="stat-val" id="stat-total">0</div><div class="stat-lbl">Files</div></div>
+    <div class="stat" id="stat-missing-box" style="display:none;background:#e0303033">
+      <div class="stat-val" id="stat-missing" style="color:#ffaaaa">0</div>
+      <div class="stat-lbl" style="color:#ffaaaa">Missing</div>
+    </div>
   </div>
 </div>
 
-<!-- NAV -->
 <div id="nav">
   <button class="nav-btn active" data-view="grid">🗂 Grid</button>
   <button class="nav-btn" data-view="add">➕ Add</button>
   <button class="nav-btn" data-view="search">🔍 Find</button>
 </div>
 
-<!-- CONTENT -->
 <div id="content">
 
-  <!-- ══ GRID VIEW ══ -->
+  <!-- GRID -->
   <div class="view active" id="view-grid">
     <div class="grid-toolbar">
-      <div style="color:var(--muted);font-size:12px">Slot tap karke detail dekho</div>
+      <div style="color:var(--muted);font-size:12px">Slot tap → detail</div>
       <button class="rearrange-toggle" id="rearrange-btn" onclick="toggleRearrange()">⇄ Rearrange</button>
     </div>
     <div id="grid-content"></div>
   </div>
 
-  <!-- ══ SLOT DETAIL VIEW ══ -->
+  <!-- SLOT DETAIL -->
   <div class="view" id="view-slot">
     <button class="back-btn" onclick="goGrid()">← Wapas</button>
     <div class="slot-detail-hdr" id="slot-detail-title"></div>
@@ -177,78 +211,87 @@
     <div id="slot-detail-content"></div>
   </div>
 
-  <!-- ══ ADD VIEW ══ -->
+  <!-- ADD -->
   <div class="view" id="view-add">
-    <div style="font-weight:700;font-size:15px;margin-bottom:14px">📥 Files Add Karo</div>
-
+    <div class="sec-title">📥 Files Add Karo</div>
     <div class="lbl" style="margin-top:0">Main Date (1–31) — Rack ka date</div>
     <div class="date-grid" id="main-date-grid"></div>
 
-    <div style="display:flex;align-items:center;margin-top:4px">
-      <div class="lbl" style="margin:0">Sub-Date — file ki alag date (optional)</div>
+    <div style="display:flex;align-items:center;margin-top:14px">
+      <div class="lbl" style="margin:0">Sub-Date <span style="font-weight:400;text-transform:none">(optional — file ki actual date)</span></div>
       <button class="clear-btn" id="sub-clear-btn" onclick="clearSubDate()" style="display:none">✕ Clear</button>
     </div>
     <div id="sub-date-section">
-      <button class="subdate-add-btn" onclick="enableSubDate()">+ Sub-Date add karo (e.g. date 1 ke rack mein date 25 ki files)</button>
+      <button class="subdate-add-btn" onclick="enableSubDate()">+ Sub-Date add karo</button>
     </div>
 
     <div class="lbl">Column</div>
     <div class="col-row" id="col-row"></div>
 
-    <div class="slot-preview" id="slot-preview">Slot → <span id="slot-preview-txt">—</span> <span id="slot-existing-count" style="color:var(--muted)"></span></div>
-
-    <!-- QR Scanner -->
-    <div class="lbl">QR / Barcode Scanner</div>
-    <button class="scan-btn scan-start" id="scan-toggle-btn" onclick="toggleScanner()">📷 Camera se Scan</button>
-    <div id="scanner-box">
-      <video id="scanner-video" playsinline muted></video>
-      <div id="viewfinder"></div>
+    <div class="slot-preview" id="slot-preview">
+      Slot → <strong id="slot-preview-txt">—</strong>
+      <span id="slot-existing-count" style="font-size:12px"></span>
     </div>
-    <canvas id="scanner-canvas"></canvas>
-    <div id="scanner-msg"></div>
 
-    <div class="lbl">Ya manually type / paste karo</div>
+    <div class="divider"></div>
+
+    <div class="lbl" style="margin-top:0">Scanner</div>
+    <button class="scanner-open-btn" onclick="openScanner()">
+      <span class="icon">📷</span>
+      <div><div>QR / Barcode Scanner</div><div style="font-size:11px;opacity:.8;font-weight:400">Camera se file scan karo</div></div>
+    </button>
+
+    <div class="lbl">Ya manually type karo</div>
     <input class="txt-input" id="manual-input" placeholder="File number type karo, Enter dabao..." onkeydown="handleManualKey(event)"/>
     <div class="hint">↵ Enter — multiple ke liye comma se alag karo</div>
     <button class="primary-btn" onclick="manualAdd()">✓ Add Karo</button>
 
-    <div id="existing-in-slot" style="margin-top:16px;display:none">
+    <div id="existing-in-slot" style="display:none" class="existing-wrap">
       <div class="lbl">Is slot mein pehle se:</div>
-      <div class="existing-tags" id="existing-tags-list"></div>
+      <div id="existing-tags-list"></div>
     </div>
   </div>
 
-  <!-- ══ SEARCH VIEW ══ -->
+  <!-- SEARCH -->
   <div class="view" id="view-search">
-    <div style="font-weight:700;font-size:15px;margin-bottom:12px">🔍 File Dhundo</div>
-    <input class="txt-input" id="search-input" placeholder="File number type karo..." oninput="renderSearch()"/>
+    <div class="sec-title">🔍 File Dhundo</div>
+    <div class="search-wrap">
+      <span class="search-icon">🔎</span>
+      <input class="txt-input" id="search-input" placeholder="File number type karo..." oninput="renderSearch()"/>
+    </div>
     <div style="margin-top:14px" id="search-results"></div>
   </div>
+</div>
 
-</div><!-- end content -->
+<!-- FLOATING SCANNER OVERLAY -->
+<div id="scanner-overlay">
+  <div id="scanner-wrap">
+    <video id="scanner-video" playsinline muted autoplay></video>
+    <canvas id="scanner-canvas-hidden"></canvas>
+    <div class="aim"><div class="aim-b"></div></div>
+    <div class="scan-line"></div>
+    <div id="scanner-status">📷 Camera shuru ho rahi hai...</div>
+  </div>
+  <button class="scanner-close-btn" onclick="closeScanner()">✕ Band Karo</button>
+</div>
 
 <!-- MOVE MODAL -->
 <div id="move-modal">
   <div id="move-inner">
-    <div class="move-title">⇄ Move / Rearrange</div>
-    <div class="move-file-id" id="move-file-lbl"></div>
-
+    <div class="move-title">⇄ File Move / Rearrange</div>
+    <div class="move-fileid" id="move-file-lbl"></div>
     <div class="lbl" style="margin-top:0">Naya Main Date</div>
     <div class="date-grid" id="move-main-date-grid"></div>
-
-    <div style="display:flex;align-items:center">
-      <div class="lbl" style="margin:0">Sub-Date (optional)</div>
+    <div style="display:flex;align-items:center;margin-top:14px">
+      <div class="lbl" style="margin:0">Sub-Date <span style="font-weight:400">(optional)</span></div>
       <button class="clear-btn" id="move-sub-clear" onclick="clearMoveSubDate()" style="display:none">✕ Clear</button>
     </div>
     <div id="move-sub-section">
       <button class="subdate-add-btn" onclick="enableMoveSubDate()">+ Sub-Date add karo</button>
     </div>
-
     <div class="lbl">Naya Column</div>
     <div class="col-row" id="move-col-row"></div>
-
-    <div class="new-location-preview">New Location → <span id="move-preview-txt">—</span></div>
-
+    <div class="new-loc-preview" style="margin-top:14px">New Location → <strong id="move-preview-txt">—</strong></div>
     <div class="move-actions">
       <button class="move-confirm" onclick="doMove()">✓ Move Karo</button>
       <button class="move-cancel" onclick="closeMove()">Cancel</button>
@@ -258,545 +301,409 @@
 
 <div id="toast"></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.js"></script>
 <script>
 // ══ STATE ══════════════════════════════════════════════════════════════════
-let files = {}; // { id: { id, mainDate, subDate, col, addedAt, status } }
+let files = {};
 let currentView = 'grid';
-let currentSlot = null; // { mainDate, subDate, col }
+let currentSlot = null;
 let rearrangeMode = false;
 let moveFileId = null;
 
-// Add form state
-let addMainDate = 1;
-let addSubDate = null;
-let addCol = 'A';
-
-// Move form state
-let moveMainDate = 1;
-let moveSubDate = null;
-let movCol = 'A';
-
-// Scanner
-let scanStream = null;
-let scanRaf = null;
-let scanning = false;
+let addMainDate = 1, addSubDate = null, addCol = 'A';
+let moveMainDate = 1, moveSubDate = null, movCol = 'A';
 
 const COLUMNS = ['A','B','C','D','E','F'];
-const DATES = Array.from({length:31},(_,i)=>i+1);
+const DATES   = Array.from({length:31}, (_, i) => i + 1);
+
+// Scanner state
+let scanStream = null;
+let scanRaf   = null;
+let scanActive = false;
 
 // ══ STORAGE ════════════════════════════════════════════════════════════════
-async function loadData(){
-  try{
-    const r = await window.storage.get('bundle_v2');
-    if(r) files = JSON.parse(r.value);
-  } catch(e){ files = {}; }
+async function loadData() {
+  try {
+    if (window.storage) {
+      const r = await window.storage.get('bundle_v2');
+      if (r) files = JSON.parse(r.value);
+    }
+  } catch(e) { files = {}; }
   renderAll();
 }
-async function save(){
-  try{ await window.storage.set('bundle_v2', JSON.stringify(files)); } catch(e){}
+async function save() {
+  try { if (window.storage) await window.storage.set('bundle_v2', JSON.stringify(files)); } catch(e) {}
 }
 
-// ══ SLOT KEY ═══════════════════════════════════════════════════════════════
-function slotKey(md, sd, c){ return `${md}|${sd == null ? '-' : sd}|${c}`; }
-function parseKey(k){ const [md,sd,c]=k.split('|'); return {mainDate:+md, subDate:sd==='-'?null:+sd, col:c}; }
-
-function buildSlotMap(){
+// ══ HELPERS ════════════════════════════════════════════════════════════════
+function slotKey(md, sd, c) { return `${md}|${sd == null ? '-' : sd}|${c}`; }
+function parseKey(k) { const [md, sd, c] = k.split('|'); return { mainDate:+md, subDate: sd==='-' ? null : +sd, col:c }; }
+function buildSlotMap() {
   const m = {};
-  Object.values(files).forEach(f=>{
+  Object.values(files).forEach(f => {
     const k = slotKey(f.mainDate, f.subDate, f.col);
-    if(!m[k]) m[k]=[];
+    if (!m[k]) m[k] = [];
     m[k].push(f);
   });
   return m;
 }
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 // ══ TOAST ══════════════════════════════════════════════════════════════════
 let toastTimer;
-function showToast(msg, type='success'){
+function showToast(msg, type='success') {
   const t = document.getElementById('toast');
   t.textContent = msg;
-  t.style.background = type==='success'?'#2ecc71':type==='warning'?'#e67e22':'#e74c3c';
+  t.style.background = type==='success' ? '#18a558' : type==='warning' ? '#d97706' : '#e03030';
   t.style.display = 'block';
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>{ t.style.display='none'; }, 2500);
+  toastTimer = setTimeout(() => t.style.display='none', 2600);
 }
 
-// ══ VIEW SWITCHING ══════════════════════════════════════════════════════════
-document.querySelectorAll('.nav-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
+// ══ NAV ════════════════════════════════════════════════════════════════════
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
     const v = btn.dataset.view;
     switchView(v);
-    if(v==='grid') currentSlot=null;
-    if(v==='search') setTimeout(()=>document.getElementById('search-input').focus(),100);
+    if (v === 'grid') currentSlot = null;
+    if (v === 'search') setTimeout(() => document.getElementById('search-input').focus(), 100);
   });
 });
-
-function switchView(v){
+function switchView(v) {
   currentView = v;
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.view===v));
-  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
-  if(v==='slot'){
-    document.getElementById('view-slot').classList.add('active');
-  } else {
-    document.getElementById('view-'+v).classList.add('active');
-  }
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.getElementById(v === 'slot' ? 'view-slot' : 'view-' + v).classList.add('active');
+}
+function goGrid() { currentSlot = null; switchView('grid'); renderGrid(); }
+
+// ══ RENDER ══════════════════════════════════════════════════════════════════
+function renderAll() { updateStats(); renderGrid(); renderAddForm(); renderSearch(); }
+
+function updateStats() {
+  const total  = Object.keys(files).length;
+  const miss   = Object.values(files).filter(f => f.status === 'missing').length;
+  document.getElementById('stat-total').textContent   = total;
+  document.getElementById('stat-missing').textContent = miss;
+  document.getElementById('stat-missing-box').style.display = miss > 0 ? 'block' : 'none';
 }
 
-function goGrid(){
-  currentSlot = null;
-  switchView('grid');
-  renderGrid();
-}
-
-// ══ RENDER ALL ═════════════════════════════════════════════════════════════
-function renderAll(){
-  updateStats();
-  renderGrid();
-  renderAddForm();
-  renderSearch();
-}
-
-function updateStats(){
-  const total = Object.keys(files).length;
-  const missing = Object.values(files).filter(f=>f.status==='missing').length;
-  document.getElementById('stat-total').textContent = total;
-  document.getElementById('stat-missing').textContent = missing;
-  document.getElementById('stat-missing-box').style.display = missing>0?'block':'none';
-}
-
-// ══ GRID VIEW ══════════════════════════════════════════════════════════════
-function renderGrid(){
-  if(currentView !== 'grid') return;
+// ══ GRID ════════════════════════════════════════════════════════════════════
+function renderGrid() {
+  if (currentView !== 'grid') return;
   const slotMap = buildSlotMap();
-  const activeDates = [...new Set(Object.values(files).map(f=>f.mainDate))].sort((a,b)=>a-b);
+  const activeDates = [...new Set(Object.values(files).map(f => f.mainDate))].sort((a,b)=>a-b);
   const gc = document.getElementById('grid-content');
-
-  if(activeDates.length===0){
-    gc.innerHTML = '<div class="empty">Koi file nahi. \'Add\' tab se shuru karo.</div>';
-    return;
-  }
-
+  if (activeDates.length === 0) { gc.innerHTML = '<div class="empty">Koi file nahi. \'Add\' tab se shuru karo.</div>'; return; }
   let html = '';
-  activeDates.forEach(date=>{
-    const slotsForDate = Object.entries(slotMap)
-      .filter(([k])=>+k.split('|')[0]===date)
-      .map(([k,arr])=>({...parseKey(k), arr}));
-    const totalInDate = slotsForDate.reduce((s,x)=>s+x.arr.length,0);
-
+  activeDates.forEach(date => {
+    const slots = Object.entries(slotMap)
+      .filter(([k]) => +k.split('|')[0] === date)
+      .map(([k, arr]) => ({...parseKey(k), arr}));
+    const total = slots.reduce((s,x) => s + x.arr.length, 0);
     html += `<div class="date-section">
-      <div class="date-section-hdr">
-        <span class="date-badge">${date}</span>
-        <span style="color:var(--muted);font-size:11px">— ${totalInDate} files</span>
-      </div>
+      <div class="date-section-hdr"><span class="date-badge">${date}</span><span style="color:var(--muted);font-size:11px">— ${total} files</span></div>
       <div class="slot-grid">`;
-
-    slotsForDate.forEach(({mainDate:md, subDate:sd, col:c, arr})=>{
-      const miss = arr.filter(f=>f.status==='missing').length;
-      const k = slotKey(md,sd,c);
-      let rearrangeFiles = '';
-      if(rearrangeMode){
-        arr.forEach(f=>{
-          rearrangeFiles += `<button class="rearrange-file-btn" onclick="openMove('${esc(f.id)}')">⇄ ${esc(f.id)}</button>`;
-        });
-      }
-      html += `<button class="slot-card${miss>0?' has-missing':''}${rearrangeMode?' rearrange':''}"
-        onclick="${rearrangeMode?'':` openSlot('${esc(md)}','${sd==null?'null':sd}','${esc(c)}')`}">
-        <div class="slot-col">${c}</div>
-        ${sd!=null?`<div class="slot-subdate">sub: ${sd}</div>`:''}
+    slots.forEach(({mainDate:md, subDate:sd, col:c, arr}) => {
+      const miss = arr.filter(f => f.status==='missing').length;
+      let rFiles = '';
+      if (rearrangeMode) arr.forEach(f => {
+        rFiles += `<button class="rm-file-btn" onclick="openMove('${esc(f.id)}')">⇄ ${esc(f.id)}</button>`;
+      });
+      html += `<button class="slot-card${miss>0?' has-missing':''}${rearrangeMode?' rm':''}"
+        onclick="${rearrangeMode ? 'void(0)' : `openSlot(${md},${sd==null?'null':sd},'${esc(c)}')`}">
+        <div class="slot-col-big">${c}</div>
+        ${sd != null ? `<div class="slot-subdate">sub: ${sd}</div>` : ''}
         <div class="slot-count">${arr.length} files</div>
-        ${miss>0?`<div class="slot-missing">⚠ ${miss} missing</div>`:''}
-        ${rearrangeFiles}
+        ${miss > 0 ? `<div class="slot-missing-lbl">⚠ ${miss} missing</div>` : ''}
+        ${rFiles}
       </button>`;
     });
-
     html += `</div></div>`;
   });
   gc.innerHTML = html;
 }
 
-function toggleRearrange(){
+function toggleRearrange() {
   rearrangeMode = !rearrangeMode;
   const btn = document.getElementById('rearrange-btn');
   btn.textContent = rearrangeMode ? '✓ Done' : '⇄ Rearrange';
   btn.classList.toggle('on', rearrangeMode);
   renderGrid();
 }
-
-function openSlot(md, sd, c){
-  currentSlot = { mainDate:+md, subDate: sd==='null'?null:+sd, col:c };
-  renderSlotDetail();
-  switchView('slot');
-}
-
-function renderSlotDetail(){
-  if(!currentSlot) return;
+function openSlot(md, sd, c) { currentSlot = {mainDate:md, subDate:sd, col:c}; renderSlotDetail(); switchView('slot'); }
+function renderSlotDetail() {
+  if (!currentSlot) return;
   const {mainDate:md, subDate:sd, col:c} = currentSlot;
-  const slotMap = buildSlotMap();
-  const arr = slotMap[slotKey(md,sd,c)] || [];
+  const arr = (buildSlotMap()[slotKey(md,sd,c)] || []);
   document.getElementById('slot-detail-title').textContent = `Date ${md}${sd!=null?'/'+sd:''} — Column ${c}`;
-  document.getElementById('slot-detail-sub').textContent = `${arr.length} files`;
-  const cont = document.getElementById('slot-detail-content');
-  if(arr.length===0){ cont.innerHTML='<div class="empty">Koi file nahi.</div>'; return; }
-  cont.innerHTML = arr.map(f=>fileCardHTML(f, false)).join('');
+  document.getElementById('slot-detail-sub').textContent   = `${arr.length} files`;
+  document.getElementById('slot-detail-content').innerHTML =
+    arr.length === 0 ? '<div class="empty">Koi file nahi.</div>' : arr.map(f => fileCardHTML(f, false)).join('');
 }
 
-// ══ ADD FORM ═══════════════════════════════════════════════════════════════
-function renderAddForm(){
-  renderDateGrid('main-date-grid', addMainDate, (d)=>{ addMainDate=d; renderAddForm(); });
-  if(addSubDate !== null){
-    renderDateGrid('sub-date-inner-grid', addSubDate, (d)=>{ addSubDate=d; renderAddForm(); });
+// ══ ADD FORM ════════════════════════════════════════════════════════════════
+function renderAddForm() {
+  buildDateGrid('main-date-grid', addMainDate, d => { addMainDate = d; renderAddForm(); });
+  if (addSubDate !== null) {
+    const el = document.getElementById('sub-date-inner-grid');
+    if (el) buildDateGrid('sub-date-inner-grid', addSubDate, d => { addSubDate = d; renderAddForm(); });
   }
-  renderColRow('col-row', addCol, (c)=>{ addCol=c; renderAddForm(); });
+  buildColRow('col-row', addCol, c => { addCol = c; renderAddForm(); });
   updateSlotPreview();
 }
-
-function renderDateGrid(containerId, selVal, cb){
-  const el = document.getElementById(containerId);
-  if(!el) return;
-  el.innerHTML = DATES.map(d=>
-    `<button class="date-btn${selVal===d?' sel':''}" onclick="(${cb.toString()})(${d})">${d}</button>`
+function buildDateGrid(id, sel, cb) {
+  const el = document.getElementById(id); if (!el) return;
+  el.innerHTML = DATES.map(d =>
+    `<button class="date-btn${sel===d?' sel':''}" onclick="(${cb})(${d})">${d}</button>`
   ).join('');
 }
-
-function renderColRow(containerId, selVal, cb){
-  const el = document.getElementById(containerId);
-  if(!el) return;
-  el.innerHTML = COLUMNS.map(c=>
-    `<button class="col-btn${selVal===c?' sel':''}" onclick="(${cb.toString()})('${c}')">${c}</button>`
+function buildColRow(id, sel, cb) {
+  const el = document.getElementById(id); if (!el) return;
+  el.innerHTML = COLUMNS.map(c =>
+    `<button class="col-btn${sel===c?' sel':''}" onclick="(${cb})('${c}')">${c}</button>`
   ).join('');
 }
-
-function enableSubDate(){
+function enableSubDate() {
   addSubDate = 1;
-  const sec = document.getElementById('sub-date-section');
-  sec.innerHTML = `<div class="date-grid" id="sub-date-inner-grid"></div>`;
+  document.getElementById('sub-date-section').innerHTML = `<div class="date-grid" id="sub-date-inner-grid"></div>`;
   document.getElementById('sub-clear-btn').style.display = 'inline-block';
-  renderDateGrid('sub-date-inner-grid', addSubDate, (d)=>{ addSubDate=d; updateSlotPreview(); renderSubDateGrid(); });
+  buildDateGrid('sub-date-inner-grid', addSubDate, d => { addSubDate = d; renderAddForm(); });
   updateSlotPreview();
 }
-
-function renderSubDateGrid(){
-  renderDateGrid('sub-date-inner-grid', addSubDate, (d)=>{ addSubDate=d; updateSlotPreview(); renderSubDateGrid(); });
-}
-
-function clearSubDate(){
+function clearSubDate() {
   addSubDate = null;
-  document.getElementById('sub-date-section').innerHTML =
-    `<button class="subdate-add-btn" onclick="enableSubDate()">+ Sub-Date add karo (e.g. date 1 ke rack mein date 25 ki files)</button>`;
+  document.getElementById('sub-date-section').innerHTML = `<button class="subdate-add-btn" onclick="enableSubDate()">+ Sub-Date add karo</button>`;
   document.getElementById('sub-clear-btn').style.display = 'none';
   updateSlotPreview();
 }
-
-function updateSlotPreview(){
-  const slotMap = buildSlotMap();
-  const k = slotKey(addMainDate, addSubDate, addCol);
-  const existing = slotMap[k] || [];
+function updateSlotPreview() {
+  const ex = (buildSlotMap()[slotKey(addMainDate, addSubDate, addCol)] || []);
   document.getElementById('slot-preview-txt').textContent =
     `Date ${addMainDate}${addSubDate!=null?'/'+addSubDate:''} — Col ${addCol}`;
-  document.getElementById('slot-existing-count').textContent = `(${existing.length} files already)`;
-
-  const exBox = document.getElementById('existing-in-slot');
+  document.getElementById('slot-existing-count').textContent = `(${ex.length} files already)`;
+  const exBox  = document.getElementById('existing-in-slot');
   const tagList = document.getElementById('existing-tags-list');
-  if(existing.length > 0){
+  if (ex.length > 0) {
     exBox.style.display = 'block';
-    tagList.innerHTML = existing.map(f=>
-      `<span class="tag" style="background:var(--card);border:1px solid ${f.status==='missing'?'var(--danger)':'var(--border)'};color:${f.status==='missing'?'var(--danger)':'var(--text)'}">
-        ${esc(f.id)}${f.status==='missing'?' ⚠':''}
-      </span>`
+    tagList.innerHTML = ex.map(f =>
+      `<span class="tag${f.status==='missing'?' miss':''}">${esc(f.id)}${f.status==='missing'?' ⚠':''}</span>`
     ).join('');
-  } else {
-    exBox.style.display = 'none';
-  }
+  } else exBox.style.display = 'none';
 }
 
 // ══ ADD FILE ════════════════════════════════════════════════════════════════
-function addFile(rawId){
-  const id = rawId.trim().toUpperCase();
-  if(!id) return;
-  if(files[id]){
+function addFile(rawId) {
+  const id = rawId.trim().toUpperCase(); if (!id) return;
+  if (files[id]) {
     const ex = files[id];
-    showToast(`"${id}" pehle se hai: Date ${ex.mainDate}${ex.subDate!=null?'/'+ex.subDate:''} Col ${ex.col}`, 'warning');
+    showToast(`"${id}" pehle se: Date ${ex.mainDate}${ex.subDate!=null?'/'+ex.subDate:''} Col ${ex.col}`, 'warning');
     return;
   }
   files[id] = { id, mainDate:addMainDate, subDate:addSubDate, col:addCol, addedAt:Date.now(), status:'placed' };
   save();
   showToast(`✓ ${id} → ${addMainDate}${addSubDate!=null?'/'+addSubDate:''}-${addCol}`);
-  updateStats();
-  updateSlotPreview();
+  updateStats(); updateSlotPreview();
 }
-
-function handleManualKey(e){
-  if(e.key === 'Enter'){
+function handleManualKey(e) {
+  if (e.key === 'Enter') {
     e.preventDefault();
-    const parts = document.getElementById('manual-input').value.split(/[\n,]+/).map(s=>s.trim()).filter(Boolean);
-    parts.forEach(p=>addFile(p));
+    document.getElementById('manual-input').value.split(/[\n,]+/).map(s=>s.trim()).filter(Boolean).forEach(addFile);
     document.getElementById('manual-input').value = '';
   }
 }
-
-function manualAdd(){
-  const val = document.getElementById('manual-input').value;
-  const parts = val.split(/,/).map(s=>s.trim()).filter(Boolean);
-  if(!parts.length) return;
-  parts.forEach(p=>addFile(p));
+function manualAdd() {
+  document.getElementById('manual-input').value.split(/,/).map(s=>s.trim()).filter(Boolean).forEach(addFile);
   document.getElementById('manual-input').value = '';
 }
 
-// ══ QR SCANNER ═════════════════════════════════════════════════════════════
-async function toggleScanner(){
-  if(scanning){ stopScanner(); return; }
-  setScanMsg('Camera shuru ho rahi hai...');
-  try{
-    const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
-    scanStream = stream;
-    const vid = document.getElementById('scanner-video');
-    vid.srcObject = stream;
-    await vid.play();
-    scanning = true;
-    document.getElementById('scanner-box').style.display = 'block';
-    document.getElementById('scan-toggle-btn').textContent = '✕ Scanner Band Karo';
-    document.getElementById('scan-toggle-btn').className = 'scan-btn scan-stop';
-    setScanMsg('QR code dikhao — scan hoga automatically');
-    scanFrame();
-  } catch(err){
-    setScanMsg('Camera nahi mili: '+err.message);
+// ══ QR SCANNER (jsQR + native camera) ════════════════════════════════════════
+function openScanner() {
+  document.getElementById('scanner-overlay').classList.add('open');
+  document.getElementById('scanner-status').textContent = '📷 Camera shuru ho rahi hai...';
+  scanActive = true;
+
+  const constraints = { video: { facingMode: { ideal: 'environment' } } };
+  navigator.mediaDevices.getUserMedia(constraints)
+    .then(stream => {
+      scanStream = stream;
+      const vid = document.getElementById('scanner-video');
+      vid.srcObject = stream;
+      vid.onloadedmetadata = () => {
+        vid.play();
+        document.getElementById('scanner-status').textContent = '📷 QR code frame ke andar laao';
+        scanRaf = requestAnimationFrame(doScanFrame);
+      };
+    })
+    .catch(err => {
+      document.getElementById('scanner-status').textContent = '❌ Camera nahi mili: ' + err.message;
+    });
+}
+
+function doScanFrame() {
+  if (!scanActive) return;
+  const vid    = document.getElementById('scanner-video');
+  const canvas = document.getElementById('scanner-canvas-hidden');
+  if (!vid || vid.readyState < 2 || vid.videoWidth === 0) {
+    scanRaf = requestAnimationFrame(doScanFrame); return;
   }
-}
-
-function stopScanner(){
-  scanning = false;
-  cancelAnimationFrame(scanRaf);
-  if(scanStream){ scanStream.getTracks().forEach(t=>t.stop()); scanStream=null; }
-  document.getElementById('scanner-box').style.display = 'none';
-  document.getElementById('scan-toggle-btn').textContent = '📷 Camera se Scan';
-  document.getElementById('scan-toggle-btn').className = 'scan-btn scan-start';
-  setScanMsg('');
-}
-
-function setScanMsg(msg){
-  const el = document.getElementById('scanner-msg');
-  el.textContent = msg;
-  el.style.color = msg.startsWith('✓') ? 'var(--success)' : 'var(--muted)';
-}
-
-function scanFrame(){
-  if(!scanning) return;
-  const vid = document.getElementById('scanner-video');
-  const canvas = document.getElementById('scanner-canvas');
-  if(vid.readyState < 2){ scanRaf = requestAnimationFrame(scanFrame); return; }
-  canvas.width = vid.videoWidth;
+  canvas.width  = vid.videoWidth;
   canvas.height = vid.videoHeight;
   const ctx = canvas.getContext('2d');
-  ctx.drawImage(vid,0,0);
-  const img = ctx.getImageData(0,0,canvas.width,canvas.height);
-  if(window.jsQR){
-    const code = jsQR(img.data, img.width, img.height);
-    if(code && code.data){
-      setScanMsg(`✓ Scanned: ${code.data}`);
-      addFile(code.data);
-      stopScanner();
+  ctx.drawImage(vid, 0, 0);
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+  // jsQR check
+  if (typeof jsQR !== 'undefined') {
+    const code = jsQR(imgData.data, imgData.width, imgData.height, { inversionAttempts: 'dontInvert' });
+    if (code && code.data) {
+      document.getElementById('scanner-status').textContent = '✓ Scanned: ' + code.data;
+      const scannedValue = code.data;
+      closeScanner();
+      setTimeout(() => addFile(scannedValue), 100);
       return;
     }
+  } else {
+    document.getElementById('scanner-status').textContent = '⚠ jsQR load nahi hua, internet check karo';
   }
-  scanRaf = requestAnimationFrame(scanFrame);
+  scanRaf = requestAnimationFrame(doScanFrame);
+}
+
+function closeScanner() {
+  scanActive = false;
+  cancelAnimationFrame(scanRaf);
+  if (scanStream) { scanStream.getTracks().forEach(t => t.stop()); scanStream = null; }
+  const vid = document.getElementById('scanner-video');
+  vid.srcObject = null;
+  document.getElementById('scanner-overlay').classList.remove('open');
 }
 
 // ══ FILE ACTIONS ════════════════════════════════════════════════════════════
-function setStatus(id, status){
-  if(!files[id]) return;
-  files[id].status = status;
-  save();
-  showToast(status==='missing'?`⚠ Missing: ${id}`:`✓ Restored: ${id}`, status==='missing'?'warning':'success');
-  updateStats();
-  renderGrid();
-  if(currentView==='slot') renderSlotDetail();
-  if(currentView==='search') renderSearch();
+function setStatus(id, status) {
+  if (!files[id]) return;
+  files[id].status = status; save();
+  showToast(status==='missing' ? `⚠ Missing: ${id}` : `✓ Restored: ${id}`, status==='missing'?'warning':'success');
+  updateStats(); renderGrid();
+  if (currentView === 'slot') renderSlotDetail();
+  if (currentView === 'search') renderSearch();
 }
-
-function removeFile(id){
-  delete files[id];
-  save();
+function removeFile(id) {
+  delete files[id]; save();
   showToast(`Hata diya: ${id}`, 'danger');
-  updateStats();
-  renderGrid();
-  if(currentView==='slot') renderSlotDetail();
-  if(currentView==='search') renderSearch();
+  updateStats(); renderGrid();
+  if (currentView === 'slot') renderSlotDetail();
+  if (currentView === 'search') renderSearch();
 }
 
 // ══ MOVE MODAL ══════════════════════════════════════════════════════════════
-function openMove(id){
+function openMove(id) {
   moveFileId = id;
   const f = files[id];
-  moveMainDate = f.mainDate;
-  moveSubDate = f.subDate ?? null;
-  movCol = f.col;
+  moveMainDate = f.mainDate; moveSubDate = f.subDate ?? null; movCol = f.col;
   document.getElementById('move-file-lbl').textContent = id;
   renderMoveForm();
   document.getElementById('move-modal').classList.add('open');
 }
+function closeMove() { document.getElementById('move-modal').classList.remove('open'); moveFileId = null; }
+document.getElementById('move-modal').addEventListener('click', function(e) { if (e.target===this) closeMove(); });
 
-function closeMove(){
-  document.getElementById('move-modal').classList.remove('open');
-  moveFileId = null;
-}
-
-document.getElementById('move-modal').addEventListener('click', function(e){
-  if(e.target === this) closeMove();
-});
-
-function renderMoveForm(){
-  renderDateGrid('move-main-date-grid', moveMainDate, (d)=>{ moveMainDate=d; updateMovePreview(); renderMoveMainGrid(); });
-  renderColRow('move-col-row', movCol, (c)=>{ movCol=c; updateMovePreview(); renderMoveColRow(); });
-  if(moveSubDate !== null){
-    const sec = document.getElementById('move-sub-section');
-    if(!document.getElementById('move-sub-inner-grid')){
+function renderMoveForm() {
+  buildDateGrid('move-main-date-grid', moveMainDate, d => { moveMainDate = d; renderMoveForm(); });
+  buildColRow('move-col-row', movCol, c => { movCol = c; renderMoveForm(); });
+  const sec = document.getElementById('move-sub-section');
+  if (moveSubDate !== null) {
+    if (!document.getElementById('move-sub-inner-grid')) {
       sec.innerHTML = `<div class="date-grid" id="move-sub-inner-grid"></div>`;
       document.getElementById('move-sub-clear').style.display = 'inline-block';
     }
-    renderDateGrid('move-sub-inner-grid', moveSubDate, (d)=>{ moveSubDate=d; updateMovePreview(); renderMoveSubGrid(); });
+    buildDateGrid('move-sub-inner-grid', moveSubDate, d => { moveSubDate = d; renderMoveForm(); });
   } else {
-    document.getElementById('move-sub-section').innerHTML =
-      `<button class="subdate-add-btn" onclick="enableMoveSubDate()">+ Sub-Date add karo</button>`;
+    sec.innerHTML = `<button class="subdate-add-btn" onclick="enableMoveSubDate()">+ Sub-Date add karo</button>`;
     document.getElementById('move-sub-clear').style.display = 'none';
   }
   updateMovePreview();
 }
-
-function renderMoveMainGrid(){
-  renderDateGrid('move-main-date-grid', moveMainDate, (d)=>{ moveMainDate=d; updateMovePreview(); renderMoveMainGrid(); });
-}
-function renderMoveSubGrid(){
-  renderDateGrid('move-sub-inner-grid', moveSubDate, (d)=>{ moveSubDate=d; updateMovePreview(); renderMoveSubGrid(); });
-}
-function renderMoveColRow(){
-  renderColRow('move-col-row', movCol, (c)=>{ movCol=c; updateMovePreview(); renderMoveColRow(); });
-}
-
-function enableMoveSubDate(){
+function enableMoveSubDate() {
   moveSubDate = 1;
-  const sec = document.getElementById('move-sub-section');
-  sec.innerHTML = `<div class="date-grid" id="move-sub-inner-grid"></div>`;
+  document.getElementById('move-sub-section').innerHTML = `<div class="date-grid" id="move-sub-inner-grid"></div>`;
   document.getElementById('move-sub-clear').style.display = 'inline-block';
-  renderDateGrid('move-sub-inner-grid', moveSubDate, (d)=>{ moveSubDate=d; updateMovePreview(); renderMoveSubGrid(); });
+  buildDateGrid('move-sub-inner-grid', moveSubDate, d => { moveSubDate = d; renderMoveForm(); });
   updateMovePreview();
 }
-
-function clearMoveSubDate(){
+function clearMoveSubDate() {
   moveSubDate = null;
-  document.getElementById('move-sub-section').innerHTML =
-    `<button class="subdate-add-btn" onclick="enableMoveSubDate()">+ Sub-Date add karo</button>`;
+  document.getElementById('move-sub-section').innerHTML = `<button class="subdate-add-btn" onclick="enableMoveSubDate()">+ Sub-Date add karo</button>`;
   document.getElementById('move-sub-clear').style.display = 'none';
   updateMovePreview();
 }
-
-function updateMovePreview(){
+function updateMovePreview() {
   document.getElementById('move-preview-txt').textContent =
     `Date ${moveMainDate}${moveSubDate!=null?'/'+moveSubDate:''} — Col ${movCol}`;
 }
-
-function doMove(){
-  if(!moveFileId) return;
+function doMove() {
+  if (!moveFileId) return;
   files[moveFileId].mainDate = moveMainDate;
-  files[moveFileId].subDate = moveSubDate;
-  files[moveFileId].col = movCol;
+  files[moveFileId].subDate  = moveSubDate;
+  files[moveFileId].col      = movCol;
   save();
   showToast(`✓ Moved → Date ${moveMainDate}${moveSubDate!=null?'/'+moveSubDate:''}-${movCol}`);
-  closeMove();
-  renderGrid();
-  if(currentView==='slot'){ currentSlot=null; goGrid(); }
-  if(currentView==='search') renderSearch();
-  if(currentView==='add') updateSlotPreview();
+  closeMove(); renderGrid();
+  if (currentView === 'slot') { currentSlot = null; goGrid(); }
+  if (currentView === 'search') renderSearch();
+  if (currentView === 'add') updateSlotPreview();
 }
 
 // ══ SEARCH ══════════════════════════════════════════════════════════════════
-function renderSearch(){
-  if(currentView !== 'search' && document.getElementById('search-input').value === '') return;
-  const q = document.getElementById('search-input').value.trim().toLowerCase();
-  const res = document.getElementById('search-results');
-  const missing = Object.values(files).filter(f=>f.status==='missing');
+function renderSearch() {
+  const q    = document.getElementById('search-input').value.trim().toLowerCase();
+  const res  = document.getElementById('search-results');
+  const miss = Object.values(files).filter(f => f.status === 'missing');
   const total = Object.keys(files).length;
-
-  if(q.length > 0){
-    const results = Object.values(files).filter(f=>f.id.toLowerCase().includes(q));
-    if(results.length === 0){
-      res.innerHTML = `<div class="search-no-result">❌ "${esc(q)}" nahi mili<div style="color:var(--muted);font-size:12px;margin-top:4px">Missing hai ya add nahi ki gayi</div></div>`;
-    } else {
-      res.innerHTML = results.map(f=>fileCardHTML(f, true)).join('');
-    }
+  if (q.length > 0) {
+    const results = Object.values(files).filter(f => f.id.toLowerCase().includes(q));
+    res.innerHTML = results.length === 0
+      ? `<div class="no-result">❌ "${esc(q)}" nahi mili<div style="color:var(--muted);font-size:12px;margin-top:4px">Missing hai ya add nahi ki gayi</div></div>`
+      : results.map(f => fileCardHTML(f, true)).join('');
     return;
   }
-
-  if(missing.length > 0){
-    res.innerHTML = `<div style="color:var(--danger);font-weight:700;margin-bottom:8px">⚠ Missing Files (${missing.length})</div>` +
-      missing.map(f=>fileCardHTML(f, true)).join('');
+  if (miss.length > 0) {
+    res.innerHTML = `<div style="color:var(--danger);font-weight:700;margin-bottom:10px">⚠ Missing Files (${miss.length})</div>` +
+      miss.map(f => fileCardHTML(f, true)).join('');
     return;
   }
-  if(total > 0){
-    res.innerHTML = `<div style="color:var(--muted);font-size:13px;text-align:center;margin-top:30px">✓ Koi missing nahi</div>`;
-    return;
-  }
-  res.innerHTML = `<div class="empty">Koi file add nahi ki abhi.</div>`;
+  res.innerHTML = total > 0
+    ? `<div style="color:var(--success);font-size:13px;text-align:center;margin-top:30px;font-weight:600">✓ Koi missing nahi</div>`
+    : `<div class="empty">Koi file add nahi ki abhi.</div>`;
 }
 
-// ══ FILE CARD HTML ══════════════════════════════════════════════════════════
-function fileCardHTML(f, showLoc){
+// ══ FILE CARD ════════════════════════════════════════════════════════════════
+function fileCardHTML(f, showLoc) {
   const id = esc(f.id);
   return `<div class="file-card${f.status==='missing'?' missing':''}">
     <div class="file-card-hdr">
       <span class="file-id">${id}</span>
-      ${f.status==='missing'?`<span class="missing-badge">⚠ MISSING</span>`:''}
+      ${f.status==='missing' ? `<span class="missing-badge">⚠ MISSING</span>` : ''}
     </div>
-    ${showLoc?`<div class="file-loc">📍 Date ${f.mainDate}${f.subDate!=null?'/'+f.subDate:''} — Col <strong>${f.col}</strong></div>`:''}
+    ${showLoc ? `<div class="file-loc">📍 Date ${f.mainDate}${f.subDate!=null?'/'+f.subDate:''} — Col <strong>${f.col}</strong></div>` : ''}
     <div class="file-actions">
-      ${f.status!=='missing'
-        ?`<button class="sm-btn" style="background:#e67e2222;color:var(--warning);border:1px solid #e67e2255" onclick="setStatus('${id}','missing')">Missing</button>`
-        :`<button class="sm-btn" style="background:#2ecc7122;color:var(--success);border:1px solid #2ecc7155" onclick="setStatus('${id}','placed')">Wapas Mili</button>`
-      }
-      <button class="sm-btn" style="background:#3498db22;color:var(--info);border:1px solid #3498db55" onclick="openMove('${id}')">⇄ Move</button>
-      <button class="sm-btn" style="background:#e74c3c22;color:var(--danger);border:1px solid #e74c3c55" onclick="removeFile('${id}')">Hatao</button>
+      ${f.status !== 'missing'
+        ? `<button class="sm-btn" style="background:#d9770614;color:var(--warning);border:1px solid #d9770640" onclick="setStatus('${id}','missing')">Missing</button>`
+        : `<button class="sm-btn" style="background:#18a55814;color:var(--success);border:1px solid #18a55840" onclick="setStatus('${id}','placed')">Wapas Mili</button>`}
+      <button class="sm-btn" style="background:#0e7ac414;color:var(--info);border:1px solid #0e7ac440" onclick="openMove('${id}')">⇄ Move</button>
+      <button class="sm-btn" style="background:#e0303014;color:var(--danger);border:1px solid #e0303040" onclick="removeFile('${id}')">Hatao</button>
     </div>
   </div>`;
 }
 
-function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
 // ══ INIT ═══════════════════════════════════════════════════════════════════
-// Build initial add form grids immediately
-(function initAddForm(){
-  // Main date grid
-  const mg = document.getElementById('main-date-grid');
-  mg.innerHTML = DATES.map(d=>
-    `<button class="date-btn${addMainDate===d?' sel':''}" onclick="addMainDate=${d};renderAddForm()">${d}</button>`
-  ).join('');
-
-  // Col row
-  const cr = document.getElementById('col-row');
-  cr.innerHTML = COLUMNS.map(c=>
-    `<button class="col-btn${addCol===c?' sel':''}" onclick="addCol='${c}';renderAddForm()">${c}</button>`
-  ).join('');
+(function init() {
+  buildDateGrid('main-date-grid', addMainDate, d => { addMainDate = d; renderAddForm(); });
+  buildColRow('col-row', addCol, c => { addCol = c; renderAddForm(); });
+  buildDateGrid('move-main-date-grid', moveMainDate, d => { moveMainDate = d; updateMovePreview(); buildDateGrid('move-main-date-grid', moveMainDate, arguments.callee); });
+  buildColRow('move-col-row', movCol, c => { movCol = c; updateMovePreview(); buildColRow('move-col-row', movCol, arguments.callee); });
   updateSlotPreview();
-})();
-
-// Build move col row
-(function initMoveColRow(){
-  const el = document.getElementById('move-col-row');
-  el.innerHTML = COLUMNS.map(c=>
-    `<button class="col-btn${movCol===c?' sel':''}" onclick="movCol='${c}';updateMovePreview();renderMoveColRow()">${c}</button>`
-  ).join('');
-  const mg = document.getElementById('move-main-date-grid');
-  mg.innerHTML = DATES.map(d=>
-    `<button class="date-btn${moveMainDate===d?' sel':''}" onclick="moveMainDate=${d};updateMovePreview();renderMoveMainGrid()">${d}</button>`
-  ).join('');
   updateMovePreview();
+  if (window.storage) { loadData(); } else { renderAll(); }
 })();
-
-// Load data from storage
-if(window.storage){
-  loadData();
-} else {
-  renderAll();
-}
 </script>
 </body>
 </html>
